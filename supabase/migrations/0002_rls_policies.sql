@@ -31,15 +31,19 @@ create policy "profiles_select_own" on profiles
 create policy "profiles_update_own" on profiles
   for update using (id = auth.uid());
 
--- Block clients from changing their own role. Only service_role (which
--- bypasses RLS and triggers via session_replication_role) or admins can.
+-- Block clients from changing their own role. A NULL auth.uid() means there is
+-- no authenticated JWT — i.e. the change comes from the SQL editor or a
+-- service_role server context, which is trusted (used to bootstrap the first
+-- admin). Only an authenticated non-admin user is blocked.
 create or replace function public.prevent_role_change()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  if new.rol is distinct from old.rol and not public.is_admin() then
+  if new.rol is distinct from old.rol
+     and auth.uid() is not null
+     and not public.is_admin() then
     raise exception 'No autorizado: no puedes cambiar el rol';
   end if;
   return new;

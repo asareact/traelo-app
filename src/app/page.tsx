@@ -270,8 +270,8 @@ export default async function Home() {
             </Reveal>
           </div>
           <p className="mt-6 text-sm text-muted">
-            El peso real se confirma cuando el paquete llega al casillero, con
-            foto como evidencia. Puedes verificarlo en persona al recoger.
+            El peso real se confirma cuando tu pedido llega a EE.UU., con foto
+            como evidencia. Puedes verificarlo en persona al recoger.
           </p>
         </div>
       </section>
@@ -383,15 +383,15 @@ export default async function Home() {
                 </thead>
                 <tbody>
                   <TiempoRow
-                    tramo="SHEIN → Casillero EE.UU."
-                    desc="Lo que tarda SHEIN en enviar a Florida"
+                    tramo="SHEIN → EE.UU."
+                    desc="Lo que tarda SHEIN en enviar tu pedido a EE.UU."
                     std="15-20 días"
                     exp="15-20 días"
                     expTag="No cambia"
                   />
                   <TiempoRow
-                    tramo="Casillero → Cuba"
-                    desc="Desde que consolidamos hasta Cuba"
+                    tramo="EE.UU. → Cuba"
+                    desc="Desde que tenemos tu pedido en EE.UU. hasta Cuba"
                     std="7-15 días"
                     exp="5-7 días"
                     expTag="Express"
@@ -417,7 +417,9 @@ export default async function Home() {
             </div>
           </Reveal>
           <p className="mt-4 text-sm text-muted">
-            En temporada alta (noviembre-enero) pueden ser 5-7 días más.
+            El express solo acelera el tramo de EE.UU. a Cuba, una vez que ya
+            tenemos tu pedido. No cambia el tiempo de SHEIN. En temporada alta
+            (noviembre-enero) pueden ser 5-7 días más.
           </p>
         </div>
       </section>
@@ -448,8 +450,8 @@ export default async function Home() {
                 note="Guardamos el comprobante del pago en SHEIN y los links reales de cada artículo para que los consultes cuando quieras."
               >
                 Cuando aceptas el precio confirmado, pagas el total de los
-                artículos por el canal que acordemos (Zelle, transferencia,
-                MLC…). El pedido queda en espera hasta confirmar el pago.
+                artículos en persona: en CUP efectivo (al cambio del Toque),
+                USD o MLC. El pedido queda en espera hasta confirmar el pago.
               </Pago>
             </Reveal>
             <Reveal>
@@ -459,9 +461,9 @@ export default async function Home() {
                 accent
                 note="Artículos menores a 1 lb se cobran como 1 lb. Pedidos de más de 10 lbs tienen descuento automático."
               >
-                Cuando el paquete llega al casillero en Florida, lo pesamos y te
-                enviamos la foto del peso como evidencia. Así sabes exactamente
-                cuánto pesó antes de recogerlo.
+                Cuando tu pedido llega a EE.UU., lo pesamos y te enviamos la
+                foto del peso como evidencia. Así sabes exactamente cuánto pesó
+                antes de recogerlo.
               </Pago>
             </Reveal>
             <Reveal>
@@ -496,7 +498,7 @@ export default async function Home() {
                 cobro.
               </Faq>
               <Faq q="¿Cuándo y cómo sé cuánto pesó mi pedido?">
-                Cuando el paquete llega al casillero lo pesamos y te enviamos{" "}
+                Cuando tu pedido llega a EE.UU. lo pesamos y te enviamos{" "}
                 <strong className="text-text">foto del peso</strong> por
                 adelantado. Así, cuando vayas a recoger tu pedido, ya sabes
                 exactamente cuánto pesó y cuánto vas a pagar por las libras.
@@ -526,9 +528,9 @@ export default async function Home() {
                 Se ofrece automáticamente al confirmar el envío.
               </Faq>
               <Faq q="¿Y si llega dañado o con artículos incorrectos?">
-                Guardamos evidencia fotográfica del contenido al recibirlo en el
-                casillero. Si hay algo incorrecto o dañado, lo notificamos antes
-                del envío a Cuba y tenemos la documentación para resolver.
+                Guardamos evidencia fotográfica del contenido al recibirlo en
+                EE.UU. Si hay algo incorrecto o dañado, lo notificamos antes del
+                envío a Cuba y tenemos la documentación para resolver.
               </Faq>
             </div>
           </Reveal>

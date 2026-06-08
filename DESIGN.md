@@ -214,8 +214,17 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 | Casillero → Cuba | 7-15 días | 5-7 días |
 | **Total** | **22-35 días** | **20-27 días** |
 
+### Canales de pago
+Todo pago es **personal/en persona**: **CUP efectivo** (al cambio del Toque), **USD** o **MLC**. No hay Zelle ni transferencias bancarias internacionales. No hay pasarela de pago en la plataforma.
+
+### Terminología client-facing (IMPORTANTE)
+La palabra **"casillero"** NO se muestra nunca al cliente. Internamente usamos un casillero (WeShipYou) como lógica de negocio, pero al cliente se le habla de **"EE.UU."** / "nuestro almacén en EE.UU." / "cuando tenemos tu pedido". Los nombres de estado internos (`EN_CASILLERO`, `EN_CAMINO_CASILLERO`) se quedan en la DB, pero sus **labels visibles** son "Recibido en EE.UU." y "En camino a EE.UU." (ver `ESTADO_LABEL` en `src/lib/types.ts`).
+
+### Express (aclaración)
+El envío express **solo acelera el tramo EE.UU. → Cuba** (una vez que el pedido está en nuestro poder en EE.UU.). NO acelera la compra/envío de SHEIN (ese tramo es igual: 15-20 días). Solo disponible para pedidos de 10+ lbs.
+
 ### Flujo de pago (2 momentos distintos)
-1. **Pago del producto:** Cliente paga el total de los artículos SHEIN + markup cuando acepta el precio. El pedido queda en `PENDIENTE_PAGO` hasta que se confirme el pago. Solo después el admin compra en SHEIN.
+1. **Pago del producto:** Cliente paga el total de los artículos SHEIN + markup cuando acepta el precio, en persona (CUP/USD/MLC). El pedido queda en `PENDIENTE_PAGO` hasta que se confirme el pago. Solo después el admin compra en SHEIN.
 2. **Aviso del peso (NO es pago):** Cuando el paquete llega al casillero (`EN_CASILLERO`), el admin lo pesa y envía foto del peso como evidencia. Esto es un **aviso por adelantado** — el cliente ya sabe cuánto pesó antes de recoger.
 3. **Pago de libras:** Se cobra **al recoger el pedido** (estado `DISPONIBLE_ENTREGA` / entrega en Cuba), no cuando llega al casillero. Para ese momento el cliente ya conoce el peso (paso 2). Puede verificar el peso en persona al recoger.
 

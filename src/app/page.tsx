@@ -1,6 +1,25 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/logo";
+import { Reveal } from "@/components/reveal";
+import {
+  IconLink,
+  IconShield,
+  IconWallet,
+  IconTruck,
+  IconScale,
+  IconShirt,
+  IconShoe,
+  IconSparkle,
+  IconBag,
+  IconHome,
+  IconBox,
+  IconWhatsapp,
+} from "@/components/icons";
+
+// Subtle film grain overlay (premium tactile texture).
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E\")";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -8,7 +27,6 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // WhatsApp number from config (public read). Falls back gracefully.
   const { data: cfg } = await supabase
     .from("config")
     .select("value")
@@ -16,300 +34,388 @@ export default async function Home() {
     .single();
   const whatsapp = cfg?.value && cfg.value !== "0000000000" ? cfg.value : null;
   const waHref = whatsapp ? `https://wa.me/${whatsapp}` : "#contacto";
-
   const pedidoHref = user ? "/pedidos/nuevo" : "/login?next=/pedidos/nuevo";
 
   return (
     <div className="bg-bg text-text">
       {/* ─── NAV ─── */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[#1c1714]/95 px-6 py-4 backdrop-blur">
+      <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[#1c1714]/90 px-6 py-4 backdrop-blur-md">
         <Logo variant="light" size={32} />
-        <div className="hidden items-center gap-6 text-sm font-semibold text-[#8c7f76] md:flex">
-          <a href="#como-funciona" className="hover:text-[#f0ebe0]">
+        <div className="hidden items-center gap-7 text-sm font-semibold text-[#9b8e84] md:flex">
+          <a href="#como-funciona" className="transition hover:text-[#f0ebe0]">
             ¿Cómo funciona?
           </a>
-          <a href="#precios" className="hover:text-[#f0ebe0]">
+          <a href="#precios" className="transition hover:text-[#f0ebe0]">
             Precios
           </a>
-          <a href="#tiempos" className="hover:text-[#f0ebe0]">
+          <a href="#tiempos" className="transition hover:text-[#f0ebe0]">
             Tiempos
           </a>
-          <a href="#como-pago" className="hover:text-[#f0ebe0]">
-            Pagos
-          </a>
-          <a href="#faq" className="hover:text-[#f0ebe0]">
+          <a href="#faq" className="transition hover:text-[#f0ebe0]">
             FAQ
           </a>
         </div>
         <Link
           href={pedidoHref}
-          className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white"
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90"
         >
           Hacer un pedido
         </Link>
       </nav>
 
       {/* ─── 1. HERO ─── */}
-      <section
-        className="flex min-h-[92svh] flex-col justify-end px-6 pb-14 pt-10 text-[#f0ebe0] sm:px-12"
-        style={{
-          background:
-            "linear-gradient(155deg, #2A1A12 0%, #1C1714 45%, #081410 100%)",
-        }}
-      >
-        <div className="max-w-3xl">
-          <span className="mb-7 inline-flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-bold text-accent">
-            ● 247 pedidos entregados exitosamente
-          </span>
-          <h1 className="font-display text-6xl font-extrabold leading-[1.0] tracking-tight sm:text-8xl">
-            Tu pedido de
-            <br />
-            SHEIN llega a{" "}
-            <em className="not-italic text-primary">Cuba.</em>
-          </h1>
-          <p className="mt-5 max-w-md text-base text-[#8c7f76] sm:text-lg">
-            Pega el link del producto que quieres. Nosotros lo compramos, lo
-            enviamos, y tú ves cada paso en tiempo real. Sin transferencias a
-            ciegas, sin semanas de silencio.
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link
-              href={pedidoHref}
-              className="rounded-full bg-primary px-8 py-4 text-base font-bold text-white transition hover:opacity-90"
-            >
-              Hacer mi pedido →
-            </Link>
-            <a
-              href="#como-funciona"
-              className="rounded-full border border-white/25 px-8 py-4 text-base font-bold text-[#f0ebe0] transition hover:bg-white/5"
-            >
-              ¿Cómo funciona?
-            </a>
+      <section className="relative overflow-hidden text-[#f0ebe0]">
+        {/* base gradient */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(155deg, #2A1A12 0%, #1C1714 45%, #081410 100%)",
+          }}
+        />
+        {/* terracotta glow */}
+        <div
+          className="absolute -left-40 -top-40 h-[40rem] w-[40rem] rounded-full opacity-50 blur-[120px]"
+          style={{ background: "radial-gradient(circle, #C4522A, transparent 65%)" }}
+        />
+        {/* teal glow */}
+        <div
+          className="absolute -bottom-40 right-0 h-[32rem] w-[32rem] rounded-full opacity-25 blur-[120px]"
+          style={{ background: "radial-gradient(circle, #00B5A0, transparent 65%)" }}
+        />
+        {/* grain */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
+          style={{ backgroundImage: GRAIN }}
+        />
+
+        <div className="relative mx-auto grid min-h-[90svh] max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
+          {/* Left: copy */}
+          <div>
+            <span className="mb-7 inline-flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-bold text-accent backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              247 pedidos entregados exitosamente
+            </span>
+            <h1 className="font-display text-6xl font-extrabold leading-[0.98] tracking-tight sm:text-7xl xl:text-[5.5rem]">
+              Tu pedido de
+              <br />
+              SHEIN llega a{" "}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(120deg, #E2683C, #C4522A)",
+                }}
+              >
+                Cuba.
+              </span>
+            </h1>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[#b3a79d] sm:text-lg">
+              Pega el link del producto que quieres. Nosotros lo compramos, lo
+              enviamos, y tú ves cada paso en tiempo real. Sin transferencias a
+              ciegas, sin semanas de silencio.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                href={pedidoHref}
+                className="rounded-full bg-primary px-8 py-4 text-base font-bold text-white shadow-xl shadow-primary/30 transition hover:-translate-y-0.5 hover:opacity-95"
+              >
+                Hacer mi pedido →
+              </Link>
+              <a
+                href="#como-funciona"
+                className="rounded-full border border-white/20 bg-white/5 px-8 py-4 text-base font-bold text-[#f0ebe0] backdrop-blur transition hover:bg-white/10"
+              >
+                ¿Cómo funciona?
+              </a>
+            </div>
+            <div className="mt-14 flex flex-wrap gap-x-8 gap-y-5">
+              <Stat n="$7" l="USD por libra" />
+              <Divider />
+              <Stat n="22-35" l="días promedio" />
+              <Divider />
+              <Stat n="98%" l="entregados" />
+              <Divider />
+              <Stat n="5-7d" l="express 10+ lbs" />
+            </div>
           </div>
-          <div className="mt-14 flex flex-wrap gap-10 border-t border-white/10 pt-8">
-            <Stat n="$7" l="USD por libra" />
-            <Stat n="22-35" l="días promedio" />
-            <Stat n="98%" l="pedidos entregados" />
-            <Stat n="5-7 días" l="express (10+ lbs)" />
+
+          {/* Right: floating tracking card showcase */}
+          <div className="hidden lg:block">
+            <HeroTrackingCard />
           </div>
         </div>
       </section>
 
       {/* ─── 2. CÓMO FUNCIONA ─── */}
-      <section id="como-funciona" className="bg-surface px-6 py-20">
+      <section id="como-funciona" className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-5xl">
-          <Label>Proceso</Label>
-          <Title>5 pasos. Sin complicaciones.</Title>
-          <Sub>
-            Desde que pegas el link hasta que recibes el paquete, todo queda
-            registrado y visible para ti.
-          </Sub>
-          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-            <Step n="1" t="Pega el link de SHEIN">
-              Copia el link del producto. Elige talla, color y cantidad. Puedes
-              agregar varios productos en un solo pedido.
-            </Step>
-            <Step n="2" t="Recibe el precio real">
-              El admin verifica el precio real en SHEIN en menos de 24 horas y te
-              lo envía con evidencia. Aceptas o seguimos negociando.
-            </Step>
-            <Step n="3" t="Pagas y compramos">
-              Una vez confirmado el precio, pagas. Compramos en SHEIN y guardamos
-              el comprobante y los artículos.
-            </Step>
-            <Step n="4" t="Sigue tu pedido en vivo" accent>
-              Casillero EE.UU. → empaque → envío a Cuba. Cada estado se actualiza
-              en tu link de tracking. Compártelo con quien quieras.
-            </Step>
-            <Step n="5" t="Recibes y pagas las libras" accent>
-              Cuando el paquete llega, te enviamos el peso real con foto. Pagas
-              las libras y coordinas la entrega.
-            </Step>
+          <Reveal>
+            <Label>Proceso</Label>
+            <Title>5 pasos. Sin complicaciones.</Title>
+            <Sub>
+              Desde que pegas el link hasta que recibes el paquete, todo queda
+              registrado y visible para ti.
+            </Sub>
+          </Reveal>
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              { i: <IconLink />, t: "Pega el link de SHEIN", d: "Copia el link, elige talla, color y cantidad. Varios productos en un pedido." },
+              { i: <IconShield />, t: "Recibe el precio real", d: "El admin verifica en SHEIN en menos de 24 h y te lo envía con evidencia." },
+              { i: <IconWallet />, t: "Pagas y compramos", d: "Confirmas el precio, pagas, y compramos en SHEIN guardando el comprobante." },
+              { i: <IconTruck />, t: "Sigue tu pedido en vivo", d: "Casillero → empaque → Cuba. Cada estado en tu link de tracking.", a: true },
+              { i: <IconScale />, t: "Recibes y pagas libras", d: "Te enviamos el peso real con foto. Pagas las libras y coordinas la entrega.", a: true },
+            ].map((s, idx) => (
+              <Reveal key={s.t} delay={idx * 80}>
+                <Step n={idx + 1} icon={s.i} t={s.t} accent={s.a}>
+                  {s.d}
+                </Step>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ─── 3. POR QUÉ TRAELO ─── */}
-      <section className="px-6 py-20">
+      <section className="px-6 py-24">
         <div className="mx-auto max-w-4xl">
-          <Label>Diferencia</Label>
-          <Title>¿Por qué Traelo y no el revendedor de Facebook?</Title>
-          <Sub>La experiencia que mereces cuando confías tu dinero a alguien.</Sub>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <div className="rounded-lg border-[1.5px] border-red-300 bg-red-50 p-7">
-              <h3 className="mb-5 font-display text-lg font-bold text-red-800">
-                ❌ Revendedor de Facebook
-              </h3>
-              {[
-                "Mandas screenshots por WhatsApp y esperas respuesta",
-                "El precio cambia sin aviso previo",
-                "Transferencia a ciegas sin comprobante",
-                "No sabes dónde está tu pedido en ningún momento",
-                "Si hay problema, no tienes nada por escrito",
-                "Peso del paquete no verificable",
-              ].map((t) => (
-                <Bad key={t}>{t}</Bad>
-              ))}
-            </div>
-            <div className="rounded-lg border-[1.5px] border-accent/25 bg-accent/5 p-7">
-              <h3 className="mb-5 font-display text-lg font-bold text-accent">
-                ✓ Traelo
-              </h3>
-              {[
-                "Formulario estructurado, sin va-y-ven de mensajes",
-                "Precio confirmado con captura real de SHEIN",
-                "Comprobante del pago en SHEIN guardado en tu pedido",
-                "Link de tracking actualizado en cada paso",
-                "Todo queda registrado: artículos, precios, pagos",
-                "Foto del peso real del paquete como evidencia",
-              ].map((t) => (
-                <Good key={t}>{t}</Good>
-              ))}
-            </div>
+          <Reveal>
+            <Label>Diferencia</Label>
+            <Title>¿Por qué Traelo y no el revendedor de Facebook?</Title>
+            <Sub>La experiencia que mereces cuando confías tu dinero a alguien.</Sub>
+          </Reveal>
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <Reveal>
+              <div className="h-full rounded-2xl border border-border bg-white/40 p-8">
+                <h3 className="mb-6 font-display text-lg font-bold text-muted">
+                  El revendedor de Facebook
+                </h3>
+                {[
+                  "Mandas screenshots por WhatsApp y esperas respuesta",
+                  "El precio cambia sin aviso previo",
+                  "Transferencia a ciegas sin comprobante",
+                  "No sabes dónde está tu pedido",
+                  "Si hay problema, no tienes nada por escrito",
+                  "Peso del paquete no verificable",
+                ].map((t) => (
+                  <Row key={t} bad>
+                    {t}
+                  </Row>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <div
+                className="h-full rounded-2xl border border-accent/25 p-8 shadow-xl shadow-accent/5"
+                style={{ background: "linear-gradient(160deg, rgba(0,181,160,0.08), rgba(0,181,160,0.02))" }}
+              >
+                <h3 className="mb-6 flex items-center gap-2 font-display text-lg font-bold text-accent">
+                  <IconShield size={20} /> Traelo
+                </h3>
+                {[
+                  "Formulario estructurado, sin va-y-ven de mensajes",
+                  "Precio confirmado con captura real de SHEIN",
+                  "Comprobante del pago guardado en tu pedido",
+                  "Link de tracking actualizado en cada paso",
+                  "Todo registrado: artículos, precios, pagos",
+                  "Foto del peso real del paquete como evidencia",
+                ].map((t) => (
+                  <Row key={t}>{t}</Row>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* ─── 4. CATEGORÍAS ─── */}
-      <section className="bg-surface px-6 py-20">
+      <section className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-5xl">
-          <Label>Productos</Label>
-          <Title>¿Qué puedes pedir?</Title>
-          <Sub>
-            Todo lo que vende SHEIN. El peso estimado determina el costo de envío
-            por libra.
-          </Sub>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Cat icon="👗" name="Ropa" peso="~0.3 lbs por pieza" />
-            <Cat icon="👟" name="Calzado" peso="~0.8 lbs por par" />
-            <Cat icon="💄" name="Belleza" peso="~0.4 lbs por item" />
-            <Cat icon="👜" name="Accesorios" peso="~0.2 lbs por item" />
-            <Cat icon="🏠" name="Hogar" peso="Variable según item" />
-            <div className="flex flex-col gap-3 rounded-lg border border-accent bg-accent/5 p-6">
-              <span className="text-3xl">📦</span>
-              <span className="font-display text-lg font-bold">
-                Pedido +10 lbs
-              </span>
-              <span className="text-xs text-muted">Descuento automático</span>
-              <span className="text-sm font-bold text-accent">
-                Express disponible{" "}
-                <span className="font-normal text-muted">· 5-7 días Cuba</span>
-              </span>
-            </div>
+          <Reveal>
+            <Label>Productos</Label>
+            <Title>¿Qué puedes pedir?</Title>
+            <Sub>
+              Todo lo que vende SHEIN. El peso estimado determina el costo de
+              envío por libra.
+            </Sub>
+          </Reveal>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { i: <IconShirt size={22} />, n: "Ropa", p: "~0.3 lbs por pieza" },
+              { i: <IconShoe size={22} />, n: "Calzado", p: "~0.8 lbs por par" },
+              { i: <IconSparkle size={22} />, n: "Belleza", p: "~0.4 lbs por item" },
+              { i: <IconBag size={22} />, n: "Accesorios", p: "~0.2 lbs por item" },
+              { i: <IconHome size={22} />, n: "Hogar", p: "Variable según item" },
+            ].map((c, idx) => (
+              <Reveal key={c.n} delay={idx * 60}>
+                <Cat icon={c.i} name={c.n} peso={c.p} />
+              </Reveal>
+            ))}
+            <Reveal delay={300}>
+              <div className="flex h-full flex-col gap-3 rounded-2xl border border-accent/40 bg-accent/5 p-6 transition hover:-translate-y-1">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-accent">
+                  <IconBox size={22} />
+                </span>
+                <span className="font-display text-lg font-bold">
+                  Pedido +10 lbs
+                </span>
+                <span className="text-xs text-muted">Descuento automático</span>
+                <span className="mt-auto text-sm font-bold text-accent">
+                  Express disponible
+                  <span className="block font-normal text-muted">
+                    5-7 días a Cuba
+                  </span>
+                </span>
+              </div>
+            </Reveal>
           </div>
-          <p className="mt-5 text-sm text-muted">
-            * El peso real se confirma cuando el paquete llega al casillero. Se
-            envía foto como evidencia. Puedes verificarlo en persona al recoger.
+          <p className="mt-6 text-sm text-muted">
+            El peso real se confirma cuando el paquete llega al casillero, con
+            foto como evidencia. Puedes verificarlo en persona al recoger.
           </p>
         </div>
       </section>
 
       {/* ─── 5. PRECIOS ─── */}
-      <section id="precios" className="bg-text px-6 py-20 text-[#f0ebe0]">
-        <div className="mx-auto max-w-4xl">
-          <Label dark>Tarifas</Label>
-          <h2 className="font-display text-3xl font-bold sm:text-4xl">
-            Precios claros, sin sorpresas.
-          </h2>
-          <p className="mt-3 max-w-xl text-base text-[#8c7f76]">
-            El precio del envío se calcula por el peso real del paquete. Lo
-            mínimo es 1 libra. Siempre con evidencia fotográfica.
-          </p>
+      <section
+        id="precios"
+        className="relative overflow-hidden px-6 py-24 text-[#f0ebe0]"
+      >
+        <div className="absolute inset-0 bg-text" />
+        <div
+          className="absolute left-1/2 top-0 h-80 w-[40rem] -translate-x-1/2 opacity-30 blur-[120px]"
+          style={{ background: "radial-gradient(circle, #C4522A, transparent 70%)" }}
+        />
+        <div className="relative mx-auto max-w-4xl">
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+              Tarifas
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
+              Precios claros, sin sorpresas.
+            </h2>
+            <p className="mt-3 max-w-xl text-base text-[#9b8e84]">
+              El precio del envío se calcula por el peso real del paquete. Lo
+              mínimo es 1 libra. Siempre con evidencia fotográfica.
+            </p>
+          </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <div className="rounded-lg border border-white/10 bg-white/5 p-7">
-              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#8c7f76]">
-                Envío estándar
-              </p>
-              <div className="font-display text-5xl font-extrabold">$7</div>
-              <p className="mb-5 mt-1 text-[#8c7f76]">por libra · mínimo 1 lb</p>
-              {[
-                "Cualquier peso",
-                "SHEIN: 15-20 días",
-                "Cuba: 7-15 días",
-                "Foto del peso como evidencia",
-                "Links reales de cada artículo guardados",
-                "Tracking en tiempo real",
-              ].map((t) => (
-                <Feat key={t}>{t}</Feat>
-              ))}
-            </div>
-            <div className="rounded-lg bg-primary p-7">
-              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-white/70">
-                Express — pedidos +10 lbs
-              </p>
-              <div className="font-display text-5xl font-extrabold">$7</div>
-              <p className="mb-5 mt-1 text-white/70">por libra + tarifa express</p>
-              {[
-                "Solo para pedidos de 10+ lbs",
-                "SHEIN: 15-20 días (igual)",
-                "Cuba: 5-7 días",
-                "Descuento automático por volumen",
-                "Todo lo del estándar incluido",
-              ].map((t) => (
-                <Feat key={t} onPrimary>
-                  {t}
-                </Feat>
-              ))}
-            </div>
+            <Reveal>
+              <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-8">
+                <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#8c7f76]">
+                  Envío estándar
+                </p>
+                <div className="font-display text-5xl font-extrabold">
+                  $7
+                  <span className="text-lg font-normal text-[#8c7f76]">
+                    {" "}
+                    / libra
+                  </span>
+                </div>
+                <p className="mb-6 mt-1 text-sm text-[#8c7f76]">mínimo 1 lb</p>
+                {[
+                  "Cualquier peso",
+                  "SHEIN: 15-20 días",
+                  "Cuba: 7-15 días",
+                  "Foto del peso como evidencia",
+                  "Links reales de cada artículo guardados",
+                  "Tracking en tiempo real",
+                ].map((t) => (
+                  <Feat key={t}>{t}</Feat>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <div className="h-full rounded-2xl bg-primary p-8 shadow-2xl shadow-primary/30">
+                <p className="mb-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white">
+                  Express · 10+ lbs
+                </p>
+                <div className="font-display text-5xl font-extrabold">
+                  $7
+                  <span className="text-lg font-normal text-white/70">
+                    {" "}
+                    / libra
+                  </span>
+                </div>
+                <p className="mb-6 mt-1 text-sm text-white/70">+ tarifa express</p>
+                {[
+                  "Solo para pedidos de 10+ lbs",
+                  "SHEIN: 15-20 días (igual)",
+                  "Cuba: 5-7 días",
+                  "Descuento automático por volumen",
+                  "Todo lo del estándar incluido",
+                ].map((t) => (
+                  <Feat key={t} onPrimary>
+                    {t}
+                  </Feat>
+                ))}
+              </div>
+            </Reveal>
           </div>
           <p className="mt-8 text-xs leading-relaxed text-[#6b6460]">
-            * Los tiempos indicados son estimados pesimistas. En la práctica
-            suelen ser menores. El pago de libras se realiza cuando el paquete
-            llega al casillero, no por adelantado.
+            Los tiempos son estimados pesimistas; en la práctica suelen ser
+            menores. El pago de libras se hace cuando el paquete llega al
+            casillero, no por adelantado.
           </p>
         </div>
       </section>
 
       {/* ─── 6. TIEMPOS ─── */}
-      <section id="tiempos" className="px-6 py-20">
+      <section id="tiempos" className="px-6 py-24">
         <div className="mx-auto max-w-4xl">
-          <Label>Tiempos de entrega</Label>
-          <Title>¿Cuándo llega tu pedido?</Title>
-          <Sub>
-            Tiempos estimados pesimistas. Lo habitual es que lleguen antes.
-            Depende de la época del año y el tamaño del envío.
-          </Sub>
-          <div className="mt-6 overflow-hidden rounded-lg border border-border">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-surface">
-                <tr className="text-xs uppercase tracking-wide text-muted">
-                  <th className="p-4 font-bold">Tramo</th>
-                  <th className="p-4 font-bold">Estándar</th>
-                  <th className="p-4 font-bold">Express (10+ lbs)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <TiempoRow
-                  tramo="SHEIN → Casillero EE.UU."
-                  desc="Lo que tarda SHEIN en enviar a nuestro casillero en Florida"
-                  std="15-20 días"
-                  exp="15-20 días"
-                  expTag="No cambia"
-                />
-                <TiempoRow
-                  tramo="Casillero → Cuba"
-                  desc="Desde que consolidamos hasta que llega a Cuba"
-                  std="7-15 días"
-                  exp="5-7 días"
-                  expTag="Express"
-                />
-                <tr>
-                  <td className="p-4 align-top">
-                    <div className="font-bold text-primary">Total estimado</div>
-                    <div className="mt-1 text-xs text-muted">
-                      Desde que pagas hasta que lo tienes
-                    </div>
-                  </td>
-                  <td className="p-4 align-top font-display text-lg font-bold">
-                    22-35 días
-                  </td>
-                  <td className="p-4 align-top font-display text-lg font-bold text-accent">
-                    20-27 días
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <Reveal>
+            <Label>Tiempos de entrega</Label>
+            <Title>¿Cuándo llega tu pedido?</Title>
+            <Sub>
+              Tiempos estimados pesimistas. Lo habitual es que lleguen antes.
+              Depende de la época del año y el tamaño del envío.
+            </Sub>
+          </Reveal>
+          <Reveal>
+            <div className="mt-8 overflow-hidden rounded-2xl border border-border shadow-sm">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-surface">
+                  <tr className="text-xs uppercase tracking-wide text-muted">
+                    <th className="p-4 font-bold">Tramo</th>
+                    <th className="p-4 font-bold">Estándar</th>
+                    <th className="p-4 font-bold">Express (10+ lbs)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <TiempoRow
+                    tramo="SHEIN → Casillero EE.UU."
+                    desc="Lo que tarda SHEIN en enviar a Florida"
+                    std="15-20 días"
+                    exp="15-20 días"
+                    expTag="No cambia"
+                  />
+                  <TiempoRow
+                    tramo="Casillero → Cuba"
+                    desc="Desde que consolidamos hasta Cuba"
+                    std="7-15 días"
+                    exp="5-7 días"
+                    expTag="Express"
+                  />
+                  <tr className="bg-surface/50">
+                    <td className="p-4 align-top">
+                      <div className="font-bold text-primary">
+                        Total estimado
+                      </div>
+                      <div className="mt-1 text-xs text-muted">
+                        Desde que pagas hasta que lo tienes
+                      </div>
+                    </td>
+                    <td className="p-4 align-top font-display text-xl font-bold">
+                      22-35 días
+                    </td>
+                    <td className="p-4 align-top font-display text-xl font-bold text-accent">
+                      20-27 días
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
           <p className="mt-4 text-sm text-muted">
             En temporada alta (noviembre-enero) pueden ser 5-7 días más.
           </p>
@@ -317,145 +423,166 @@ export default async function Home() {
       </section>
 
       {/* ─── 7. CÓMO PAGO ─── */}
-      <section id="como-pago" className="bg-surface px-6 py-20">
+      <section id="como-pago" className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-3xl">
-          <Label>Pagos</Label>
-          <Title>¿Cómo se paga?</Title>
-          <Sub>
-            Dos momentos de pago. Todo por canales acordados por WhatsApp, sin
-            plataformas intermediarias.
-          </Sub>
-          <div className="mt-10">
-            <Pago n="1" t="Haces el pedido — queda reservado">
-              Tu pedido se registra con todos los artículos, tallas y colores. El
-              admin verifica los precios reales en SHEIN y te los envía en menos
-              de 24 horas.
-            </Pago>
-            <Pago
-              n="2"
-              t="Pago de los artículos SHEIN"
-              note="📋 Guardamos el comprobante del pago en SHEIN y los links reales de cada artículo para que los consultes cuando quieras."
-            >
-              Cuando aceptas el precio confirmado, pagas el total de los
-              artículos por el canal que acordemos (Zelle, transferencia, MLC…).
-              El pedido queda en espera hasta confirmar el pago.
-            </Pago>
-            <Pago
-              n="3"
-              t="El paquete llega al casillero"
-              accent
-              note="⚖️ Artículos menores a 1 lb se cobran como 1 lb. Pedidos de más de 10 lbs tienen descuento automático."
-            >
-              Cuando el paquete llega a Florida, lo pesamos y te enviamos la foto
-              del peso como evidencia. Puedes verificarlo en persona al momento
-              de la entrega.
-            </Pago>
-            <Pago n="4" t="Pago de las libras y entrega" accent last>
-              Pagas las libras según el peso real confirmado ($7 USD/lb).
-              Coordinas la entrega o el envío dentro de Cuba.
-            </Pago>
+          <Reveal>
+            <Label>Pagos</Label>
+            <Title>¿Cómo se paga?</Title>
+            <Sub>
+              Dos momentos de pago. Todo por canales acordados por WhatsApp, sin
+              plataformas intermediarias.
+            </Sub>
+          </Reveal>
+          <div className="mt-12">
+            <Reveal>
+              <Pago n="1" t="Haces el pedido — queda reservado">
+                Tu pedido se registra con todos los artículos, tallas y colores.
+                El admin verifica los precios reales en SHEIN y te los envía en
+                menos de 24 horas.
+              </Pago>
+            </Reveal>
+            <Reveal>
+              <Pago
+                n="2"
+                t="Pago de los artículos SHEIN"
+                note="Guardamos el comprobante del pago en SHEIN y los links reales de cada artículo para que los consultes cuando quieras."
+              >
+                Cuando aceptas el precio confirmado, pagas el total de los
+                artículos por el canal que acordemos (Zelle, transferencia,
+                MLC…). El pedido queda en espera hasta confirmar el pago.
+              </Pago>
+            </Reveal>
+            <Reveal>
+              <Pago
+                n="3"
+                t="El paquete llega al casillero"
+                accent
+                note="Artículos menores a 1 lb se cobran como 1 lb. Pedidos de más de 10 lbs tienen descuento automático."
+              >
+                Cuando el paquete llega a Florida, lo pesamos y te enviamos la
+                foto del peso como evidencia. Puedes verificarlo en persona al
+                momento de la entrega.
+              </Pago>
+            </Reveal>
+            <Reveal>
+              <Pago n="4" t="Pago de las libras y entrega" accent last>
+                Pagas las libras según el peso real confirmado ($7 USD/lb).
+                Coordinas la entrega o el envío dentro de Cuba.
+              </Pago>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* ─── 8. FAQ ─── */}
-      <section id="faq" className="px-6 py-20">
+      <section id="faq" className="px-6 py-24">
         <div className="mx-auto max-w-3xl">
-          <Label>Preguntas frecuentes</Label>
-          <Title>Lo que todos preguntan</Title>
-          <div className="mt-8 border-t border-border">
-            <Faq q="¿Puedo pedir cualquier cosa de SHEIN?">
-              Sí, cualquier artículo: ropa, calzado, accesorios, belleza, hogar.
-              Pega el link directamente desde SHEIN. Si dudas sobre un artículo
-              específico, escríbenos por WhatsApp antes de pedirlo.
-            </Faq>
-            <Faq q="¿Cómo sé que el precio es el real?">
-              El admin verifica el precio directamente en SHEIN y te envía una{" "}
-              <strong className="text-text">captura como evidencia</strong> antes
-              de que pagues. Solo cuando aceptas ese precio se procede al cobro.
-            </Faq>
-            <Faq q="¿Cómo sé el peso antes de pagar las libras?">
-              El peso estimado por categoría te da una idea al hacer el pedido. El
-              peso real lo confirmamos cuando el paquete llega al casillero y te
-              enviamos{" "}
-              <strong className="text-text">foto del pesaje</strong>. Pagas las
-              libras después de ver el peso real, nunca antes. Si recoges en
-              persona, puedes pesarlo tú mismo.
-            </Faq>
-            <Faq q="¿Qué pasa con las aduanas cubanas?">
-              Los envíos se manejan por canales con experiencia en envíos a Cuba.
-              Los artículos de uso personal generalmente no tienen problemas.
-              Artículos electrónicos o de alto valor pueden tener restricciones,
-              consulta antes de pedirlos.
-            </Faq>
-            <Faq q="¿Puedo ver los artículos que pedí después?">
-              Sí. Cada artículo guarda el{" "}
-              <strong className="text-text">link real a SHEIN</strong> para que lo
-              veas cuando quieras. Si el link expira, tienes la captura guardada.
-            </Faq>
-            <Faq q="¿Puedo cancelar un pedido?">
-              Puedes cancelar sin costo mientras esté en cotización o revisión
-              (antes de pagar). Una vez pagado y comprado en SHEIN no es posible,
-              porque SHEIN no acepta devoluciones a casilleros internacionales.
-            </Faq>
-            <Faq q="¿Cuándo está disponible el envío express?">
-              El express a Cuba (5-7 días) está disponible para{" "}
-              <strong className="text-text">pedidos de 10 libras o más</strong>. Se
-              ofrece automáticamente al confirmar el envío.
-            </Faq>
-            <Faq q="¿Y si llega dañado o con artículos incorrectos?">
-              Guardamos evidencia fotográfica del contenido al recibirlo en el
-              casillero. Si hay algo incorrecto o dañado, lo notificamos antes del
-              envío a Cuba y tenemos la documentación para resolver.
-            </Faq>
-          </div>
+          <Reveal>
+            <Label>Preguntas frecuentes</Label>
+            <Title>Lo que todos preguntan</Title>
+          </Reveal>
+          <Reveal>
+            <div className="mt-8 border-t border-border">
+              <Faq q="¿Puedo pedir cualquier cosa de SHEIN?">
+                Sí, cualquier artículo: ropa, calzado, accesorios, belleza,
+                hogar. Pega el link directamente desde SHEIN. Si dudas sobre un
+                artículo, escríbenos por WhatsApp antes de pedirlo.
+              </Faq>
+              <Faq q="¿Cómo sé que el precio es el real?">
+                El admin verifica el precio directamente en SHEIN y te envía una{" "}
+                <strong className="text-text">captura como evidencia</strong>{" "}
+                antes de que pagues. Solo cuando aceptas ese precio se procede al
+                cobro.
+              </Faq>
+              <Faq q="¿Cómo sé el peso antes de pagar las libras?">
+                El peso estimado por categoría te da una idea. El peso real lo
+                confirmamos cuando el paquete llega al casillero y te enviamos{" "}
+                <strong className="text-text">foto del pesaje</strong>. Pagas
+                después de ver el peso real, nunca antes. Si recoges en persona,
+                puedes pesarlo tú mismo.
+              </Faq>
+              <Faq q="¿Qué pasa con las aduanas cubanas?">
+                Los envíos se manejan por canales con experiencia en envíos a
+                Cuba. Los artículos de uso personal generalmente no tienen
+                problemas. Artículos electrónicos o de alto valor pueden tener
+                restricciones, consulta antes.
+              </Faq>
+              <Faq q="¿Puedo ver los artículos que pedí después?">
+                Sí. Cada artículo guarda el{" "}
+                <strong className="text-text">link real a SHEIN</strong> para que
+                lo veas cuando quieras. Si el link expira, tienes la captura
+                guardada.
+              </Faq>
+              <Faq q="¿Puedo cancelar un pedido?">
+                Puedes cancelar sin costo mientras esté en cotización o revisión
+                (antes de pagar). Una vez pagado y comprado en SHEIN no es
+                posible, porque SHEIN no acepta devoluciones a casilleros
+                internacionales.
+              </Faq>
+              <Faq q="¿Cuándo está disponible el envío express?">
+                El express a Cuba (5-7 días) está disponible para{" "}
+                <strong className="text-text">pedidos de 10 libras o más</strong>.
+                Se ofrece automáticamente al confirmar el envío.
+              </Faq>
+              <Faq q="¿Y si llega dañado o con artículos incorrectos?">
+                Guardamos evidencia fotográfica del contenido al recibirlo en el
+                casillero. Si hay algo incorrecto o dañado, lo notificamos antes
+                del envío a Cuba y tenemos la documentación para resolver.
+              </Faq>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── 9. CTA FINAL ─── */}
       <section
         id="contacto"
-        className="px-6 py-20 text-center text-[#f0ebe0]"
-        style={{
-          background: "linear-gradient(135deg, #2A1A12 0%, #1C1714 100%)",
-        }}
+        className="relative overflow-hidden px-6 py-24 text-center text-[#f0ebe0]"
       >
-        <div className="mx-auto max-w-2xl">
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(135deg, #2A1A12, #1C1714)" }}
+        />
+        <div
+          className="absolute left-1/2 top-1/2 h-80 w-[36rem] -translate-x-1/2 -translate-y-1/2 opacity-40 blur-[120px]"
+          style={{ background: "radial-gradient(circle, #C4522A, transparent 70%)" }}
+        />
+        <Reveal className="relative mx-auto max-w-2xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-accent">
             Empieza hoy
           </p>
-          <h2 className="font-display text-3xl font-bold sm:text-4xl">
+          <h2 className="font-display text-4xl font-bold sm:text-5xl">
             ¿Listo para hacer tu pedido?
           </h2>
-          <p className="mx-auto mb-10 mt-3 max-w-md text-base text-[#8c7f76]">
+          <p className="mx-auto mb-10 mt-4 max-w-md text-base text-[#9b8e84]">
             Pega el link de SHEIN, elige tu talla, y nosotros hacemos el resto.
             Precio confirmado en menos de 24 horas.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href={pedidoHref}
-              className="rounded-full bg-primary px-8 py-4 text-base font-bold text-white transition hover:opacity-90"
+              className="rounded-full bg-primary px-8 py-4 text-base font-bold text-white shadow-xl shadow-primary/30 transition hover:-translate-y-0.5"
             >
               Hacer mi pedido →
             </Link>
             <a
               href={waHref}
-              className="rounded-full border px-8 py-4 text-base font-bold transition hover:bg-white/5"
+              className="inline-flex items-center gap-2 rounded-full border px-8 py-4 text-base font-bold transition hover:bg-white/5"
               style={{ borderColor: "rgba(37,211,102,0.5)", color: "#25D366" }}
             >
-              💬 Preguntar por WhatsApp
+              <IconWhatsapp size={20} /> Preguntar por WhatsApp
             </a>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-text px-6 py-10 text-[#6b6460]">
+      <footer className="bg-text px-6 py-12 text-[#6b6460]">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <Logo variant="light" size={28} />
-              <p className="mt-2 text-sm">
+              <p className="mt-3 max-w-xs text-sm">
                 Pedidos de SHEIN a Cuba con transparencia real.
               </p>
             </div>
@@ -465,7 +592,7 @@ export default async function Home() {
                 className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white"
                 style={{ background: "#25D366" }}
               >
-                💬 WhatsApp
+                <IconWhatsapp size={18} /> WhatsApp
               </a>
               <div className="flex flex-wrap gap-5 text-sm">
                 <a href="#como-funciona" className="hover:text-[#f0ebe0]">
@@ -480,7 +607,7 @@ export default async function Home() {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex flex-wrap justify-between gap-2 border-t border-white/10 pt-6 text-xs">
+          <div className="mt-10 flex flex-wrap justify-between gap-2 border-t border-white/10 pt-6 text-xs">
             <span>© 2026 Traelo. Todos los derechos reservados.</span>
             <span>traelo.app</span>
           </div>
@@ -492,22 +619,86 @@ export default async function Home() {
 
 /* ─────────── helpers ─────────── */
 
-function Stat({ n, l }: { n: string; l: string }) {
+function HeroTrackingCard() {
   return (
-    <div>
-      <div className="font-display text-3xl font-bold text-[#f0ebe0]">{n}</div>
-      <div className="mt-1 text-xs text-[#6b6460]">{l}</div>
+    <div className="relative mx-auto max-w-sm">
+      {/* glow behind card */}
+      <div
+        className="absolute -inset-4 rounded-3xl opacity-30 blur-2xl"
+        style={{ background: "linear-gradient(135deg, #C4522A, #00B5A0)" }}
+      />
+      <div className="relative rounded-2xl border border-white/10 bg-[#241c17]/80 p-1 shadow-2xl backdrop-blur">
+        {/* header */}
+        <div className="rounded-t-xl bg-primary px-5 py-4 text-white">
+          <p className="text-[10px] font-bold uppercase tracking-wider opacity-80">
+            Pedido #TRL-2026-0034 · María G.
+          </p>
+          <p className="mt-1 font-display text-lg font-bold">
+            En camino a Cuba ✈
+          </p>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/25">
+            <div className="h-full w-[68%] rounded-full bg-white" />
+          </div>
+        </div>
+        {/* timeline */}
+        <div className="space-y-3 px-5 py-5">
+          {[
+            { t: "Precio confirmado", d: "$47.80 USD", done: true },
+            { t: "Pago recibido", d: "3 jun", done: true },
+            { t: "Comprado en SHEIN", d: "5 jun", done: true },
+            { t: "Enviado a Cuba", d: "Ahora", cur: true },
+            { t: "Entregado", d: "Pendiente", done: false },
+          ].map((s) => (
+            <div key={s.t} className="flex items-center gap-3">
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${
+                  s.cur
+                    ? "bg-primary text-white ring-4 ring-primary/20"
+                    : s.done
+                      ? "bg-accent text-white"
+                      : "bg-white/10 text-transparent"
+                }`}
+              >
+                {s.done ? "✓" : s.cur ? "→" : "•"}
+              </span>
+              <div className="flex flex-1 justify-between">
+                <span
+                  className={`text-sm font-semibold ${
+                    s.cur
+                      ? "text-primary"
+                      : s.done
+                        ? "text-[#f0ebe0]"
+                        : "text-[#6b6460]"
+                  }`}
+                >
+                  {s.t}
+                </span>
+                <span className="text-xs text-[#8c7f76]">{s.d}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-function Label({ children, dark }: { children: React.ReactNode; dark?: boolean }) {
+function Stat({ n, l }: { n: string; l: string }) {
   return (
-    <p
-      className={`text-xs font-bold uppercase tracking-widest ${
-        dark ? "text-accent" : "text-muted"
-      }`}
-    >
+    <div>
+      <div className="font-display text-3xl font-bold text-[#f0ebe0]">{n}</div>
+      <div className="mt-1 text-xs text-[#8c7f76]">{l}</div>
+    </div>
+  );
+}
+
+function Divider() {
+  return <span className="hidden h-10 w-px self-center bg-white/10 sm:block" />;
+}
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
       {children}
     </p>
   );
@@ -515,7 +706,7 @@ function Label({ children, dark }: { children: React.ReactNode; dark?: boolean }
 
 function Title({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl">
+    <h2 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-[2.6rem]">
       {children}
     </h2>
   );
@@ -527,44 +718,46 @@ function Sub({ children }: { children: React.ReactNode }) {
 
 function Step({
   n,
+  icon,
   t,
   accent,
   children,
 }: {
-  n: string;
+  n: number;
+  icon: React.ReactNode;
   t: string;
   accent?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <div
-        className={`flex h-11 w-11 items-center justify-center rounded-full font-display text-lg font-bold text-white ${
-          accent ? "bg-accent" : "bg-primary"
-        }`}
-      >
-        {n}
+    <div className="h-full rounded-2xl border border-border bg-white/50 p-5 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-black/5">
+      <div className="flex items-center justify-between">
+        <span
+          className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+            accent ? "bg-accent/12 text-accent" : "bg-primary/10 text-primary"
+          }`}
+        >
+          {icon}
+        </span>
+        <span className="font-display text-2xl font-bold text-border">{n}</span>
       </div>
-      <h3 className="mt-4 font-display text-lg font-bold">{t}</h3>
+      <h3 className="mt-4 font-display text-base font-bold">{t}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{children}</p>
     </div>
   );
 }
 
-function Bad({ children }: { children: React.ReactNode }) {
+function Row({ children, bad }: { children: React.ReactNode; bad?: boolean }) {
   return (
-    <p className="mb-3 flex gap-2 text-sm leading-snug">
-      <span className="text-red-400">✗</span>
-      <span>{children}</span>
-    </p>
-  );
-}
-
-function Good({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-3 flex gap-2 text-sm leading-snug">
-      <span className="text-accent">✓</span>
-      <span>{children}</span>
+    <p className="mb-3.5 flex gap-2.5 text-sm leading-snug">
+      <span
+        className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+          bad ? "bg-muted/20 text-muted" : "bg-accent/15 text-accent"
+        }`}
+      >
+        {bad ? "✕" : "✓"}
+      </span>
+      <span className={bad ? "text-muted" : ""}>{children}</span>
     </p>
   );
 }
@@ -574,17 +767,20 @@ function Cat({
   name,
   peso,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   name: string;
   peso: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-white/40 p-6">
-      <span className="text-3xl">{icon}</span>
+    <div className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-white/50 p-6 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-black/5">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        {icon}
+      </span>
       <span className="font-display text-lg font-bold">{name}</span>
       <span className="text-xs text-muted">{peso}</span>
-      <span className="text-sm font-bold text-primary">
-        $7.00 <span className="font-normal text-muted">por libra · mín. 1 lb</span>
+      <span className="mt-auto text-sm font-bold text-primary">
+        $7.00{" "}
+        <span className="font-normal text-muted">por libra · mín. 1 lb</span>
       </span>
     </div>
   );
@@ -599,11 +795,17 @@ function Feat({
 }) {
   return (
     <p
-      className={`mb-2.5 flex gap-2 text-sm ${
-        onPrimary ? "text-white/90" : "text-[#d4cec8]"
+      className={`mb-2.5 flex gap-2.5 text-sm ${
+        onPrimary ? "text-white/90" : "text-[#cfc7bd]"
       }`}
     >
-      <span className={onPrimary ? "text-white/70" : "text-accent"}>✓</span>
+      <span
+        className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[10px] ${
+          onPrimary ? "bg-white/20 text-white" : "bg-accent/20 text-accent"
+        }`}
+      >
+        ✓
+      </span>
       <span>{children}</span>
     </p>
   );
@@ -657,13 +859,13 @@ function Pago({
   last?: boolean;
 }) {
   return (
-    <div className="relative flex gap-5 pb-8">
+    <div className="relative flex gap-5 pb-9">
       {!last && (
-        <span className="absolute left-5 top-10 bottom-0 w-0.5 bg-border" />
+        <span className="absolute bottom-0 left-5 top-11 w-0.5 bg-border" />
       )}
       <div
-        className={`z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-display font-bold text-white ${
-          accent ? "bg-accent" : "bg-primary"
+        className={`z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-display font-bold text-white shadow-lg ${
+          accent ? "bg-accent shadow-accent/25" : "bg-primary shadow-primary/25"
         }`}
       >
         {n}
@@ -672,7 +874,7 @@ function Pago({
         <h3 className="font-display text-lg font-bold">{t}</h3>
         <p className="mt-1.5 text-sm leading-relaxed text-muted">{children}</p>
         {note && (
-          <p className="mt-2.5 inline-flex rounded-md border border-accent/20 bg-accent/5 px-3.5 py-2.5 text-sm leading-snug text-text">
+          <p className="mt-3 rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm leading-snug text-text">
             {note}
           </p>
         )}
@@ -684,9 +886,9 @@ function Pago({
 function Faq({ q, children }: { q: string; children: React.ReactNode }) {
   return (
     <details className="group border-b border-border">
-      <summary className="flex cursor-pointer items-center justify-between gap-4 py-5 text-[15px] font-bold marker:content-['']">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-[15px] font-bold transition group-hover:text-primary">
         {q}
-        <span className="text-2xl font-light text-primary transition group-open:rotate-45">
+        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-surface text-xl font-light text-primary transition group-open:rotate-45">
           +
         </span>
       </summary>

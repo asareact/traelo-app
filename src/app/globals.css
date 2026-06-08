@@ -57,3 +57,11 @@ body {
 h1, h2, h3 {
   font-family: var(--font-display);
 }
+
+/* Fail-safe: if JavaScript is disabled, scroll-reveal content stays visible. */
+@media (scripting: none) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

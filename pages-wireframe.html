@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traelo — Page Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7; --surface: #F0EBE0; --primary: #C4522A; --accent: #00B5A0;
+    --text: #1C1714; --muted: #8C7F76; --border: #E2D9CE; --white: #FFFFFF;
+    --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px; --radius-full: 9999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #E8E4DE; color: var(--text); padding: 40px 24px; }
+  h1, .serif { font-family: 'Fraunces', serif; }
+
+  /* ── LAYOUT ── */
+  .page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(375px, 1fr)); gap: 48px; max-width: 1400px; margin: 0 auto; }
+  .page-block { display: flex; flex-direction: column; gap: 12px; }
+  .page-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #6B6460; }
+  .page-route { font-size: 12px; font-family: monospace; color: #8C7F76; margin-bottom: 4px; }
+
+  /* ── PHONE SHELL ── */
+  .phone {
+    width: 375px; background: var(--bg); border-radius: 32px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden; position: relative; min-height: 600px;
+    display: flex; flex-direction: column;
+  }
+  .phone.desktop { width: 100%; border-radius: 16px; min-height: 480px; }
+  .phone-status { background: var(--bg); padding: 12px 24px 8px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; }
+  .phone-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .phone-bottom-bar {
+    background: var(--bg); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; padding: 10px 0 16px;
+  }
+  .tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--muted); min-width: 64px; }
+  .tab-item.active { color: var(--primary); }
+  .tab-icon { font-size: 20px; }
+
+  /* ── TOP NAR DE APP ── */
+  .app-nav { padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .app-nav-brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--primary); }
+  .app-nav-action { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+  /* ── COMMON ELEMENTS ── */
+  .section-pad { padding: 20px; }
+  .section-pad-sm { padding: 16px; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .card { background: var(--white); border-radius: var(--radius-md); padding: 16px; border: 1px solid var(--border); margin-bottom: 12px; }
+  .card:last-child { margin-bottom: 0; }
+
+  .btn { border: none; border-radius: var(--radius-full); padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; width: 100%; text-align: center; }
+  .btn-p { background: var(--primary); color: #fff; }
+  .btn-s { background: var(--surface); border: 1.5px solid var(--border); color: var(--text); }
+  .btn-a { background: var(--accent); color: #fff; }
+
+  .input-field { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg); font-size: 15px; font-family: inherit; color: var(--text); }
+  .input-label { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+  .form-group { margin-bottom: 16px; }
+
+  .badge { display: inline-flex; padding: 4px 12px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; }
+  .badge-revision { background: #EDE9FE; color: #5B21B6; }
+  .badge-pagado { background: rgba(0,181,160,0.12); color: var(--accent); }
+  .badge-actualizado { background: #FEF3C7; color: #92400E; }
+  .badge-cotizacion { background: #FFF3E0; color: #B45309; }
+  .badge-camino { background: #DBEAFE; color: #1E40AF; }
+  .badge-entregado { background: #D1FAE5; color: #065F46; }
+
+  /* ── HERO ── */
+  .landing-hero {
+    background: linear-gradient(160deg, #2A1A12 0%, #1C1714 50%, #0A1512 100%);
+    padding: 40px 20px 32px; color: #F0EBE0; flex: 1;
+    display: flex; flex-direction: column; justify-content: flex-end; min-height: 380px;
+  }
+  .hero-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,181,160,0.15); border: 1px solid rgba(0,181,160,0.3); border-radius: var(--radius-full); padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 20px; width: fit-content; }
+  .hero-h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; line-height: 1.05; margin-bottom: 12px; }
+  .hero-sub { font-size: 14px; color: #8C7F76; margin-bottom: 24px; line-height: 1.5; }
+  .hero-ctas { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── TRACKING TIMELINE ── */
+  .timeline { padding: 0 20px; }
+  .tl-item { display: flex; gap: 14px; padding: 14px 0; position: relative; }
+  .tl-item:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 28px; bottom: -14px; width: 2px; background: var(--border); z-index: 0; }
+  .tl-dot { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .tl-dot-done { background: var(--accent); color: #fff; }
+  .tl-dot-current { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(196,82,42,0.2); }
+  .tl-dot-pending { background: var(--border); }
+  .tl-title { font-size: 14px; font-weight: 600; }
+  .tl-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .tl-title.pending { color: var(--muted); }
+
+  /* ── ORDER CARD ── */
+  .order-card { background: var(--white); border-radius: var(--radius-md); padding: 16px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .order-card-left { flex: 1; }
+  .order-card-id { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+  .order-card-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .order-card-items { font-size: 12px; color: var(--muted); }
+
+  /* ── KANBAN ── */
+  .kanban-scroll { overflow-x: auto; padding: 16px; }
+  .kanban-inner { display: flex; gap: 12px; min-width: max-content; }
+  .k-col { background: var(--surface); border-radius: var(--radius-md); padding: 12px; width: 200px; border: 1px solid var(--border); }
+  .k-col-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .k-card { background: var(--white); border-radius: 8px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); font-size: 13px; }
+  .k-card.hl { border-color: var(--primary); background: rgba(196,82,42,0.04); }
+  .k-card-id { font-size: 10px; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+  .k-card-name { font-weight: 600; margin-bottom: 4px; }
+  .k-card-price { color: var(--primary); font-weight: 700; font-size: 14px; }
+
+  /* ── PAGE HEADER ── */
+  .page-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .page-header h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; }
+  .page-header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* ── SCROLL AREA ── */
+  .scroll-area { overflow-y: auto; flex: 1; }
+
+  /* ── MISC ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .text-muted { color: var(--muted); font-size: 13px; }
+  .text-center { text-align: center; }
+  .stat-row { display: flex; gap: 12px; }
+  .stat-box { flex: 1; background: var(--surface); border-radius: var(--radius-md); padding: 14px; text-align: center; }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--primary); }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .item-row { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .item-img { width: 52px; height: 64px; background: var(--border); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .item-info { flex: 1; }
+  .item-url { font-size: 11px; color: var(--muted); margin-bottom: 2px; word-break: break-all; }
+  .item-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .item-attrs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .attr-chip { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 8px; font-size: 11px; font-weight: 600; color: var(--muted); }
+
+  /* ── HEADER ── */
+  .doc-header { max-width: 1400px; margin: 0 auto 48px; }
+  .doc-header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: #1C1714; margin-bottom: 8px; }
+  .doc-header p { font-size: 15px; color: #6B6460; }
+
+  .admin-top { background: var(--text); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .admin-top-brand { font-family: 'Fraunces', serif; color: var(--primary); font-size: 18px; font-weight: 700; }
+  .admin-top-links { display: flex; gap: 20px; }
+  .admin-top-link { font-size: 13px; font-weight: 600; color: #8C7F76; }
+  .admin-top-link.active { color: #F0EBE0; }
+
+  .config-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .config-key { font-size: 14px; font-weight: 600; }
+  .config-val { font-size: 14px; color: var(--muted); }
+  .config-edit { font-size: 12px; font-weight: 700; color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Traelo — Wireframes de Páginas</h1>
+  <p>7 páginas · Sistema "Verano Confiable" · Mobile-first (cliente) · Desktop-first (admin)</p>
+</div>
+
+<div class="page-grid">
+
+  <!-- ─── 1. LANDING ─── -->
+  <div class="page-block">
+    <div class="page-label">1. Landing Page</div>
+    <div class="page-route">/ (público, sin auth)</div>
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>●●● 100%</span></div>
+      <!-- Navbar landing: logo + botón entrar -->
+      <div style="padding: 12px 20px; display:flex; justify-content:space-between; align-items:center; background:rgba(28,23,20,0.9); position:relative; z-index:2;">
+        <span style="font-family:'Fraunces',serif; font-weight:700; font-size:18px; color:var(--primary)">traelo.</span>
+        <span style="font-size:12px; font-weight:700; color:#F0EBE0; background:rgba(240,235,224,0.1); padding:6px 14px; border-radius:99px; border:1px solid rgba(240,235,224,0.2);">Entrar</span>
+      </div>
+      <!-- Hero dark -->
+      <div class="landing-hero" style="margin-top:-1px">
+        <div class="hero-pill">● Pedidos activos ahora</div>
+        <h1 class="hero-h1">Tu pedido de SHEIN,<br>sin dramas.</h1>
+        <p class="hero-sub">Pega el link, elige tu talla. Nosotros compramos y enviamos a Cuba.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-p" style="border-radius:12px">Hacer un pedido</button>
+          <button class="btn" style="background:rgba(240,235,224,0.08); color:#F0EBE0; border:1px solid rgba(240,235,224,0.15); border-radius:12px; font-size:14px;">¿Cómo funciona?</button>
+        </div>
+        <div style="display:flex; gap:24px; margin-top:28px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
+          <div><div style="font-family:'Fraunces',serif; font-size:22px; font-weight:700">247</div><div style="font-size:11px; color:#8C7F76">Pedidos entregados</div></div>
+          <div><div style="font-family:'Fraunces',serif; font-size:22px; font-weight:700">98%</div><div style="font-size:11px; color:#8C7F76">Satisfacción</div></div>
+        </div>
+      </div>
+      <!-- Cómo funciona (below fold, scroll) -->
+      <div style="padding:24px 20px; background:var(--bg);">
+        <div class="section-label">¿Cómo funciona?</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="width:32px; height:32px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:700; font-size:14px; flex-shrink:0;">1</div>
+            <div><div style="font-weight:700; font-size:14px; margin-bottom:2px">Pega el link de SHEIN</div><div style="font-size:12px; color:var(--muted)">Elige talla, color y cantidad</div></div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="width:32px; height:32px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:700; font-size:14px; flex-shrink:0;">2</div>
+            <div><div style="font-weight:700; font-size:14px; margin-bottom:2px">Recibe el precio real</div><div style="font-size:12px; color:var(--muted)">El admin confirma en &lt;24h</div></div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:700; font-size:14px; flex-shrink:0;">3</div>
+            <div><div style="font-weight:700; font-size:14px; margin-bottom:2px">Sigue tu pedido en vivo</div><div style="font-size:12px; color:var(--muted)">Hasta que llegue a tus manos</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. LOGIN / REGISTER ─── -->
+  <div class="page-block">
+    <div class="page-label">2. Login / Registro</div>
+    <div class="page-route">/login · /registro (público)</div>
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>●●● 100%</span></div>
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:32px 24px;">
+        <!-- Logo centrado -->
+        <div style="text-align:center; margin-bottom:36px;">
+          <div style="font-family:'Fraunces',serif; font-size:32px; font-weight:800; color:var(--primary)">traelo.</div>
+          <div style="font-size:14px; color:var(--muted); margin-top:4px">Entra o crea tu cuenta</div>
+        </div>
+        <!-- Tabs: Entrar / Crear cuenta -->
+        <div style="display:flex; background:var(--surface); border-radius:var(--radius-md); padding:4px; margin-bottom:24px;">
+          <div style="flex:1; text-align:center; padding:10px; border-radius:8px; background:var(--white); font-size:13px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08);">Entrar</div>
+          <div style="flex:1; text-align:center; padding:10px; font-size:13px; font-weight:600; color:var(--muted);">Crear cuenta</div>
+        </div>
+        <!-- Form -->
+        <div class="form-group">
+          <label class="input-label">Correo electrónico</label>
+          <input class="input-field" type="email" placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="input-label">Contraseña</label>
+          <input class="input-field" type="password" placeholder="••••••••">
+          <div style="text-align:right; margin-top:6px;"><span style="font-size:12px; color:var(--primary); font-weight:600;">¿Olvidaste tu contraseña?</span></div>
+        </div>
+        <button class="btn btn-p" style="margin-top:8px">Entrar</button>
+        <div style="text-align:center; margin-top:16px; font-size:13px; color:var(--muted);">¿Primera vez? <span style="color:var(--primary); font-weight:600">Crear cuenta</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. NUEVO PEDIDO ─── -->
+  <div class="page-block">
+    <div class="page-label">3. Nuevo Pedido</div>
+    <div class="page-route">/pedidos/nuevo (auth requerida)</div>
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="app-nav">
+        <span style="font-size:18px; color:var(--muted);">← </span>
+        <span style="font-family:'Fraunces',serif; font-size:17px; font-weight:700;">Nuevo pedido</span>
+        <span style="font-size:13px; color:var(--muted);">Paso 1/2</span>
+      </div>
+      <div class="scroll-area" style="padding:16px 20px;">
+        <div style="margin-bottom:16px; padding:12px 14px; background:rgba(0,181,160,0.08); border-radius:var(--radius-md); border:1px solid rgba(0,181,160,0.2); font-size:13px; color:#065F46; line-height:1.5;">
+          Agrega uno o más productos de SHEIN. El precio se confirma en &lt;24h.
+        </div>
+
+        <!-- Item 1 -->
+        <div style="background:var(--white); border-radius:var(--radius-md); padding:14px; border:1px solid var(--border); margin-bottom:12px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">Producto 1</div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="input-label">Link de SHEIN</label>
+            <input class="input-field" style="font-size:13px;" placeholder="https://us.shein.com/...">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div>
+              <label class="input-label">Talla</label>
+              <input class="input-field" placeholder="M">
+            </div>
+            <div>
+              <label class="input-label">Color</label>
+              <input class="input-field" placeholder="Rosa">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 2fr; gap:10px;">
+            <div>
+              <label class="input-label">Cant.</label>
+              <input class="input-field" placeholder="1">
+            </div>
+            <div>
+              <label class="input-label">Notas (opcional)</label>
+              <input class="input-field" placeholder="Para regalo...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Add more -->
+        <button style="width:100%; border:2px dashed var(--border); background:transparent; border-radius:var(--radius-md); padding:14px; font-size:14px; font-weight:600; color:var(--muted); font-family:inherit; margin-bottom:20px;">
+          + Agregar otro producto
+        </button>
+
+        <button class="btn btn-p">Enviar cotización →</button>
+        <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--muted);">
+          Recibirás confirmación por correo
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 4. TRACKING PÚBLICO ─── -->
+  <div class="page-block">
+    <div class="page-label">4. Tracking del Pedido</div>
+    <div class="page-route">/pedidos/[id] (PÚBLICO, sin auth)</div>
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>●●● 100%</span></div>
+      <!-- Header con estado y logo -->
+      <div style="background:var(--primary); padding:24px 20px 20px; color:#fff;">
+        <div style="font-family:'Fraunces',serif; font-size:12px; font-weight:400; opacity:0.7; margin-bottom:4px; letter-spacing:1px; text-transform:uppercase;">traelo.</div>
+        <div style="font-size:11px; font-weight:700; letter-spacing:1px; opacity:0.7; margin-bottom:6px;">Pedido #TRL-2026-0034 · María G.</div>
+        <div style="font-family:'Fraunces',serif; font-size:22px; font-weight:700; line-height:1.2;">Comprado en SHEIN</div>
+        <div style="font-size:13px; opacity:0.8; margin-top:4px;">Actualizado hace 2 horas</div>
+        <!-- Progress bar -->
+        <div style="margin-top:16px; background:rgba(255,255,255,0.2); border-radius:99px; height:6px;">
+          <div style="background:#fff; width:45%; height:100%; border-radius:99px;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; opacity:0.7; margin-top:4px;"><span>Cotización</span><span>Pagado</span><span>En camino</span><span>Entregado</span></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="scroll-area">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-done">✓</div>
+            <div><div class="tl-title">Cotización enviada</div><div class="tl-date">1 jun · 10:32</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-done">✓</div>
+            <div><div class="tl-title">Precio confirmado</div><div class="tl-date">2 jun · 15:18 · $47.80 USD</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-done">✓</div>
+            <div><div class="tl-title">Pago recibido</div><div class="tl-date">3 jun · 09:05</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-current">→</div>
+            <div><div class="tl-title" style="color:var(--primary)">Comprado en SHEIN ← Ahora</div><div class="tl-date">5 jun · 11:43</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-pending"></div>
+            <div><div class="tl-title pending">En camino al casillero</div><div class="tl-date">Pendiente</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-pending"></div>
+            <div><div class="tl-title pending">Enviado a Cuba</div><div class="tl-date">Pendiente</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot-pending"></div>
+            <div><div class="tl-title pending">Entregado</div><div class="tl-date">Pendiente</div></div>
+          </div>
+        </div>
+        <!-- Share hint -->
+        <div style="padding:16px 20px; margin:0; background:var(--surface); text-align:center;">
+          <div style="font-size:13px; color:var(--muted)">Comparte este link con tu familia para que vean el estado</div>
+          <button style="margin-top:10px; width:100%; padding:12px; border:1.5px solid var(--border); background:var(--bg); border-radius:var(--radius-md); font-size:13px; font-weight:700; color:var(--text); font-family:inherit;">Copiar link de tracking</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 5. DASHBOARD CLIENTE ─── -->
+  <div class="page-block">
+    <div class="page-label">5. Dashboard Cliente</div>
+    <div class="page-route">/dashboard (auth requerida)</div>
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scroll-area">
+        <div style="padding:20px 20px 12px;">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:2px;">Hola,</div>
+          <div style="font-family:'Fraunces',serif; font-size:24px; font-weight:700;">María González</div>
+        </div>
+        <!-- Stats -->
+        <div style="padding:0 20px 16px;">
+          <div class="stat-row">
+            <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Pedidos activos</div></div>
+            <div class="stat-box"><div class="stat-num">12</div><div class="stat-lbl">Total histórico</div></div>
+            <div class="stat-box"><div class="stat-num" style="font-size:18px">$324</div><div class="stat-lbl">USD gastado</div></div>
+          </div>
+        </div>
+        <div style="padding:0 20px;">
+          <div class="section-label">Pedidos activos</div>
+          <div class="order-card">
+            <div class="order-card-left">
+              <div class="order-card-id">TRL-2026-0034</div>
+              <div class="order-card-name">Vestido + Zapatillas</div>
+              <div class="order-card-items">2 productos · $47.80 USD</div>
+            </div>
+            <span class="badge badge-camino">EN CAMINO</span>
+          </div>
+          <div class="order-card">
+            <div class="order-card-left">
+              <div class="order-card-id">TRL-2026-0036</div>
+              <div class="order-card-name">Vestido Floral Midi</div>
+              <div class="order-card-items">1 producto</div>
+            </div>
+            <span class="badge badge-actualizado">PRECIO LISTO</span>
+          </div>
+          <div class="order-card" style="opacity:0.5;">
+            <div class="order-card-left">
+              <div class="order-card-id">TRL-2026-0031</div>
+              <div class="order-card-name">Set de accesorios</div>
+              <div class="order-card-items">3 productos · $28.40 USD</div>
+            </div>
+            <span class="badge badge-entregado">ENTREGADO</span>
+          </div>
+          <button class="btn btn-p" style="margin-top:16px; margin-bottom:24px">+ Nuevo pedido</button>
+        </div>
+      </div>
+      <!-- Bottom tab bar -->
+      <div class="phone-bottom-bar">
+        <div class="tab-item"><div class="tab-icon">🏠</div><div>Inicio</div></div>
+        <div class="tab-item active"><div class="tab-icon">📋</div><div>Pedidos</div></div>
+        <div class="tab-item"><div class="tab-icon">👤</div><div>Perfil</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 6. ADMIN KANBAN ─── -->
+  <div class="page-block" style="grid-column: span 2;">
+    <div class="page-label">6. Admin Kanban</div>
+    <div class="page-route">/admin/kanban (solo admin, desktop-first)</div>
+    <div class="phone desktop">
+      <div class="phone-status" style="background:var(--text); color:#8C7F76; padding:14px 20px;">
+        <span></span>
+        <div class="admin-top-links">
+          <span class="admin-top-link active">Kanban</span>
+          <span class="admin-top-link">Configuración</span>
+          <span class="admin-top-link">Salir</span>
+        </div>
+        <span style="font-family:'Fraunces',serif; color:var(--primary); font-weight:700;">traelo admin.</span>
+      </div>
+      <!-- Stats bar -->
+      <div style="background:var(--surface); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; gap:24px; font-size:13px;">
+        <span><strong>8</strong> pedidos activos</span>
+        <span><strong>3</strong> sin procesar</span>
+        <span><strong>2</strong> esperando pago</span>
+        <span style="margin-left:auto; color:var(--primary); font-weight:700; cursor:pointer">+ Pedido manual</span>
+      </div>
+      <!-- Kanban board -->
+      <div class="kanban-scroll">
+        <div class="kanban-inner">
+          <div class="k-col">
+            <div class="k-col-title">COTIZACIÓN <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">1</span></div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0037</div>
+              <div class="k-card-name">Lisandra V.</div>
+              <div style="font-size:12px; color:var(--muted);">Hace 10 min · 3 items</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">EN REVISIÓN <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">3</span></div>
+            <div class="k-card hl">
+              <div class="k-card-id">TRL-0035 ← procesar</div>
+              <div class="k-card-name">Carla M.</div>
+              <div style="font-size:12px; color:var(--muted);">2 items sin precio</div>
+              <button style="margin-top:8px; width:100%; padding:8px; background:var(--primary); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;">Procesar items →</button>
+            </div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0036</div>
+              <div class="k-card-name">Yolanda P.</div>
+              <div style="font-size:12px; color:var(--muted);">1 item sin precio</div>
+            </div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0033</div>
+              <div class="k-card-name">Ana R.</div>
+              <div style="font-size:12px; color:var(--muted);">3 items procesados ✓</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">PRECIO ACTUALIZADO <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">1</span></div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0034</div>
+              <div class="k-card-name">María G.</div>
+              <div class="k-card-price">$47.80 USD</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Esperando respuesta</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">PENDIENTE PAGO <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">2</span></div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0031</div>
+              <div class="k-card-name">Rosa T.</div>
+              <div class="k-card-price">$62.50 USD</div>
+              <button style="margin-top:8px; width:100%; padding:8px; background:var(--accent); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;">Confirmar pago ✓</button>
+            </div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0029</div>
+              <div class="k-card-name">Caridad F.</div>
+              <div class="k-card-price">$35.00 USD</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">PAGADO <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">1</span></div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0028</div>
+              <div class="k-card-name">Lázara M.</div>
+              <div class="k-card-price">$88.20 USD</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">EN CAMINO <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">3</span></div>
+            <div class="k-card">
+              <div class="k-card-id">TRL-0025</div>
+              <div class="k-card-name">Yanet P.</div>
+            </div>
+          </div>
+          <div class="k-col">
+            <div class="k-col-title">ENTREGADO <span style="background:var(--border); border-radius:99px; padding:1px 7px; font-size:10px;">24</span></div>
+            <div class="k-card" style="opacity:0.5">
+              <div class="k-card-id">TRL-0010</div>
+              <div class="k-card-name">Elena V.</div>
+              <div class="k-card-price">$35.00 USD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 7. ADMIN CONFIG ─── -->
+  <div class="page-block">
+    <div class="page-label">7. Admin Configuración</div>
+    <div class="page-route">/admin/config (solo admin)</div>
+    <div class="phone">
+      <div class="phone-status" style="background:var(--text); color:#8C7F76; padding:10px 16px; font-size:11px; display:flex; justify-content:space-between;">
+        <div class="admin-top-links">
+          <span class="admin-top-link">Kanban</span>
+          <span class="admin-top-link active">Config</span>
+        </div>
+        <span style="font-family:'Fraunces',serif; color:var(--primary); font-weight:700; font-size:15px;">traelo.</span>
+      </div>
+      <div class="scroll-area" style="padding:20px;">
+        <div style="font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:4px;">Configuración</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:20px;">Parámetros del negocio</div>
+
+        <div class="section-label">WhatsApp</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="config-row" style="padding-top:0">
+            <div><div class="config-key">Número WhatsApp</div><div class="config-val">+1 (305) 555-0123</div></div>
+            <div class="config-edit">Editar</div>
+          </div>
+        </div>
+
+        <div class="section-label">Precios de referencia</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="config-row" style="padding-top:0">
+            <div><div class="config-key">Precio por libra</div><div class="config-val">$8.00 USD</div></div>
+            <div class="config-edit">Editar</div>
+          </div>
+          <div class="config-row" style="padding-bottom:0">
+            <div><div class="config-key">Factor markup</div><div class="config-val">× 1.30</div></div>
+            <div class="config-edit">Editar</div>
+          </div>
+        </div>
+
+        <div class="section-label">Notificaciones email</div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+            <div style="font-size:14px;">COTIZACION recibida</div>
+            <div style="width:36px; height:20px; background:var(--accent); border-radius:99px;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+            <div style="font-size:14px;">PRECIO_ACTUALIZADO</div>
+            <div style="width:36px; height:20px; background:var(--accent); border-radius:99px;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0;">
+            <div style="font-size:14px;">DISPONIBLE_ENTREGA</div>
+            <div style="width:36px; height:20px; background:var(--accent); border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="max-width:1400px; margin:48px auto 0; padding:32px 0; border-top:1px solid #D4CEC9; color:#6B6460; font-size:13px; display:flex; justify-content:space-between;">
+  <span>Traelo — 7 páginas definidas · Wireframes v1.0 · 2026-06-08</span>
+  <span>Mobile-first: páginas 1-5 · Desktop-first: páginas 6-7</span>
+</div>
+
+</body>
+</html>

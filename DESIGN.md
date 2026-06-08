@@ -199,6 +199,69 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 
 ---
 
+## Page Inventory
+
+### Portal Cliente (mobile-first, max-width: 480px)
+
+| Ruta | Nombre | Auth | Descripción |
+|------|--------|------|-------------|
+| `/` | Landing Page | No | Hero oscuro, CTA "Hacer pedido", sección "¿Cómo funciona?" debajo del fold. Navbar mínimo: logo + "Entrar". |
+| `/login` | Login | No | Logo centrado, tabs "Entrar / Crear cuenta", email + password, link "¿Olvidaste tu contraseña?". Sin sidebar. |
+| `/registro` | Registro | No | Igual que login pero tab "Crear cuenta" activo. Campos: nombre, email, password. |
+| `/pedidos/nuevo` | Nuevo Pedido | Sí | Formulario multi-item: URL SHEIN + talla + color + cantidad + notas por item. Botón "Agregar otro producto". |
+| `/pedidos/[id]` | Tracking | No | **Público.** Header rojo con estado actual + barra de progreso. Timeline vertical de estados. Botón "Copiar link". |
+| `/dashboard` | Mis Pedidos | Sí | Saludo + stats (pedidos activos, histórico, USD gastado) + lista de pedidos con badges de estado. Bottom tab bar. |
+| `/perfil` | Perfil | Sí | Nombre, email, teléfono, dirección. Botón "Cerrar sesión". Bottom tab bar. |
+
+### Portal Admin (desktop-first, max-width: 1200px)
+
+| Ruta | Nombre | Auth | Descripción |
+|------|--------|------|-------------|
+| `/admin/kanban` | Kanban | Admin | Navbar top oscuro. Barra de stats. Kanban horizontal con scroll. Cards con botón "Procesar items" en EN_REVISION. |
+| `/admin/config` | Configuración | Admin | Navbar top oscuro. Formulario para editar whatsapp_phone, precio_por_lb, markup_factor. Toggles de notificaciones. |
+
+---
+
+## Navigation
+
+### Portal Cliente — Bottom Tab Bar
+```
+┌─────────────────────────────┐
+│         contenido           │
+│                             │
+└─────────────────────────────┘
+┌─────────────────────────────┐
+│   🏠 Inicio │ 📋 Pedidos │ 👤 Perfil   │  ← fixed bottom, 56px height
+└─────────────────────────────┘
+```
+- Tabs: **Inicio** (`/`) · **Pedidos** (`/dashboard`) · **Perfil** (`/perfil`)
+- Botón flotante **+** en Pedidos lleva a `/pedidos/nuevo`
+- La landing page tiene navbar propio (no bottom bar) hasta que el usuario hace login
+- En `/pedidos/[id]` (tracking público) no hay bottom bar — es una página standalone compartible
+
+### Portal Admin — Top Navbar
+```
+┌─────────────────────────────────────────────┐
+│ Kanban   Configuración          traelo admin. │  ← bg #1C1714, sticky top
+└─────────────────────────────────────────────┘
+```
+- Links: Kanban (activo por defecto) · Configuración
+- Logo "traelo admin." a la derecha en terracota
+- Salir como link discreto
+
+---
+
+## Auth
+
+- **Método:** Email + password (Supabase Auth)
+- **Login page:** Logo centrado, tabs "Entrar / Crear cuenta", sin sidebar
+- **Olvidé contraseña:** Link debajo del campo password → email de reset via Supabase
+- **Admin auth:** Mismo login, pero middleware verifica `profiles.rol = 'admin'` antes de `/admin/*`
+- **Persistencia:** Supabase maneja la sesión. Cookie httpOnly. Redirect a `/dashboard` tras login.
+- **Sin login público:** El tracking `/pedidos/[id]` es público por UUID — no requiere cuenta
+
+---
+
 ## Decisions Log
 
 | Fecha | Decisión | Razonamiento |
@@ -211,3 +274,7 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 | 2026-06-08 | Sin Bebas Neue para números | Overused en 2024-2025. Plus Jakarta Sans tabular-nums es suficiente y más coherente. |
 | 2026-06-08 | Tracking page como tarjeta compartible | Diseñada para ser screenshoteada y compartida en grupos de WhatsApp como prueba de confianza. |
 | 2026-06-08 | Landing sin hero carousel ni feature grid | Una foto editorial, un headline, un CTA. El "¿Cómo funciona?" vive debajo del fold en 3 pasos. |
+| 2026-06-08 | Bottom tab bar en portal cliente | Patrón más familiar en móvil (Instagram/WhatsApp). 3 tabs: Inicio, Pedidos, Perfil. |
+| 2026-06-08 | Auth: email + password | Simple, conocido por todos. Magic link tiene demasiada fricción en primer uso para audiencia cubana. |
+| 2026-06-08 | Tracking `/pedidos/[id]` sin navbar ni bottom bar | Es una página standalone pública compartible. Diseñada como tarjeta, no como app. |
+| 2026-06-08 | Admin: top navbar oscuro | El admin (founder) usa desktop. Sidebar no vale la pena para solo 2 secciones. |

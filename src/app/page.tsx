@@ -163,7 +163,7 @@ export default async function Home() {
               { i: <IconLink />, t: "Pega el link de SHEIN", d: "Copia el link, elige talla, color y cantidad. Varios productos en un pedido." },
               { i: <IconShield />, t: "Recibe el precio real", d: "El admin verifica en SHEIN en menos de 24 h y te lo envía con evidencia." },
               { i: <IconWallet />, t: "Pagas y compramos", d: "Confirmas el precio, pagas, y compramos en SHEIN guardando el comprobante." },
-              { i: <IconTruck />, t: "Sigue tu pedido en vivo", d: "Casillero → empaque → Cuba. Cada estado en tu link de tracking.", a: true },
+              { i: <IconTruck />, t: "Sigue tu pedido en vivo", d: "EE.UU. → empaque → Cuba. Cada estado en tu link de tracking.", a: true },
               { i: <IconScale />, t: "Recoges y pagas las libras", d: "Te avisamos el peso con foto por adelantado. Al recoger ya sabes cuánto pesó y pagas las libras.", a: true },
             ].map((s, idx) => (
               <Reveal key={s.t} delay={idx * 80}>
@@ -519,7 +519,7 @@ export default async function Home() {
               <Faq q="¿Puedo cancelar un pedido?">
                 Puedes cancelar sin costo mientras esté en cotización o revisión
                 (antes de pagar). Una vez pagado y comprado en SHEIN no es
-                posible, porque SHEIN no acepta devoluciones a casilleros
+                posible, porque SHEIN no acepta devoluciones en envíos
                 internacionales.
               </Faq>
               <Faq q="¿Cuándo está disponible el envío express?">

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traelo — Design System Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #FAFAF7;
+    --surface:  #F0EBE0;
+    --primary:  #C4522A;
+    --accent:   #00B5A0;
+    --text:     #1C1714;
+    --muted:    #8C7F76;
+    --border:   #E2D9CE;
+    --white:    #FFFFFF;
+    --success:  #00B5A0;
+    --warning:  #D4A017;
+    --error:    #B03A2E;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-full: 9999px;
+  }
+  [data-theme="dark"] {
+    --bg:      #1C1714;
+    --surface: #2A2218;
+    --text:    #F0EBE0;
+    --muted:   #8C7F76;
+    --border:  #3A2E26;
+    --white:   #2A2218;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background 0.3s, color 0.3s;
+  }
+  h1, h2, h3, .serif { font-family: 'Fraunces', Georgia, serif; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+  .nav-links { display: flex; gap: 24px; font-size: 13px; font-weight: 500; color: var(--muted); }
+  .nav-links a { color: inherit; text-decoration: none; }
+  .nav-links a:hover { color: var(--text); }
+  .theme-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full);
+    padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 80px 24px; max-width: 1080px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .section-title { font-family: 'Fraunces', serif; font-size: clamp(28px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
+  .section-sub { color: var(--muted); font-size: 16px; margin-bottom: 48px; }
+
+  /* ── HERO MOCKUP ── */
+  .hero-mockup {
+    background: var(--text); border-radius: var(--radius-lg); overflow: hidden;
+    min-height: 560px; display: flex; flex-direction: column; position: relative;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #2A1A12 0%, #1C1714 40%, #0A1512 100%);
+  }
+  .hero-content { position: relative; z-index: 1; padding: 56px 40px 48px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,181,160,0.15); border: 1px solid rgba(0,181,160,0.3);
+    border-radius: var(--radius-full); padding: 4px 12px; font-size: 12px; font-weight: 600;
+    color: var(--accent); margin-bottom: 24px; width: fit-content;
+  }
+  .hero-badge::before { content: "●"; font-size: 8px; }
+  .hero-headline { font-family: 'Fraunces', serif; font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.05; color: #F0EBE0; margin-bottom: 16px; }
+  .hero-sub { color: #8C7F76; font-size: 16px; margin-bottom: 32px; max-width: 420px; }
+  .hero-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--primary); color: #fff; border: none;
+    border-radius: var(--radius-full); padding: 14px 28px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-ghost {
+    background: transparent; color: #F0EBE0; border: 1px solid rgba(240,235,224,0.25);
+    border-radius: var(--radius-full); padding: 14px 28px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .hero-stats { display: flex; gap: 32px; margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: #F0EBE0; }
+  .stat-label { font-size: 12px; color: #8C7F76; margin-top: 2px; }
+
+  /* ── PALETTE ── */
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .swatch { border-radius: var(--radius-md); overflow: hidden; }
+  .swatch-color { height: 80px; }
+  .swatch-info { background: var(--surface); padding: 10px 12px; }
+  .swatch-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+  .swatch-hex { font-size: 11px; color: var(--muted); font-family: monospace; }
+
+  /* ── TYPOGRAPHY SPECIMEN ── */
+  .type-row { padding: 28px 0; border-bottom: 1px solid var(--border); }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .specimen-hero { font-family: 'Fraunces', serif; font-size: clamp(36px, 5vw, 52px); font-weight: 700; line-height: 1.05; letter-spacing: -1px; }
+  .specimen-h2 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; line-height: 1.2; }
+  .specimen-body { font-size: 16px; line-height: 1.65; max-width: 600px; color: var(--text); }
+  .specimen-small { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .specimen-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── COMPONENT GALLERY ── */
+  .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .component-card { background: var(--surface); border-radius: var(--radius-lg); padding: 28px; border: 1px solid var(--border); }
+  .component-card-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+
+  /* Buttons */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn { border: none; border-radius: var(--radius-full); padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .btn-sm { padding: 8px 16px; font-size: 12px; }
+  .btn-p { background: var(--primary); color: #fff; }
+  .btn-s { background: var(--surface); border: 1.5px solid var(--border); color: var(--text); }
+  .btn-a { background: var(--accent); color: #fff; }
+  .btn-g { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+  .btn-d { background: var(--surface); color: var(--muted); opacity: 0.5; }
+
+  /* Form */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+  .form-input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+    background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--primary); }
+  .form-input.error { border-color: var(--error); }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .form-error { font-size: 11px; color: var(--error); margin-top: 4px; font-weight: 600; }
+
+  /* Status badges */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: var(--radius-full); font-size: 12px; font-weight: 700; }
+  .badge-cotizacion { background: #FFF3E0; color: #B45309; }
+  .badge-revision { background: #EDE9FE; color: #5B21B6; }
+  .badge-actualizado { background: #FEF3C7; color: #92400E; }
+  .badge-aceptado { background: #D1FAE5; color: #065F46; }
+  .badge-pagado { background: rgba(0,181,160,0.12); color: var(--accent); }
+  .badge-camino { background: #DBEAFE; color: #1E40AF; }
+  .badge-entregado { background: #D1FAE5; color: #065F46; }
+  .badge-cancelado { background: #FEE2E2; color: #991B1B; }
+
+  /* ── TRACKING PAGE MOCKUP ── */
+  .tracking-card {
+    background: var(--surface); border-radius: var(--radius-lg); overflow: hidden;
+    border: 1px solid var(--border); max-width: 420px;
+  }
+  .tracking-header { background: var(--primary); padding: 24px; color: #fff; }
+  .tracking-order-id { font-size: 12px; opacity: 0.8; margin-bottom: 4px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .tracking-status-big { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; }
+  .tracking-body { padding: 24px; }
+  .tracking-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center; }
+  .tracking-item:last-child { border-bottom: none; }
+  .tracking-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 5px; }
+  .tracking-dot.active { background: var(--accent); box-shadow: 0 0 0 3px rgba(0,181,160,0.2); }
+  .tracking-dot.done { background: var(--accent); }
+  .tracking-dot.current { background: var(--primary); box-shadow: 0 0 0 4px rgba(196,82,42,0.2); }
+  .tracking-state-name { font-size: 14px; font-weight: 600; }
+  .tracking-state-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── ORDER FORM MOCKUP ── */
+  .order-form-mockup { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; max-width: 460px; }
+  .order-form-header { background: var(--surface); padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .order-form-icon { width: 36px; height: 36px; background: var(--primary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+  .order-form-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; }
+  .order-form-body { padding: 24px; }
+  .item-card { background: var(--surface); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+  .item-card-top { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+  .item-img-placeholder { width: 48px; height: 60px; background: var(--border); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .item-details { flex: 1; }
+  .item-url { font-size: 11px; color: var(--muted); word-break: break-all; margin-bottom: 4px; }
+  .item-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
+  .item-attr-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .item-attr { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .add-item-btn { width: 100%; border: 2px dashed var(--border); background: transparent; border-radius: var(--radius-md); padding: 14px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .add-item-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ── ADMIN KANBAN MOCKUP ── */
+  .kanban-wrap { overflow-x: auto; padding-bottom: 8px; }
+  .kanban-board { display: flex; gap: 16px; min-width: 800px; }
+  .kanban-col { background: var(--surface); border-radius: var(--radius-lg); padding: 16px; width: 220px; flex-shrink: 0; border: 1px solid var(--border); }
+  .kanban-col-title { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .kanban-count { background: var(--border); border-radius: var(--radius-full); padding: 2px 8px; font-size: 11px; }
+  .kanban-card { background: var(--bg); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
+  .kanban-card-id { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+  .kanban-card-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .kanban-card-items { font-size: 12px; color: var(--muted); }
+  .kanban-card-price { font-size: 15px; font-weight: 700; color: var(--primary); margin-top: 8px; }
+  .kanban-card.highlight { border-color: var(--primary); background: rgba(196,82,42,0.04); }
+
+  /* ── HOW IT WORKS ── */
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  .step { text-align: center; }
+  .step-num { width: 48px; height: 48px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin: 0 auto 16px; }
+  .step-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    section { padding: 56px 16px; }
+    .hero-content { padding: 40px 24px 36px; }
+    .hero-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">traelo.</div>
+  <div class="nav-links">
+    <a href="#palette">Colores</a>
+    <a href="#type">Tipografía</a>
+    <a href="#components">Componentes</a>
+    <a href="#screens">Pantallas</a>
+  </div>
+  <button class="theme-btn" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    ☀︎ / ◗ Modo
+  </button>
+</nav>
+
+<!-- ─────── HERO MOCKUP ─────── -->
+<section id="hero">
+  <div class="section-label">Landing Page Mockup</div>
+  <h2 class="section-title">Primera impresión</h2>
+  <p class="section-sub">Lo que ve un cliente nuevo en los primeros 3 segundos.</p>
+
+  <div class="hero-mockup">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Pedidos activos ahora mismo</div>
+      <h1 class="hero-headline">Tu pedido de<br>SHEIN,<br>sin dramas.</h1>
+      <p class="hero-sub">Pega el link, elige tu talla, y nosotros nos encargamos de todo. Tracking en tiempo real hasta tu puerta.</p>
+      <div class="hero-cta-row">
+        <button class="btn-primary">Hacer un pedido</button>
+        <button class="btn-ghost">Ver cómo funciona</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">247</div>
+          <div class="stat-label">Pedidos entregados</div>
+        </div>
+        <div>
+          <div class="stat-num">98%</div>
+          <div class="stat-label">Clientes satisfechos</div>
+        </div>
+        <div>
+          <div class="stat-num">4–6 sem</div>
+          <div class="stat-label">Tiempo promedio</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── CÓMO FUNCIONA ─────── -->
+<section>
+  <div class="section-label">¿Cómo funciona?</div>
+  <h2 class="section-title">3 pasos. Sin complicaciones.</h2>
+  <p class="section-sub">Nada de fotos por WhatsApp. Nada de esperar días sin saber qué pasó.</p>
+
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Pega el link de SHEIN</div>
+      <p class="step-desc">Abre SHEIN, copia el link del producto que quieres. Selecciona talla, color y cantidad en nuestro formulario.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Revisamos y confirmamos el precio</div>
+      <p class="step-desc">El admin verifica el precio real y te envía la cotización. Aceptas o negociamos. Sin sorpresas.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Sigue tu pedido en tiempo real</div>
+      <p class="step-desc">Una vez que pagas, compramos en SHEIN y tú puedes ver cada estado hasta que llegue a tus manos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── PALETA ─────── -->
+<section id="palette">
+  <div class="section-label">Sistema de Color</div>
+  <h2 class="section-title">Paleta "Verano Confiable"</h2>
+  <p class="section-sub">Terracota como primario, teal reservado para estados de confianza confirmados.</p>
+
+  <div class="palette-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#C4522A"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Primary</div>
+        <div class="swatch-hex">#C4522A — Terracota</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#00B5A0"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Accent (Confianza)</div>
+        <div class="swatch-hex">#00B5A0 — Teal</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FAFAF7; border: 1px solid #E2D9CE;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Background</div>
+        <div class="swatch-hex">#FAFAF7 — Blanco arena</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F0EBE0"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Surface</div>
+        <div class="swatch-hex">#F0EBE0 — Arena suave</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1C1714"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Text</div>
+        <div class="swatch-hex">#1C1714 — Negro cálido</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8C7F76"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Muted</div>
+        <div class="swatch-hex">#8C7F76 — Gris cálido</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#B03A2E"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Error</div>
+        <div class="swatch-hex">#B03A2E</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#D4A017"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Warning</div>
+        <div class="swatch-hex">#D4A017</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── TIPOGRAFÍA ─────── -->
+<section id="type">
+  <div class="section-label">Tipografía</div>
+  <h2 class="section-title">Sistema tipográfico</h2>
+  <p class="section-sub">Fraunces (variable serif) para jerarquía editorial. Plus Jakarta Sans para UI funcional.</p>
+
+  <div class="type-row">
+    <div class="type-meta">Display / Hero — Fraunces 700</div>
+    <div class="specimen-hero">Tu pedido llega a Cuba.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">H2 — Fraunces 600</div>
+    <div class="specimen-h2">Pedidos gestionados con transparencia real.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Body — Plus Jakarta Sans 400</div>
+    <div class="specimen-body">Traelo es la plataforma que conecta a cubanos con sus pedidos de SHEIN de forma ordenada, transparente y con seguimiento en tiempo real. Sin fotos por WhatsApp, sin transferencias a ciegas, sin semanas de silencio.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">UI Label — Plus Jakarta Sans 700</div>
+    <div class="specimen-small">ESTADO DEL PEDIDO · EN CAMINO AL CASILLERO · HACE 2 DÍAS</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Section Label — Plus Jakarta Sans 700, tracked</div>
+    <div class="specimen-label">¿Cómo funciona?</div>
+  </div>
+</section>
+
+<!-- ─────── COMPONENTES ─────── -->
+<section id="components">
+  <div class="section-label">Componentes UI</div>
+  <h2 class="section-title">Librería base</h2>
+  <p class="section-sub">Estados de todos los componentes clave del sistema.</p>
+
+  <div class="component-grid">
+
+    <!-- Botones -->
+    <div class="component-card">
+      <div class="component-card-title">Botones</div>
+      <div class="btn-row">
+        <button class="btn btn-p">Hacer pedido</button>
+        <button class="btn btn-s">Cancelar</button>
+      </div>
+      <br>
+      <div class="btn-row">
+        <button class="btn btn-a btn-sm">✓ Aceptar precio</button>
+        <button class="btn btn-g btn-sm">Ver detalles</button>
+        <button class="btn btn-d btn-sm" disabled>Deshabilitado</button>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="component-card">
+      <div class="component-card-title">Formulario</div>
+      <div class="form-group">
+        <label class="form-label">Link de SHEIN</label>
+        <input class="form-input" type="text" placeholder="https://us.shein.com/...">
+        <div class="form-hint">Pega el link completo del producto.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Talla</label>
+        <input class="form-input error" type="text" value="XL">
+        <div class="form-error">Elige una talla válida.</div>
+      </div>
+    </div>
+
+    <!-- Status badges -->
+    <div class="component-card">
+      <div class="component-card-title">Estados del pedido</div>
+      <div class="badge-row">
+        <span class="badge badge-cotizacion">COTIZACIÓN</span>
+        <span class="badge badge-revision">EN REVISIÓN</span>
+        <span class="badge badge-actualizado">PRECIO ACTUALIZADO</span>
+        <span class="badge badge-aceptado">ACEPTADO</span>
+        <span class="badge badge-pagado">PAGADO</span>
+        <span class="badge badge-camino">EN CAMINO</span>
+        <span class="badge badge-entregado">ENTREGADO</span>
+        <span class="badge badge-cancelado">CANCELADO</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────── PANTALLAS ─────── -->
+<section id="screens">
+  <div class="section-label">Pantallas clave</div>
+  <h2 class="section-title">Tracking · Formulario · Kanban</h2>
+  <p class="section-sub">Las 3 pantallas que más tiempo pasan abiertas en el producto.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: start;">
+
+    <!-- Tracking card -->
+    <div>
+      <div class="section-label" style="margin-bottom: 16px;">/ pedidos / [id] — Tracking público</div>
+      <div class="tracking-card">
+        <div class="tracking-header">
+          <div class="tracking-order-id">Pedido #TRL-2026-0034 · María G.</div>
+          <div class="tracking-status-big">En camino al casillero 📦</div>
+        </div>
+        <div class="tracking-body">
+          <div class="tracking-item">
+            <div class="tracking-dot done"></div>
+            <div>
+              <div class="tracking-state-name">Cotización enviada</div>
+              <div class="tracking-state-date">1 jun 2026 · 10:32</div>
+            </div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-dot done"></div>
+            <div>
+              <div class="tracking-state-name">Precio confirmado</div>
+              <div class="tracking-state-date">2 jun 2026 · 15:18</div>
+            </div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-dot done"></div>
+            <div>
+              <div class="tracking-state-name">Pago recibido</div>
+              <div class="tracking-state-date">3 jun 2026 · 09:05</div>
+            </div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-dot current"></div>
+            <div>
+              <div class="tracking-state-name" style="color:var(--primary)">Comprado en SHEIN ← Ahora</div>
+              <div class="tracking-state-date">5 jun 2026 · 11:43</div>
+            </div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-dot"></div>
+            <div>
+              <div class="tracking-state-name" style="color:var(--muted)">En camino al casillero</div>
+              <div class="tracking-state-date">Pendiente</div>
+            </div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-dot"></div>
+            <div>
+              <div class="tracking-state-name" style="color:var(--muted)">Enviado a Cuba</div>
+              <div class="tracking-state-date">Pendiente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order form -->
+    <div>
+      <div class="section-label" style="margin-bottom: 16px;">/ pedidos / nuevo — Formulario cliente</div>
+      <div class="order-form-mockup">
+        <div class="order-form-header">
+          <div class="order-form-icon">🛍</div>
+          <div>
+            <div class="order-form-title">Nuevo pedido</div>
+            <div style="font-size:12px;color:var(--muted)">Agrega uno o más productos de SHEIN</div>
+          </div>
+        </div>
+        <div class="order-form-body">
+          <div class="item-card">
+            <div class="item-card-top">
+              <div class="item-img-placeholder">👗</div>
+              <div class="item-details">
+                <div class="item-url">us.shein.com/Floral-Midi-Dress-p-5123...</div>
+                <div class="item-name">Vestido Midi Floral Manga Corta</div>
+              </div>
+            </div>
+            <div class="item-attr-row">
+              <span class="item-attr">Talla M</span>
+              <span class="item-attr">Color: Rosa</span>
+              <span class="item-attr">Cant: 1</span>
+            </div>
+          </div>
+          <div class="item-card" style="opacity:0.5">
+            <div class="item-card-top">
+              <div class="item-img-placeholder">👟</div>
+              <div class="item-details">
+                <div class="item-url">us.shein.com/Summer-Sneakers-p-4562...</div>
+                <div class="item-name">Zapatillas Blancas Verano</div>
+              </div>
+            </div>
+            <div class="item-attr-row">
+              <span class="item-attr">Talla 37</span>
+              <span class="item-attr">Color: Blanco</span>
+              <span class="item-attr">Cant: 1</span>
+            </div>
+          </div>
+          <button class="add-item-btn">+ Agregar otro producto</button>
+          <br>
+          <button class="btn btn-p" style="width:100%;margin-top:16px;border-radius:12px;padding:15px">Enviar cotización</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin kanban (mini) -->
+    <div>
+      <div class="section-label" style="margin-bottom: 16px;">/ admin / kanban — Vista admin</div>
+      <div class="kanban-wrap">
+        <div class="kanban-board" style="min-width: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="kanban-col">
+            <div class="kanban-col-title">EN REVISIÓN <span class="kanban-count">3</span></div>
+            <div class="kanban-card highlight">
+              <div class="kanban-card-id">TRL-2026-0035</div>
+              <div class="kanban-card-name">Carla M.</div>
+              <div class="kanban-card-items">2 productos · 5 items</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-id">TRL-2026-0036</div>
+              <div class="kanban-card-name">Lisandra V.</div>
+              <div class="kanban-card-items">1 producto</div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-title">PRECIO ACTUALIZADO <span class="kanban-count">1</span></div>
+            <div class="kanban-card">
+              <div class="kanban-card-id">TRL-2026-0034</div>
+              <div class="kanban-card-name">María G.</div>
+              <div class="kanban-card-items">2 productos</div>
+              <div class="kanban-card-price">$47.80 USD</div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-title">PAGADO <span class="kanban-count">2</span></div>
+            <div class="kanban-card">
+              <div class="kanban-card-id">TRL-2026-0033</div>
+              <div class="kanban-card-name">Yanet P.</div>
+              <div class="kanban-card-price">$62.50 USD</div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-title">ENTREGADO <span class="kanban-count">24</span></div>
+            <div class="kanban-card" style="opacity:0.5">
+              <div class="kanban-card-id">TRL-2026-0010</div>
+              <div class="kanban-card-name">Rosa T.</div>
+              <div class="kanban-card-price">$35.00 USD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────── FOOTER ─────── -->
+<footer style="text-align:center; padding:48px 24px; border-top:1px solid var(--border); color:var(--muted); font-size:13px;">
+  <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--primary);margin-bottom:8px;">traelo.</div>
+  Sistema de diseño v1.0 · Generado por /design-consultation · 2026-06-08
+</footer>
+
+</body>
+</html>

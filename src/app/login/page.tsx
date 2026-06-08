@@ -4,6 +4,7 @@ import { Suspense, useActionState, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/logo";
 import { login, signup, type AuthState } from "./actions";
 
 export default function LoginPage() {
@@ -52,14 +53,11 @@ function LoginForm() {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-bg px-6 py-12">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="mb-9 text-center">
-          <Link
-            href="/"
-            className="font-display text-4xl font-extrabold text-primary"
-          >
-            traelo.
+        <div className="mb-9 flex flex-col items-center text-center">
+          <Link href="/">
+            <Logo variant="dark" size={44} />
           </Link>
-          <p className="mt-1 text-sm text-muted">Entra o crea tu cuenta</p>
+          <p className="mt-3 text-sm text-muted">Entra o crea tu cuenta</p>
         </div>
 
         {/* Tabs */}

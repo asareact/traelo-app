@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/login/actions";
+import { Logo } from "@/components/logo";
 
 /**
  * Dashboard placeholder. Full client dashboard (orders list, stats, bottom tab
@@ -23,9 +24,7 @@ export default async function Dashboard() {
   return (
     <main className="flex min-h-dvh flex-col bg-bg px-6 py-12">
       <div className="mx-auto w-full max-w-md">
-        <span className="font-display text-2xl font-bold text-primary">
-          traelo.
-        </span>
+        <Logo variant="dark" size={30} />
 
         <div className="mt-8 rounded-lg border border-border bg-surface p-6">
           <p className="text-sm text-muted">Hola,</p>

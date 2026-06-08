@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Logo } from "@/components/logo";
 
 /**
  * Landing placeholder. The full 9-section landing (per DESIGN.md) ships in the
@@ -15,9 +16,7 @@ export default async function Home() {
     <main className="flex min-h-dvh flex-col bg-[#1c1714] text-[#f0ebe0]">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4">
-        <span className="font-display text-2xl font-bold text-primary">
-          traelo.
-        </span>
+        <Logo variant="light" size={34} />
         {user ? (
           <Link
             href="/dashboard"

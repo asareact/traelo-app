@@ -58,3 +58,7 @@ skills-lock.json
 
 # Allow the env template (no secrets)
 !.env.local.example
+
+# Local gstack tooling + scraper experiment script
+.claude/
+scripts/shein-scraper-test.mjs

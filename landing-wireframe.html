@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traelo — Landing Page Completo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7; --surface: #F0EBE0; --primary: #C4522A; --accent: #00B5A0;
+    --text: #1C1714; --muted: #8C7F76; --border: #E2D9CE;
+    --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px; --radius-full: 9999px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(28,23,20,0.95); backdrop-filter: blur(12px);
+    padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--primary); }
+  .nav-links { display: flex; gap: 24px; font-size: 13px; font-weight: 600; color: #8C7F76; }
+  .nav-links a { color: inherit; text-decoration: none; }
+  .nav-links a:hover { color: #F0EBE0; }
+  .nav-cta {
+    background: var(--primary); color: #fff; border: none; border-radius: var(--radius-full);
+    padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+
+  /* ── SECTIONS ── */
+  section { padding: 80px 24px; }
+  .section-inner { max-width: 960px; margin: 0 auto; }
+  .section-inner-wide { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .section-title { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 12px; }
+  .section-sub { color: var(--muted); font-size: 16px; line-height: 1.65; margin-bottom: 48px; max-width: 580px; }
+  section + section { border-top: 1px solid var(--border); }
+
+  /* ── BTN ── */
+  .btn { display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: var(--radius-full); font-family: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+  .btn-lg { padding: 16px 32px; font-size: 16px; }
+  .btn-md { padding: 13px 24px; font-size: 14px; }
+  .btn-p { background: var(--primary); color: #fff; }
+  .btn-g { background: transparent; border: 1.5px solid rgba(240,235,224,0.3); color: #F0EBE0; }
+  .btn-s { background: var(--surface); border: 1.5px solid var(--border); color: var(--text); }
+  .btn-a { background: var(--accent); color: #fff; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100svh; background: linear-gradient(155deg, #2A1A12 0%, #1C1714 45%, #081410 100%);
+    display: flex; flex-direction: column; padding: 0; border: none;
+  }
+  .hero-body {
+    flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: clamp(32px, 6vw, 80px) clamp(24px, 5vw, 80px) 56px;
+    max-width: 900px;
+  }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,181,160,0.12); border: 1px solid rgba(0,181,160,0.3);
+    border-radius: var(--radius-full); padding: 6px 16px; font-size: 12px; font-weight: 700;
+    color: var(--accent); margin-bottom: 28px; width: fit-content;
+  }
+  .hero-pill::before { content: "●"; font-size: 8px; }
+  .hero-h1 {
+    font-family: 'Fraunces', serif; color: #F0EBE0;
+    font-size: clamp(48px, 8vw, 82px); font-weight: 800; line-height: 1.0;
+    letter-spacing: -2px; margin-bottom: 20px;
+  }
+  .hero-h1 em { font-style: italic; color: var(--primary); }
+  .hero-sub { color: #8C7F76; font-size: clamp(15px, 2vw, 18px); margin-bottom: 36px; max-width: 480px; line-height: 1.6; }
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+  .hero-stats { display: flex; gap: 40px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .stat-item {}
+  .stat-num { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: #F0EBE0; line-height: 1; }
+  .stat-lbl { font-size: 12px; color: #6B6460; margin-top: 4px; }
+
+  /* ── CÓMO FUNCIONA ── */
+  #como-funciona { background: var(--surface); }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-top: 0; }
+  .step-card { position: relative; }
+  .step-num {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 16px;
+  }
+  .step-num.accent { background: var(--accent); }
+  .step-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .step-connector { display: none; }
+  @media (min-width: 700px) {
+    .steps { grid-template-columns: repeat(5, 1fr); align-items: start; gap: 16px; }
+    .step-connector { display: flex; align-items: flex-start; padding-top: 20px; justify-content: center; color: var(--border); font-size: 20px; }
+  }
+
+  /* ── POR QUÉ TRAELO ── */
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 640px) { .why-grid { grid-template-columns: 1fr; } }
+  .why-col-bad { background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: var(--radius-lg); padding: 28px; }
+  .why-col-good { background: rgba(0,181,160,0.06); border: 1.5px solid rgba(0,181,160,0.25); border-radius: var(--radius-lg); padding: 28px; }
+  .why-col-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .why-col-bad .why-col-title { color: #991B1B; }
+  .why-col-good .why-col-title { color: var(--accent); }
+  .why-item { display: flex; gap: 10px; margin-bottom: 14px; font-size: 14px; line-height: 1.5; }
+  .why-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+
+  /* ── CATEGORÍAS ── */
+  .cats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .cat-card {
+    background: var(--surface); border-radius: var(--radius-lg); padding: 24px 20px;
+    border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;
+  }
+  .cat-icon { font-size: 32px; }
+  .cat-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; }
+  .cat-peso { font-size: 12px; color: var(--muted); }
+  .cat-price { font-size: 15px; font-weight: 700; color: var(--primary); }
+  .cat-price span { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+  /* ── PRECIOS ── */
+  #precios { background: var(--text); color: #F0EBE0; }
+  #precios .section-label { color: var(--accent); }
+  #precios .section-title { color: #F0EBE0; }
+  #precios .section-sub { color: #8C7F76; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .price-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-lg); padding: 28px;
+  }
+  .price-card.featured { background: var(--primary); border-color: var(--primary); }
+  .price-card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #8C7F76; margin-bottom: 12px; }
+  .price-card.featured .price-card-label { color: rgba(255,255,255,0.7); }
+  .price-big { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 800; color: #F0EBE0; line-height: 1; }
+  .price-unit { font-size: 16px; color: #8C7F76; margin-bottom: 20px; margin-top: 4px; }
+  .price-card.featured .price-unit { color: rgba(255,255,255,0.7); }
+  .price-features { display: flex; flex-direction: column; gap: 10px; }
+  .price-feat { display: flex; gap: 10px; font-size: 14px; color: #D4CEC8; align-items: flex-start; line-height: 1.4; }
+  .price-feat-icon { color: var(--accent); flex-shrink: 0; font-weight: 700; }
+  .price-card.featured .price-feat { color: rgba(255,255,255,0.9); }
+  .price-card.featured .price-feat-icon { color: rgba(255,255,255,0.7); }
+  .price-note { font-size: 12px; color: #6B6460; margin-top: 32px; line-height: 1.6; }
+
+  /* ── TIEMPOS ── */
+  .timeline-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  .timeline-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 10px 16px; border-bottom: 2px solid var(--border); }
+  .timeline-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
+  .timeline-table tr:last-child td { border-bottom: none; }
+  .time-label { font-weight: 700; margin-bottom: 4px; }
+  .time-range { color: var(--muted); font-size: 13px; }
+  .tag { display: inline-flex; padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; }
+  .tag-express { background: rgba(0,181,160,0.12); color: var(--accent); }
+  .tag-standard { background: var(--surface); color: var(--muted); }
+
+  /* ── CÓMO PAGO ── */
+  #como-pago { background: var(--surface); }
+  .pago-steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; }
+  .pago-step { display: flex; gap: 20px; position: relative; padding-bottom: 32px; }
+  .pago-step:last-child { padding-bottom: 0; }
+  .pago-step:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 40px; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .pago-circle {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px; position: relative; z-index: 1;
+  }
+  .pago-circle.accent { background: var(--accent); }
+  .pago-circle.muted { background: var(--border); color: var(--muted); }
+  .pago-content { padding-top: 8px; }
+  .pago-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .pago-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .pago-note {
+    display: inline-flex; gap: 6px; align-items: flex-start;
+    background: rgba(0,181,160,0.08); border: 1px solid rgba(0,181,160,0.2);
+    border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; color: var(--text);
+    margin-top: 10px; line-height: 1.5;
+  }
+
+  /* ── FAQ ── */
+  .faq-list { display: flex; flex-direction: column; gap: 0; max-width: 720px; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-q {
+    padding: 20px 0; font-size: 15px; font-weight: 700; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    list-style: none;
+  }
+  .faq-q::after { content: "+"; font-size: 20px; color: var(--primary); flex-shrink: 0; font-weight: 300; }
+  details[open] .faq-q::after { content: "−"; }
+  .faq-a { padding: 0 0 20px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .faq-a strong { color: var(--text); }
+
+  /* ── CTA FINAL ── */
+  #cta-final { background: linear-gradient(135deg, #2A1A12 0%, #1C1714 100%); text-align: center; }
+  #cta-final .section-title { color: #F0EBE0; }
+  #cta-final .section-sub { color: #8C7F76; margin: 0 auto 40px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--text); padding: 40px 24px 32px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .footer-inner { max-width: 960px; margin: 0 auto; width: 100%; }
+  .footer-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; }
+  .footer-brand { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--primary); }
+  .footer-tagline { font-size: 13px; color: #6B6460; margin-top: 4px; }
+  .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+  .footer-link { font-size: 13px; color: #6B6460; text-decoration: none; }
+  .footer-link:hover { color: #F0EBE0; }
+  .footer-wa {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #25D366; color: #fff; border-radius: var(--radius-full);
+    padding: 12px 22px; font-size: 14px; font-weight: 700; text-decoration: none;
+  }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; font-size: 12px; color: #4A4440; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <div class="nav-brand">traelo.</div>
+  <div class="nav-links">
+    <a href="#como-funciona">¿Cómo funciona?</a>
+    <a href="#precios">Precios</a>
+    <a href="#tiempos">Tiempos</a>
+    <a href="#como-pago">Pagos</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <button class="nav-cta">Hacer un pedido</button>
+</nav>
+
+<!-- ─── 1. HERO ─── -->
+<section id="hero">
+  <div class="hero-body">
+    <div class="hero-pill">247 pedidos entregados exitosamente</div>
+    <h1 class="hero-h1">Tu pedido de<br>SHEIN llega<br>a <em>Cuba.</em></h1>
+    <p class="hero-sub">
+      Pega el link del producto que quieres. Nosotros lo compramos, lo enviamos, y tú ves cada paso en tiempo real. Sin transferencias a ciegas, sin semanas de silencio.
+    </p>
+    <div class="hero-ctas">
+      <a href="/pedidos/nuevo" class="btn btn-p btn-lg">Hacer mi pedido →</a>
+      <a href="#como-funciona" class="btn btn-g btn-lg">¿Cómo funciona?</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">$7</div>
+        <div class="stat-lbl">USD por libra</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">22-35</div>
+        <div class="stat-lbl">días promedio</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98%</div>
+        <div class="stat-lbl">pedidos entregados</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5-7 días</div>
+        <div class="stat-lbl">express a Cuba (10+ lbs)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 2. CÓMO FUNCIONA ─── -->
+<section id="como-funciona">
+  <div class="section-inner">
+    <div class="section-label">Proceso</div>
+    <h2 class="section-title">5 pasos. Sin complicaciones.</h2>
+    <p class="section-sub">Desde que pegas el link hasta que recibes el paquete, todo queda registrado y visible para ti.</p>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title">Pega el link de SHEIN</div>
+        <p class="step-desc">Copia el link del producto que quieres. Elige talla, color y cantidad. Puedes agregar varios productos en un solo pedido.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title">Recibe el precio real confirmado</div>
+        <p class="step-desc">El admin verifica el precio real en SHEIN en menos de 24 horas y te lo envía con evidencia. Aceptas o seguimos negociando.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title">Pagas y nosotros compramos</div>
+        <p class="step-desc">Una vez confirmado el precio, pagas. Inmediatamente compramos en SHEIN y guardamos el comprobante del pago y los artículos.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step-card">
+        <div class="step-num accent">4</div>
+        <div class="step-title">Sigue tu pedido en tiempo real</div>
+        <p class="step-desc">Casillero EE.UU. → empaque → envío a Cuba. Cada estado se actualiza en tu link de tracking. Compártelo con quien quieras.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step-card">
+        <div class="step-num accent">5</div>
+        <div class="step-title">Recibes y pagas las libras</div>
+        <p class="step-desc">Cuando el paquete llega, te enviamos el peso real con foto de evidencia. Pagas las libras y coordinas la entrega.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 3. POR QUÉ TRAELO ─── -->
+<section id="por-que">
+  <div class="section-inner">
+    <div class="section-label">Diferencia</div>
+    <h2 class="section-title">¿Por qué Traelo y no el revendedor de Facebook?</h2>
+    <p class="section-sub">La experiencia que mereces cuando confías tu dinero a alguien.</p>
+
+    <div class="why-grid">
+      <div class="why-col-bad">
+        <div class="why-col-title">❌ Revendedor de Facebook</div>
+        <div class="why-item"><span class="why-icon">✗</span><span>Mandas screenshots por WhatsApp y esperas respuesta</span></div>
+        <div class="why-item"><span class="why-icon">✗</span><span>El precio cambia sin aviso previo</span></div>
+        <div class="why-item"><span class="why-icon">✗</span><span>Transferencia a ciegas sin comprobante</span></div>
+        <div class="why-item"><span class="why-icon">✗</span><span>No sabes dónde está tu pedido en ningún momento</span></div>
+        <div class="why-item"><span class="why-icon">✗</span><span>Si hay problema, no tienes nada por escrito</span></div>
+        <div class="why-item"><span class="why-icon">✗</span><span>Peso del paquete no verificable</span></div>
+      </div>
+      <div class="why-col-good">
+        <div class="why-col-title">✓ Traelo</div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Formulario estructurado, sin va-y-ven de mensajes</span></div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Precio confirmado con captura real de SHEIN como evidencia</span></div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Comprobante del pago en SHEIN guardado en tu pedido</span></div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Link de tracking actualizado en cada paso hasta la entrega</span></div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Todo queda registrado: artículos, precios, pagos</span></div>
+        <div class="why-item"><span class="why-icon" style="color:var(--accent)">✓</span><span>Foto del peso real del paquete como evidencia</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 4. CATEGORÍAS ─── -->
+<section id="categorias" style="background:var(--surface);">
+  <div class="section-inner">
+    <div class="section-label">Productos</div>
+    <h2 class="section-title">¿Qué puedes pedir?</h2>
+    <p class="section-sub">Todo lo que vende SHEIN. El peso estimado determina el costo de envío por libra.</p>
+
+    <div class="cats-grid">
+      <div class="cat-card">
+        <div class="cat-icon">👗</div>
+        <div class="cat-name">Ropa</div>
+        <div class="cat-peso">~0.3 lbs por pieza</div>
+        <div class="cat-price">$7.00 <span>por libra · mín. 1 lb</span></div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon">👟</div>
+        <div class="cat-name">Calzado</div>
+        <div class="cat-peso">~0.8 lbs por par</div>
+        <div class="cat-price">$7.00 <span>por libra · mín. 1 lb</span></div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon">💄</div>
+        <div class="cat-name">Belleza</div>
+        <div class="cat-peso">~0.4 lbs por item</div>
+        <div class="cat-price">$7.00 <span>por libra · mín. 1 lb</span></div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon">👜</div>
+        <div class="cat-name">Accesorios</div>
+        <div class="cat-peso">~0.2 lbs por item</div>
+        <div class="cat-price">$7.00 <span>por libra · mín. 1 lb</span></div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon">🏠</div>
+        <div class="cat-name">Hogar</div>
+        <div class="cat-peso">Variable según item</div>
+        <div class="cat-price">$7.00 <span>por libra · mín. 1 lb</span></div>
+      </div>
+      <div class="cat-card" style="border-color:var(--accent); background:rgba(0,181,160,0.04);">
+        <div class="cat-icon">📦</div>
+        <div class="cat-name">Pedido +10 lbs</div>
+        <div class="cat-peso">Descuento automático</div>
+        <div class="cat-price" style="color:var(--accent)">Express disponible <span>5-7 días Cuba</span></div>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:13px; color:var(--muted);">* El peso real se confirma cuando el paquete llega al casillero. Se envía foto como evidencia. Puedes verificarlo en persona al recoger.</p>
+  </div>
+</section>
+
+<!-- ─── 5. PRECIOS ─── -->
+<section id="precios">
+  <div class="section-inner">
+    <div class="section-label">Tarifas</div>
+    <h2 class="section-title">Precios claros, sin sorpresas.</h2>
+    <p class="section-sub">El precio del envío se calcula por el peso real del paquete. Lo mínimo es 1 libra. Siempre con evidencia fotográfica.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-card-label">Envío estándar</div>
+        <div class="price-big">$7</div>
+        <div class="price-unit">por libra · mínimo 1 lb</div>
+        <div class="price-features">
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>Cualquier peso</span></div>
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>SHEIN: 15-20 días</span></div>
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>Cuba: 7-15 días</span></div>
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>Foto del peso como evidencia</span></div>
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>Links reales de cada artículo guardados</span></div>
+          <div class="price-feat"><span class="price-feat-icon">✓</span><span>Tracking en tiempo real</span></div>
+        </div>
+      </div>
+      <div class="price-card featured">
+        <div class="price-card-label">Express — pedidos +10 lbs</div>
+        <div class="price-big">$7</div>
+        <div class="price-unit">por libra + tarifa express</div>
+        <div class="price-features">
+          <div class="price-feat"><span class="price-feat-icon">★</span><span>Solo para pedidos de 10+ lbs</span></div>
+          <div class="price-feat"><span class="price-feat-icon">★</span><span>SHEIN: 15-20 días (igual)</span></div>
+          <div class="price-feat"><span class="price-feat-icon">★</span><span>Cuba: <strong>5-7 días</strong></span></div>
+          <div class="price-feat"><span class="price-feat-icon">★</span><span>Descuento automático por volumen</span></div>
+          <div class="price-feat"><span class="price-feat-icon">★</span><span>Todo lo del estándar incluido</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="price-note">
+      * Los tiempos indicados son estimados pesimistas. En la práctica suelen ser menores. El pago de libras se realiza cuando el paquete llega al casillero — no se paga por adelantado.
+    </p>
+  </div>
+</section>
+
+<!-- ─── 6. TIEMPOS ─── -->
+<section id="tiempos">
+  <div class="section-inner">
+    <div class="section-label">Tiempos de entrega</div>
+    <h2 class="section-title">¿Cuándo llega tu pedido?</h2>
+    <p class="section-sub">Tiempos estimados pesimistas. Lo habitual es que lleguen antes. Depende de la época del año y el tamaño del envío.</p>
+
+    <table class="timeline-table">
+      <thead>
+        <tr>
+          <th>Tramo</th>
+          <th>Estándar</th>
+          <th>Express (10+ lbs)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="time-label">SHEIN → Casillero EE.UU.</div><div class="time-range">El tiempo que tarda SHEIN en enviar tu paquete a nuestro casillero en Florida</div></td>
+          <td><div class="time-label">15-20 días</div><span class="tag tag-standard">Igual en ambos</span></td>
+          <td><div class="time-label">15-20 días</div><span class="tag tag-express">No cambia</span></td>
+        </tr>
+        <tr>
+          <td><div class="time-label">Casillero → Cuba</div><div class="time-range">Desde que consolidamos el paquete hasta que llega a Cuba</div></td>
+          <td><div class="time-label">7-15 días</div><span class="tag tag-standard">Estándar</span></td>
+          <td><div class="time-label">5-7 días</div><span class="tag tag-express">Express</span></td>
+        </tr>
+        <tr>
+          <td><div class="time-label" style="color:var(--primary)">Total estimado</div><div class="time-range">Desde que pagas hasta que tienes el paquete</div></td>
+          <td><div class="time-label" style="font-size:18px">22-35 días</div></td>
+          <td><div class="time-label" style="font-size:18px; color:var(--accent)">20-27 días</div></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:16px; font-size:13px; color:var(--muted);">Los tiempos de SHEIN varían según el producto y la temporada. En temporada alta (noviembre-enero) pueden ser 5-7 días más.</p>
+  </div>
+</section>
+
+<!-- ─── 7. CÓMO PAGO ─── -->
+<section id="como-pago">
+  <div class="section-inner">
+    <div class="section-label">Pagos</div>
+    <h2 class="section-title">¿Cómo se paga?</h2>
+    <p class="section-sub">Dos momentos de pago. Todo por canales acordados por WhatsApp, sin plataformas intermediarias.</p>
+
+    <div class="pago-steps">
+      <div class="pago-step">
+        <div class="pago-circle">1</div>
+        <div class="pago-content">
+          <div class="pago-title">Haces el pedido — queda reservado</div>
+          <p class="pago-desc">Tu pedido se registra en la plataforma con todos los artículos, tallas y colores. El admin verifica los precios reales en SHEIN y te los envía en menos de 24 horas.</p>
+        </div>
+      </div>
+      <div class="pago-step">
+        <div class="pago-circle">2</div>
+        <div class="pago-content">
+          <div class="pago-title">Pago de los artículos SHEIN</div>
+          <p class="pago-desc">Una vez que aceptas el precio confirmado, pagas el total de los artículos por el canal que acordemos (Zelle, transferencia, MLC, etc.). El pedido queda en espera hasta confirmar el pago.</p>
+          <div class="pago-note">
+            <span>📋</span>
+            <span>Guardamos el comprobante del pago en SHEIN y los links reales de cada artículo para que los puedas consultar cuando quieras.</span>
+          </div>
+        </div>
+      </div>
+      <div class="pago-step">
+        <div class="pago-circle accent">3</div>
+        <div class="pago-content">
+          <div class="pago-title">El paquete llega al casillero</div>
+          <p class="pago-desc">Cuando el paquete llega a Florida, lo pesamos y te enviamos la foto del peso como evidencia. Puedes verificarlo en persona al momento de la entrega.</p>
+          <div class="pago-note">
+            <span>⚖️</span>
+            <span>Artículos menores a 1 lb se cobran como 1 lb. Pedidos de más de 10 lbs tienen descuento automático.</span>
+          </div>
+        </div>
+      </div>
+      <div class="pago-step">
+        <div class="pago-circle accent">4</div>
+        <div class="pago-content">
+          <div class="pago-title">Pago de las libras y entrega</div>
+          <p class="pago-desc">Pagas las libras según el peso real confirmado ($7 USD/lb). Coordinas la entrega o el envío dentro de Cuba. El peso puede verificarse en persona si recoges.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 8. FAQ ─── -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-label">Preguntas frecuentes</div>
+    <h2 class="section-title">Lo que todos preguntan</h2>
+
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary class="faq-q">¿Puedo pedir cualquier cosa de SHEIN?</summary>
+        <div class="faq-a">Sí, cualquier artículo que venda SHEIN: ropa, calzado, accesorios, belleza, hogar. Pega el link directamente desde la página de SHEIN. Si tienes dudas sobre si un artículo específico puede llegar, escríbenos por WhatsApp antes de hacer el pedido.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cómo sé que el precio es el real?</summary>
+        <div class="faq-a">El admin verifica el precio directamente en SHEIN y te envía una <strong>captura de pantalla como evidencia</strong> antes de que pagues. Solo una vez que aceptas ese precio con evidencia, se procede al cobro. No hay precios inventados.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cuánto pesa mi pedido? ¿Cómo lo sé antes de pagar las libras?</summary>
+        <div class="faq-a">El peso estimado por categoría (ropa ~0.3 lbs, calzado ~0.8 lbs, etc.) te da una idea aproximada al hacer el pedido. El peso real lo confirmamos cuando el paquete llega al casillero y te enviamos <strong>foto del pesaje como evidencia</strong>. Pagas las libras después de ver el peso real, nunca antes. Si recoges en persona, puedes pesarlo tú mismo para verificar.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Qué pasa con las aduanas cubanas?</summary>
+        <div class="faq-a">Los envíos se manejan por canales conocidos con experiencia en envíos a Cuba. Los artículos de uso personal (ropa, calzado, accesorios, belleza) generalmente no tienen problemas. Artículos electrónicos o de alto valor pueden tener restricciones — si tienes dudas sobre un artículo específico, consulta antes de pedirlo.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Puedo ver los artículos que pedí después?</summary>
+        <div class="faq-a">Sí. Cada artículo de tu pedido guarda el <strong>link real a SHEIN</strong> para que puedas verlo en cualquier momento. Si el link expira (SHEIN descontinúa el producto), tienes la captura guardada en tu pedido.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Puedo cancelar un pedido?</summary>
+        <div class="faq-a">Puedes cancelar sin costo mientras el pedido esté en cotización o en revisión (antes de pagar). Una vez confirmado el pago y comprado en SHEIN, no es posible cancelar porque SHEIN no acepta devoluciones a casilleros internacionales.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cuándo está disponible el envío express?</summary>
+        <div class="faq-a">El envío express a Cuba (5-7 días en vez de 7-15) está disponible para <strong>pedidos de 10 libras o más</strong>. Si tu pedido supera las 10 lbs, se ofrece automáticamente la opción express con su tarifa al momento de confirmar el envío.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Qué pasa si mi paquete llega dañado o con artículos incorrectos?</summary>
+        <div class="faq-a">Guardamos evidencia fotográfica del contenido del paquete al recibirlo en el casillero. Si hay artículos incorrectos o dañados, lo notificamos inmediatamente antes del envío a Cuba. Al llegar a Cuba, si hay problema, tenemos la documentación del contenido para resolver.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 9. CTA FINAL ─── -->
+<section id="cta-final">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-label" style="color:var(--accent); margin:0 auto 12px;">Empieza hoy</div>
+    <h2 class="section-title" style="color:#F0EBE0; margin-bottom:12px;">¿Listo para hacer tu pedido?</h2>
+    <p class="section-sub" style="color:#8C7F76; margin:0 auto 40px;">Pega el link de SHEIN, elige tu talla, y nosotros hacemos el resto. Precio confirmado en menos de 24 horas.</p>
+    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="/pedidos/nuevo" class="btn btn-p btn-lg">Hacer mi pedido →</a>
+      <a href="https://wa.me/NUMERO" class="btn btn-g btn-lg" style="border-color:rgba(37,211,102,0.5); color:#25D366;">💬 Preguntar por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">traelo.</div>
+        <div class="footer-tagline">Pedidos de SHEIN a Cuba con transparencia real.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; align-items:flex-end;">
+        <a href="https://wa.me/NUMERO" class="footer-wa">💬 WhatsApp</a>
+        <div class="footer-links">
+          <a href="#como-funciona" class="footer-link">¿Cómo funciona?</a>
+          <a href="#precios" class="footer-link">Precios</a>
+          <a href="#faq" class="footer-link">FAQ</a>
+          <a href="/pedidos/rastrear" class="footer-link">Rastrear pedido</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Traelo. Todos los derechos reservados.</span>
+      <span>traelo.app</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

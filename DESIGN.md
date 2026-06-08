@@ -199,13 +199,50 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 
 ---
 
+## Business Rules (Pricing & Logistics)
+
+### Precios de envío
+- **Precio base:** $7.00 USD por libra
+- **Mínimo:** artículos que pesan menos de 1 lb se cobran como 1 lb completa
+- **Descuento:** pedidos de más de 10 lbs reciben descuento (porcentaje a definir por el admin)
+- **Express:** disponible solo para pedidos de 10+ lbs. Tiempo Cuba: 5-7 días vs 7-15 estándar
+
+### Tiempos de entrega (estimados pesimistas — en la práctica suelen ser menores)
+| Tramo | Estándar | Express (10+ lbs) |
+|-------|----------|-------------------|
+| SHEIN → Casillero EE.UU. | 15-20 días | 15-20 días (igual) |
+| Casillero → Cuba | 7-15 días | 5-7 días |
+| **Total** | **22-35 días** | **20-27 días** |
+
+### Flujo de pago (2 momentos distintos)
+1. **Pago del producto:** Cliente paga el total de los artículos SHEIN + markup cuando acepta el precio. El pedido queda en `PENDIENTE_PAGO` hasta que se confirme el pago. Solo después el admin compra en SHEIN.
+2. **Pago de libras:** Se cobra cuando el admin tiene el paquete físicamente en su poder (estado `EN_CASILLERO`). El admin pesa el paquete, envía foto del peso como evidencia, y el cliente paga por libras. Si el cliente recoge en persona puede verificar el peso en el momento.
+
+### Evidencia que guarda el admin por pedido
+- Captura/link del precio real en SHEIN (por item)
+- Link real al artículo en SHEIN (para que el cliente pueda verlo después)
+- Foto del peso del paquete al recibirlo
+- Confirmación del pago del cliente (producto + libras)
+
+### Config defaults
+```
+precio_por_lb:  7.00    (USD por libra, mínimo 1 lb)
+markup_factor:  1.30    (multiplicador sobre precio SHEIN)
+whatsapp_phone: (a definir antes del lanzamiento)
+express_days_cuba: 5-7  (solo pedidos 10+ lbs)
+standard_days_cuba: 7-15
+shein_days: 15-20
+```
+
+---
+
 ## Page Inventory
 
 ### Portal Cliente (mobile-first, max-width: 480px)
 
 | Ruta | Nombre | Auth | Descripción |
 |------|--------|------|-------------|
-| `/` | Landing Page | No | Hero oscuro, CTA "Hacer pedido", sección "¿Cómo funciona?" debajo del fold. Navbar mínimo: logo + "Entrar". |
+| `/` | Landing Page | No | Landing completo de 9 secciones (ver "Landing Page Structure" abajo). |
 | `/login` | Login | No | Logo centrado, tabs "Entrar / Crear cuenta", email + password, link "¿Olvidaste tu contraseña?". Sin sidebar. |
 | `/registro` | Registro | No | Igual que login pero tab "Crear cuenta" activo. Campos: nombre, email, password. |
 | `/pedidos/nuevo` | Nuevo Pedido | Sí | Formulario multi-item: URL SHEIN + talla + color + cantidad + notas por item. Botón "Agregar otro producto". |
@@ -219,6 +256,28 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 |------|--------|------|-------------|
 | `/admin/kanban` | Kanban | Admin | Navbar top oscuro. Barra de stats. Kanban horizontal con scroll. Cards con botón "Procesar items" en EN_REVISION. |
 | `/admin/config` | Configuración | Admin | Navbar top oscuro. Formulario para editar whatsapp_phone, precio_por_lb, markup_factor. Toggles de notificaciones. |
+
+---
+
+## Landing Page Structure (`/`)
+
+Landing completo de 9 secciones. Wireframe en `landing-wireframe.html`. Navbar sticky con scroll-anchors. Mobile-first pero rico en desktop.
+
+| # | Sección | ID | Contenido |
+|---|---------|----|-----------|
+| Nav | Navbar sticky | — | Logo + links (¿Cómo funciona?, Precios, Tiempos, Pagos, FAQ) + CTA "Hacer un pedido". Fondo oscuro con blur. Links ocultos en móvil. |
+| 1 | Hero | `#hero` | Full-bleed oscuro (100svh). Pill "247 pedidos entregados". Headline serif gigante "Tu pedido de SHEIN llega a *Cuba*". Sub + 2 CTAs. 4 stats: $7/lb, 22-35 días, 98% entregados, 5-7 días express. |
+| 2 | ¿Cómo funciona? | `#como-funciona` | Fondo arena. 5 pasos con conectores → en desktop. Pasos 4-5 con número en teal (accent). |
+| 3 | ¿Por qué Traelo? | `#por-que` | Comparación 2 columnas: ❌ Revendedor de Facebook (rojo) vs ✓ Traelo (teal). 6 items cada una. |
+| 4 | Categorías | `#categorias` | Fondo arena. 6 cards: Ropa, Calzado, Belleza, Accesorios, Hogar + card destacada "Pedido +10 lbs" con express. Peso estimado por categoría. |
+| 5 | Precios | `#precios` | Fondo oscuro. 2 cards: Estándar ($7/lb) vs Express (10+ lbs, featured terracota). Nota sobre pago de libras al recibir. |
+| 6 | Tiempos | `#tiempos` | Tabla 3 tramos × 2 modos (estándar/express). Total 22-35 días vs 20-27 express. Nota temporada alta. |
+| 7 | ¿Cómo pago? | `#como-pago` | Fondo arena. 4 pasos verticales con timeline: reserva → pago producto → llega al casillero (pesaje) → pago libras + entrega. Notas con evidencia. |
+| 8 | FAQ | `#faq` | 8 preguntas en `<details>` acordeón. Aduanas, peso, precio real, cancelación, express, daños. |
+| 9 | CTA final | `#cta-final` | Fondo oscuro centrado. "¿Listo para hacer tu pedido?" + CTA + botón WhatsApp. |
+| Footer | Footer | — | Logo + tagline + botón WhatsApp verde + links + copyright. Fondo oscuro. |
+
+**Decisión:** Sin sección de testimonios en el MVP (no hay clientes aún). Agregar en Fase 2 cuando haya pedidos reales que mostrar.
 
 ---
 

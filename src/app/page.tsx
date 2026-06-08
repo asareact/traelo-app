@@ -164,7 +164,7 @@ export default async function Home() {
               { i: <IconShield />, t: "Recibe el precio real", d: "El admin verifica en SHEIN en menos de 24 h y te lo envía con evidencia." },
               { i: <IconWallet />, t: "Pagas y compramos", d: "Confirmas el precio, pagas, y compramos en SHEIN guardando el comprobante." },
               { i: <IconTruck />, t: "Sigue tu pedido en vivo", d: "Casillero → empaque → Cuba. Cada estado en tu link de tracking.", a: true },
-              { i: <IconScale />, t: "Recibes y pagas libras", d: "Te enviamos el peso real con foto. Pagas las libras y coordinas la entrega.", a: true },
+              { i: <IconScale />, t: "Recoges y pagas las libras", d: "Te avisamos el peso con foto por adelantado. Al recoger ya sabes cuánto pesó y pagas las libras.", a: true },
             ].map((s, idx) => (
               <Reveal key={s.t} delay={idx * 80}>
                 <Step n={idx + 1} icon={s.i} t={s.t} accent={s.a}>
@@ -354,8 +354,8 @@ export default async function Home() {
           </div>
           <p className="mt-8 text-xs leading-relaxed text-[#6b6460]">
             Los tiempos son estimados pesimistas; en la práctica suelen ser
-            menores. El pago de libras se hace cuando el paquete llega al
-            casillero, no por adelantado.
+            menores. Las libras se pagan al recoger el pedido (ya conoces el
+            peso de antemano), nunca por adelantado.
           </p>
         </div>
       </section>
@@ -455,19 +455,20 @@ export default async function Home() {
             <Reveal>
               <Pago
                 n="3"
-                t="El paquete llega al casillero"
+                t="Te avisamos el peso por adelantado"
                 accent
                 note="Artículos menores a 1 lb se cobran como 1 lb. Pedidos de más de 10 lbs tienen descuento automático."
               >
-                Cuando el paquete llega a Florida, lo pesamos y te enviamos la
-                foto del peso como evidencia. Puedes verificarlo en persona al
-                momento de la entrega.
+                Cuando el paquete llega al casillero en Florida, lo pesamos y te
+                enviamos la foto del peso como evidencia. Así sabes exactamente
+                cuánto pesó antes de recogerlo.
               </Pago>
             </Reveal>
             <Reveal>
-              <Pago n="4" t="Pago de las libras y entrega" accent last>
-                Pagas las libras según el peso real confirmado ($7 USD/lb).
-                Coordinas la entrega o el envío dentro de Cuba.
+              <Pago n="4" t="Recoges y pagas las libras" accent last>
+                Al recoger tu pedido pagas las libras según el peso que ya te
+                avisamos ($7 USD/lb). Puedes verificar el peso en persona en ese
+                momento.
               </Pago>
             </Reveal>
           </div>
@@ -494,12 +495,12 @@ export default async function Home() {
                 antes de que pagues. Solo cuando aceptas ese precio se procede al
                 cobro.
               </Faq>
-              <Faq q="¿Cómo sé el peso antes de pagar las libras?">
-                El peso estimado por categoría te da una idea. El peso real lo
-                confirmamos cuando el paquete llega al casillero y te enviamos{" "}
-                <strong className="text-text">foto del pesaje</strong>. Pagas
-                después de ver el peso real, nunca antes. Si recoges en persona,
-                puedes pesarlo tú mismo.
+              <Faq q="¿Cuándo y cómo sé cuánto pesó mi pedido?">
+                Cuando el paquete llega al casillero lo pesamos y te enviamos{" "}
+                <strong className="text-text">foto del peso</strong> por
+                adelantado. Así, cuando vayas a recoger tu pedido, ya sabes
+                exactamente cuánto pesó y cuánto vas a pagar por las libras.
+                Puedes verificar el peso en persona al recoger.
               </Faq>
               <Faq q="¿Qué pasa con las aduanas cubanas?">
                 Los envíos se manejan por canales con experiencia en envíos a

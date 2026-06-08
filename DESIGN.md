@@ -216,7 +216,8 @@ CANCELADO:        bg #FEE2E2, text #991B1B
 
 ### Flujo de pago (2 momentos distintos)
 1. **Pago del producto:** Cliente paga el total de los artículos SHEIN + markup cuando acepta el precio. El pedido queda en `PENDIENTE_PAGO` hasta que se confirme el pago. Solo después el admin compra en SHEIN.
-2. **Pago de libras:** Se cobra cuando el admin tiene el paquete físicamente en su poder (estado `EN_CASILLERO`). El admin pesa el paquete, envía foto del peso como evidencia, y el cliente paga por libras. Si el cliente recoge en persona puede verificar el peso en el momento.
+2. **Aviso del peso (NO es pago):** Cuando el paquete llega al casillero (`EN_CASILLERO`), el admin lo pesa y envía foto del peso como evidencia. Esto es un **aviso por adelantado** — el cliente ya sabe cuánto pesó antes de recoger.
+3. **Pago de libras:** Se cobra **al recoger el pedido** (estado `DISPONIBLE_ENTREGA` / entrega en Cuba), no cuando llega al casillero. Para ese momento el cliente ya conoce el peso (paso 2). Puede verificar el peso en persona al recoger.
 
 ### Evidencia que guarda el admin por pedido
 - Captura/link del precio real en SHEIN (por item)

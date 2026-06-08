@@ -55,3 +55,6 @@ supabase/migrations/_combined.sql
 # Agent tooling (local, re-installable)
 .agents/
 skills-lock.json
+
+# Allow the env template (no secrets)
+!.env.local.example

@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/*
+  Traelo — Design System "Verano Confiable"
+  Tokens defined per DESIGN.md. Tailwind v4 @theme exposes these as utilities
+  (bg-bg, text-primary, rounded-md, etc.).
+*/
+
+@theme {
+  /* Colors */
+  --color-bg: #fafaf7;
+  --color-surface: #f0ebe0;
+  --color-primary: #c4522a;
+  --color-accent: #00b5a0;
+  --color-text: #1c1714;
+  --color-muted: #8c7f76;
+  --color-border: #e2d9ce;
+  --color-error: #b03a2e;
+  --color-warning: #d4a017;
+  --color-info: #1e65a8;
+
+  /* Fonts (wired to next/font CSS variables in layout.tsx) */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+/* Dark mode — warm, not cold. Reduce saturation per DESIGN.md. */
+.dark {
+  --color-bg: #1c1714;
+  --color-surface: #2a2218;
+  --color-text: #f0ebe0;
+  --color-muted: #8c7f76;
+  --color-border: #3a2e26;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings default to the display serif */
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
+
+/* Fail-safe: if JavaScript is disabled, scroll-reveal content stays visible. */
+@media (scripting: none) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -75,6 +75,22 @@ h1, h2, h3 {
   font-family: var(--font-display);
 }
 
+/* Brand intro overlay. Hidden by default so returning / reduced-motion users
+   never see a flash and never download the video. The pre-paint script in
+   layout.tsx adds `.intro-playing` to <html> for first-time visitors, so the
+   black overlay is up at first paint (no landing flash). Removing the class
+   fades it out. */
+.site-intro {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+.intro-playing .site-intro {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease;
+}
+
 /* Fail-safe: if JavaScript is disabled, scroll-reveal content stays visible. */
 @media (scripting: none) {
   [data-reveal] {

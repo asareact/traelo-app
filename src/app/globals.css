@@ -65,3 +65,112 @@ h1, h2, h3 {
     transform: none !important;
   }
 }
+
+/* ── Motion: site intro · page transitions · nav attention ─────────────
+   All gated behind no-preference so reduced-motion users get instant UI. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Page transition — runs on every navigation via app/template.tsx */
+  .page-enter {
+    animation: pageEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Site intro splash — the logo arrow drops into the box, then fades out */
+  .intro-overlay {
+    animation: introOut 0.45s ease-in 1.9s forwards;
+  }
+  .intro-box {
+    animation: introBoxIn 0.5s ease-out both;
+    transform-origin: center;
+  }
+  .intro-arrow {
+    animation: introArrowDrop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+  }
+  .intro-word {
+    animation: introWordIn 0.5s ease-out 0.95s both;
+  }
+  .intro-tagline {
+    animation: introWordIn 0.5s ease-out 1.3s both;
+  }
+  @keyframes introBoxIn {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes introArrowDrop {
+    0% {
+      opacity: 0;
+      transform: translateY(-24px);
+    }
+    60% {
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes introWordIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes introOut {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* Bottom-nav "Pedir" — gentle bob + pulsing halo to draw the eye */
+  .nav-pedir-bob {
+    animation: navBob 2.8s ease-in-out infinite;
+  }
+  @keyframes navBob {
+    0%,
+    100% {
+      transform: translateY(-12px);
+    }
+    50% {
+      transform: translateY(-16px);
+    }
+  }
+  .nav-pedir-ring {
+    animation: navPulse 2.4s ease-out infinite;
+  }
+  @keyframes navPulse {
+    0% {
+      transform: scale(0.85);
+      opacity: 0.45;
+    }
+    70% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}

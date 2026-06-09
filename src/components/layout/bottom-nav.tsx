@@ -37,8 +37,12 @@ export function BottomNav() {
                   className="flex flex-col items-center gap-1 py-2"
                   aria-label={item.label}
                 >
-                  <span className="flex h-12 w-12 -translate-y-3 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30">
-                    <Icon size={24} />
+                  <span className="nav-pedir-bob relative flex h-12 w-12 -translate-y-3 items-center justify-center">
+                    {/* Pulsing halo to draw the eye */}
+                    <span className="nav-pedir-ring absolute inset-0 rounded-full bg-primary/40" />
+                    <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30">
+                      <Icon size={24} />
+                    </span>
                   </span>
                   <span className="-mt-2 text-[11px] font-bold text-primary">
                     {item.label}

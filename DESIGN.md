@@ -259,11 +259,36 @@ Tarifa vigente de WeShipYou (Telegram, supera a la prensa vieja de ~$4/lb / 21 d
 ```
 precio_por_lb:  7.00    (USD por libra, mínimo 1 lb)
 markup_factor:  1.30    (multiplicador sobre precio SHEIN)
-whatsapp_phone: (a definir antes del lanzamiento)
+whatsapp_phone: 5358260354  (número del admin que recibe los pedidos)
 express_days_cuba: 5-7  (solo pedidos 10+ lbs)
 standard_days_cuba: 7-15
 shein_days: 15-20
 ```
+
+### WhatsApp — envío del pedido y plantillas (IMPORTANTE)
+- **El pedido se entrega al admin por WhatsApp.** No hay notificación automática
+  todavía: al confirmar el pedido (botón verde **"Enviar por WhatsApp"**), se guarda
+  en la DB (para el tracking) **y** se abre un chat de WhatsApp prellenado al número
+  `config.whatsapp_phone`. El cliente toca enviar y el admin recibe el pedido completo.
+- **Una sola acción**, no dos pasos. El id del pedido se genera en el cliente para que
+  el mensaje pueda incluir el link de seguimiento (que apunta al pedido real).
+- **Helper + plantillas:** `src/lib/whatsapp.ts` (`whatsappLink()` + `pedidoParaAdmin()`).
+  Nunca hardcodear el número en componentes — leerlo de config.
+- **Plantilla del mensaje (cliente → admin):**
+  ```
+  🛍️ *Nuevo pedido Traelo* #<id8>
+
+  👤 <nombre> · <telefono>
+  🔗 Seguimiento: <trackingUrl>
+
+  *Productos (N):*
+  1. <shein_url>
+     Talla <t> · <color> · x<cant>
+     📝 <nota>
+  2. ...
+  ```
+- El número real para enviar el link compartible requiere `NEXT_PUBLIC_SITE_URL` =
+  dominio de producción (en local usa localhost).
 
 ---
 

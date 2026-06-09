@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Alert } from "@/components/ui/alert";
+import { CopyLinkButton } from "@/components/ui/copy-link-button";
 import { cn } from "@/lib/utils/cn";
 import type { PedidoCompleto } from "@/types/database";
 import { resumenEstado } from "@/features/orders/domain/estados";
@@ -46,6 +47,9 @@ export function OrderDetail({
           >
             {label}
           </span>
+        </div>
+        <div className="mt-3">
+          <CopyLinkButton />
         </div>
       </section>
 

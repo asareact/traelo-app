@@ -102,7 +102,11 @@ h1, h2, h3 {
 /* ── Motion: site intro · page transitions · nav attention ─────────────
    All gated behind no-preference so reduced-motion users get instant UI. */
 @media (prefers-reduced-motion: no-preference) {
-  /* Page transition — runs on every navigation via app/template.tsx */
+  /* Page transition — runs on every navigation via app/template.tsx.
+     The `to` keyframe deliberately omits `transform` so none lingers after the
+     animation: a residual transform (even translateY(0)) would become the
+     containing block for any `position: fixed` child (modals, overlays) and
+     break them. */
   .page-enter {
     animation: pageEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -113,7 +117,6 @@ h1, h2, h3 {
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 

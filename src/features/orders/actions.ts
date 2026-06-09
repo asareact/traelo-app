@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -54,10 +55,19 @@ export async function createOrder(
     return { error: parsed.error.issues[0]?.message ?? "Revisa los datos del pedido." };
   }
 
+  // The client mints the order id so its WhatsApp message can carry the tracking
+  // link. Accept it only if it's a valid UUID; otherwise let the DB generate one.
+  const rawId = String(formData.get("id") || "");
+  const id = z.string().uuid().safeParse(rawId).success ? rawId : undefined;
+
   // Insert the order header.
   const { data: pedido, error: pedidoError } = await supabase
     .from("pedidos")
-    .insert({ user_id: user.id, estado_actual: ESTADO_INICIAL })
+    .insert({
+      user_id: user.id,
+      estado_actual: ESTADO_INICIAL,
+      ...(id ? { id } : {}),
+    })
     .select("id")
     .single();
 

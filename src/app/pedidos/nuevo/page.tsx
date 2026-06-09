@@ -9,6 +9,7 @@ import {
 } from "@/features/profile";
 import { getMiPerfil } from "@/features/profile/queries";
 import { routes } from "@/config/site";
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Nuevo pedido — Traelo" };
 
@@ -25,6 +26,16 @@ export default async function NuevoPedidoPage() {
     redirect(completarPerfilHref(routes.nuevoPedido));
   }
 
+  // Business WhatsApp: the order is delivered to the admin by opening a prefilled
+  // chat to this number on send.
+  const { data: cfg } = await supabase
+    .from("config")
+    .select("value")
+    .eq("key", "whatsapp_phone")
+    .single();
+  const whatsapp =
+    cfg?.value && cfg.value !== "0000000000" ? cfg.value : null;
+
   return (
     <AppShell>
       <header className="mb-6">
@@ -37,7 +48,12 @@ export default async function NuevoPedidoPage() {
         </p>
       </header>
 
-      <OrderForm />
+      <OrderForm
+        whatsapp={whatsapp}
+        nombre={profile?.nombre}
+        telefono={profile?.telefono}
+        siteUrl={env.NEXT_PUBLIC_SITE_URL ?? null}
+      />
     </AppShell>
   );
 }

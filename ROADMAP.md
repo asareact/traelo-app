@@ -125,9 +125,15 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       Tracker de 6 hitos + lista de productos + timeline. Standalone (sin bottom-nav).
       → `app/pedidos/[id]/page.tsx`, `features/orders/components/order-tracker.tsx`
 - [x] Redirect tras crear pedido → `/pedidos/[id]?nuevo=1` (banner de confirmación)
+- [x] **Modal de confirmación** al enviar ("¿Esto es todo?"). **Confirmar = enviar:**
+      un solo botón verde "Enviar por WhatsApp" guarda el pedido (DB, para tracking)
+      Y abre WhatsApp prellenado al admin (`config.whatsapp_phone` = 5358260354) con el
+      pedido completo + link de seguimiento. El id se genera en cliente para el link.
+      `lib/whatsapp.ts` (plantilla `pedidoParaAdmin`), `components/ui/modal.tsx`.
+- [x] **"Copiar link"** en el tracking — `components/ui/copy-link-button.tsx`.
+- [x] Verificación visual con browser headless (capturas en claro/oscuro).
 - [ ] Tests (form validation, creación de pedido, RLS aislamiento) — PENDIENTE
-- [ ] "Copiar link" en el tracking — PENDIENTE (menor)
-- [ ] Verificación visual con browser headless — PENDIENTE
+      (falta montar framework de tests, p.ej. vitest + playwright).
 
 ### ✅ Fase 3 — Dashboard cliente + perfil + nav (DONE — adelantado en este bloque)
 - [x] `/dashboard` — saludo + CTA "Hacer un pedido" + pedidos recientes (3) con badges.
@@ -221,6 +227,15 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   directa.
 - **`<Reveal>`** (scroll animation) pone opacity:0 hasta entrar al viewport — hay
   fail-safe CSS `@media (scripting: none)` para no-JS.
+- **Node 18+ obligatorio (usa 20/22):** con **Node 14** el dev de Turbopack
+  revienta procesando `globals.css` → `SyntaxError: Unexpected token '??='` /
+  el overlay muestra "Jest worker encountered child process exceptions". El
+  `node --version` debe ser ≥18. Si usas nvm, fija la versión correcta.
+- **`position: fixed` y `transform`:** el template de transición (`.page-enter`)
+  NO debe dejar `transform` residual — rompería el containing block de cualquier
+  overlay `fixed` (modales, intro). Por eso el keyframe `pageEnter` omite
+  `transform` en el `to`. Mismo motivo: el intro vive en el root layout, fuera del
+  subárbol transformado.
 - **Dark mode / Tailwind v4:** `dark:` se cablea a la clase `.dark` vía
   `@custom-variant dark (&:where(.dark, .dark *))` en `globals.css`. Si editas ese
   directivo (o `@theme`) **reinicia `npm run dev`** — Turbopack a veces no recompila

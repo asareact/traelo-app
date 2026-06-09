@@ -5,18 +5,39 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-import { IconPlus } from "@/components/brand/icons";
+import { Modal } from "@/components/ui/modal";
+import { IconPlus, IconWhatsapp } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
+import { whatsappLink, pedidoParaAdmin } from "@/lib/whatsapp";
 import { createOrder, type CreateOrderState } from "@/features/orders/actions";
-import { emptyItem, type ItemInput } from "@/features/orders/schemas";
+import {
+  createOrderSchema,
+  emptyItem,
+  type ItemInput,
+} from "@/features/orders/schemas";
 
 /**
- * Multi-product order form. The client adds one row per SHEIN product (link +
- * size/color/qty/notes). On submit we serialize the rows to a hidden JSON
- * field; the server action re-validates and creates the order.
+ * Multi-product order form. "Enviar pedido" validates and opens a confirmation
+ * modal ("is this everything?"). Confirming IS the send: a single green action
+ * that saves the order (for tracking) AND opens a prefilled WhatsApp chat to the
+ * business with the full order — that's how the admin receives it. We mint the
+ * order id client-side so the WhatsApp message can include the tracking link.
  */
-export function OrderForm() {
+export function OrderForm({
+  whatsapp,
+  nombre,
+  telefono,
+  siteUrl,
+}: {
+  whatsapp?: string | null;
+  nombre?: string | null;
+  telefono?: string | null;
+  siteUrl?: string | null;
+}) {
   const [items, setItems] = useState<ItemInput[]>([{ ...emptyItem }]);
+  const [orderId, setOrderId] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [localError, setLocalError] = useState("");
   const [state, formAction, pending] = useActionState<
     CreateOrderState,
     FormData
@@ -34,15 +55,40 @@ export function OrderForm() {
     setItems((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  // Validate, then mint the order id and open the confirmation modal.
+  function review() {
+    const parsed = createOrderSchema.safeParse({ items });
+    if (!parsed.success) {
+      setLocalError(parsed.error.issues[0]?.message ?? "Revisa los productos.");
+      return;
+    }
+    setLocalError("");
+    setOrderId(crypto.randomUUID());
+    setConfirmOpen(true);
+  }
+
+  const trackingUrl = orderId && siteUrl ? `${siteUrl}/pedidos/${orderId}` : null;
+  const waHref =
+    orderId && whatsapp
+      ? whatsappLink(
+          whatsapp,
+          pedidoParaAdmin({
+            idCorto: orderId.slice(0, 8),
+            nombre,
+            telefono,
+            trackingUrl,
+            items,
+          }),
+        )
+      : null;
+
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} noValidate className="flex flex-col gap-5">
       <input type="hidden" name="items_json" value={JSON.stringify(items)} />
+      <input type="hidden" name="id" value={orderId} />
 
       {items.map((item, i) => (
-        <div
-          key={i}
-          className="rounded-lg border border-border bg-surface p-4"
-        >
+        <div key={i} className="rounded-lg border border-border bg-surface p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wide text-muted">
               Producto {i + 1}
@@ -66,7 +112,6 @@ export function OrderForm() {
                 placeholder="https://us.shein.com/..."
                 value={item.shein_url}
                 onChange={(e) => update(i, { shein_url: e.target.value })}
-                required
               />
             </Field>
 
@@ -115,15 +160,69 @@ export function OrderForm() {
         Agregar otro producto
       </Button>
 
-      {state.error && <Alert tone="error">{state.error}</Alert>}
+      {localError && <Alert tone="error">{localError}</Alert>}
 
-      <Button type="submit" size="lg" disabled={pending} className="w-full">
-        {pending ? "Enviando…" : "Enviar pedido"}
+      <Button type="button" size="lg" onClick={review} className="w-full">
+        Enviar pedido
       </Button>
 
       <p className="text-center text-xs text-muted">
         Te confirmaremos el precio final antes de cualquier pago.
       </p>
+
+      {/* Confirmation modal — confirming sends the order via WhatsApp */}
+      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <h2 className="font-display text-xl font-bold text-text">
+          ¿Esto es todo?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          Revisa que agregaste{" "}
+          <span className="font-bold text-text">todos los productos</span> que
+          quieres traer.{" "}
+          {waHref
+            ? "Al enviar te abrimos WhatsApp con tu pedido para que nos llegue."
+            : "Lo revisamos y te confirmamos el precio antes de pagar."}
+        </p>
+
+        {state.error && (
+          <Alert tone="error" className="mt-4">
+            {state.error}
+          </Alert>
+        )}
+
+        <div className="mt-6 flex flex-col gap-3">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={pending}
+            onClick={() => {
+              if (waHref) window.open(waHref, "_blank", "noopener,noreferrer");
+            }}
+            className={cn(
+              "w-full",
+              waHref &&
+                "bg-[#25D366] text-white hover:bg-[#25D366] hover:opacity-90",
+            )}
+          >
+            {waHref && <IconWhatsapp size={20} />}
+            {pending
+              ? "Enviando…"
+              : waHref
+                ? "Enviar por WhatsApp"
+                : "Sí, enviar pedido"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setConfirmOpen(false)}
+            className="w-full"
+            disabled={pending}
+          >
+            Seguir agregando
+          </Button>
+        </div>
+      </Modal>
     </form>
   );
 }

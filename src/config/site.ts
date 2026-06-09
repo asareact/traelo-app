@@ -11,6 +11,7 @@ export const routes = {
   nuevoPedido: "/pedidos/nuevo",
   pedido: (id: string) => `/pedidos/${id}`,
   perfil: "/perfil",
+  completarPerfil: "/perfil/completar",
   admin: "/admin",
 } as const;
 

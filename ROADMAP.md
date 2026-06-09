@@ -132,7 +132,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 ### ✅ Fase 3 — Dashboard cliente + perfil + nav (DONE — adelantado en este bloque)
 - [x] `/dashboard` — saludo + CTA "Hacer un pedido" + pedidos recientes (3) con badges.
       → `app/dashboard/page.tsx`
-- [x] `/perfil` — nombre, correo, teléfono, dirección, cerrar sesión.
+- [x] `/perfil` — **editable** (nombre, teléfono, dirección) + correo + cerrar sesión.
+      Feature `features/profile/` (domain/schema/query/action/form).
+- [x] **Gate de pedido:** para crear un pedido el perfil debe tener nombre + teléfono
+      (dirección opcional). Se exige en `/pedidos/nuevo` (página) y en `createOrder`
+      (server, defensa en profundidad) → redirige a `/perfil/completar?next=…`.
+      Aviso en el dashboard si el perfil está incompleto.
 - [x] `BottomNav` (móvil): Inicio · Pedidos · Pedir (CTA central) · Perfil.
       → `components/layout/bottom-nav.tsx` + `<AppShell>`
 - [x] Badge de estado reutilizable (`EstadoBadge`, tinte por hito/terminal).

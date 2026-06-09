@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ESTADO_INICIAL } from "@/features/orders/domain/estados";
 import { createOrderSchema } from "@/features/orders/schemas";
+import {
+  completarPerfilHref,
+  isProfileComplete,
+} from "@/features/profile/domain";
 
 export type CreateOrderState = { error?: string };
 
@@ -26,6 +30,17 @@ export async function createOrder(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/pedidos/nuevo");
+
+  // Gate (trust boundary): name + phone must be set before an order is created,
+  // even if the user bypassed the page-level check.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nombre, telefono")
+    .eq("id", user.id)
+    .single();
+  if (!isProfileComplete(profile)) {
+    redirect(completarPerfilHref("/pedidos/nuevo"));
+  }
 
   let rawItems: unknown;
   try {

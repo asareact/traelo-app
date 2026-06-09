@@ -3,10 +3,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
+import { Alert } from "@/components/ui/alert";
 import { IconPlus } from "@/components/brand/icons";
 import { routes } from "@/config/site";
 import { OrderCard } from "@/features/orders";
 import { getMisPedidos } from "@/features/orders/queries";
+import { completarPerfilHref, isProfileComplete } from "@/features/profile";
 
 export const metadata: Metadata = { title: "Inicio — Traelo" };
 
@@ -19,13 +21,14 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nombre")
+    .select("nombre, telefono")
     .eq("id", user.id)
     .single();
 
   const pedidos = await getMisPedidos();
   const recientes = pedidos.slice(0, 3);
   const nombre = profile?.nombre?.split(" ")[0] || "";
+  const perfilIncompleto = !isProfileComplete(profile);
 
   return (
     <AppShell>
@@ -35,6 +38,19 @@ export default async function DashboardPage() {
           ¿Qué quieres traer hoy?
         </h1>
       </header>
+
+      {perfilIncompleto && (
+        <Alert tone="info" className="mb-4">
+          Completa tu{" "}
+          <Link
+            href={completarPerfilHref(routes.dashboard)}
+            className="font-bold underline"
+          >
+            nombre y teléfono
+          </Link>{" "}
+          para poder hacer pedidos.
+        </Alert>
+      )}
 
       <Link
         href={routes.nuevoPedido}

@@ -1,10 +1,30 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { OrderForm } from "@/features/orders";
+import {
+  completarPerfilHref,
+  isProfileComplete,
+} from "@/features/profile";
+import { getMiPerfil } from "@/features/profile/queries";
+import { routes } from "@/config/site";
 
 export const metadata: Metadata = { title: "Nuevo pedido — Traelo" };
 
-export default function NuevoPedidoPage() {
+export default async function NuevoPedidoPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/pedidos/nuevo");
+
+  // Gate: a name + phone are required before placing an order.
+  const profile = await getMiPerfil();
+  if (!isProfileComplete(profile)) {
+    redirect(completarPerfilHref(routes.nuevoPedido));
+  }
+
   return (
     <AppShell>
       <header className="mb-6">

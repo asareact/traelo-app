@@ -1,30 +1,29 @@
-import { formatUSD } from "@/lib/utils/format";
 import type { PedidoItem } from "@/types/database";
 
-/** Read-only list of an order's products (tracking page). */
+/** Read-only list of an order's products (detail page). */
 export function ItemList({ items }: { items: PedidoItem[] }) {
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="flex flex-col gap-4">
       {items.map((item) => (
         <li
           key={item.id}
-          className="flex gap-3 rounded-lg border border-border bg-surface p-3"
+          className="flex items-center gap-4 rounded-[28px] border border-border bg-surface p-4"
         >
           {item.producto_imagen ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={item.producto_imagen}
               alt={item.producto_nombre ?? "Producto"}
-              className="h-16 w-16 shrink-0 rounded-md object-cover"
+              className="h-16 w-16 shrink-0 rounded-2xl border border-border object-cover"
             />
           ) : (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-bg text-xs text-muted">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-bg text-[11px] font-bold text-primary">
               SHEIN
             </div>
           )}
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-text">
+            <p className="truncate text-[15px] font-bold text-text">
               {item.producto_nombre ?? "Producto por confirmar"}
             </p>
             <p className="mt-0.5 text-xs text-muted">
@@ -40,17 +39,11 @@ export function ItemList({ items }: { items: PedidoItem[] }) {
               href={item.shein_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block truncate text-xs font-medium text-accent"
+              className="mt-1 inline-block text-xs font-bold text-accent underline"
             >
               Ver en SHEIN
             </a>
           </div>
-
-          {item.precio_real_usd !== null && (
-            <span className="shrink-0 text-sm font-bold text-text">
-              {formatUSD(item.precio_real_usd)}
-            </span>
-          )}
         </li>
       ))}
     </ul>

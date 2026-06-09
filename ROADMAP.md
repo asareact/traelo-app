@@ -145,7 +145,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] `/pedidos` — lista completa de pedidos del cliente con empty state.
 - [x] **Rediseño dashboard** ("Verano Confiable"): welcome serif, aviso de perfil
       teal, CTA grande, empty state con caja punteada.
-- [x] `/rastreo` — pedidos en curso (no entregados/cancelados).
+- [x] `/rastreo` — **rediseño**: todos los pedidos (entregados/cancelados atenuados),
+      `OrderCard` con badge de hito + fecha relativa ("Hoy, 11:16").
+- [x] `/pedidos/[id]` — **rediseño detalle**: stepper numerado en tarjeta, productos,
+      **costo del pedido** (subtotal/envío/total con aviso si falta precio), historial
+      con íconos. Página **adaptativa**: con sesión usa `<AppShell>` (nav + flecha);
+      público (link compartido) usa header standalone. `OrderDetail` + `CostSummary`.
 - [x] `/notificaciones` — lista (tabla `notificaciones`, RLS) + empty state.
       Feature `features/notifications/`. Campana en el header enlaza aquí.
 - [x] **Dark mode ("Luxury Dark")** con toggle claro/oscuro en el header (persiste,
@@ -216,6 +221,11 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   directa.
 - **`<Reveal>`** (scroll animation) pone opacity:0 hasta entrar al viewport — hay
   fail-safe CSS `@media (scripting: none)` para no-JS.
+- **Dark mode / Tailwind v4:** `dark:` se cablea a la clase `.dark` vía
+  `@custom-variant dark (&:where(.dark, .dark *))` en `globals.css`. Si editas ese
+  directivo (o `@theme`) **reinicia `npm run dev`** — Turbopack a veces no recompila
+  ese cambio y `dark:` se queda en `prefers-color-scheme` (los estilos dark se
+  disparan en claro si tu SO está en oscuro). El build de producción siempre es correcto.
 
 ---
 

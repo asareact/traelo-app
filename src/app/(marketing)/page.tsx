@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/brand/logo";
 import { Reveal } from "@/components/motion/reveal";
-import { SiteIntro } from "@/components/motion/site-intro";
 import {
   IconLink,
   IconShield,
@@ -39,7 +38,6 @@ export default async function Home() {
 
   return (
     <div className="light bg-bg text-text">
-      <SiteIntro />
       {/* ─── NAV ─── */}
       <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[#1c1714]/90 px-6 py-4 backdrop-blur-md">
         <Logo variant="light" size={32} />

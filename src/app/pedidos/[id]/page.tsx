@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { AppShell } from "@/components/layout/app-shell";
 import { Logo } from "@/components/brand/logo";
-import { Card } from "@/components/ui/card";
-import { Alert } from "@/components/ui/alert";
 import { BackButton } from "@/components/ui/back-button";
-import { formatDate, formatUSD } from "@/lib/utils/format";
 import { routes } from "@/config/site";
-import {
-  EstadoBadge,
-  ItemList,
-  OrderTracker,
-  OrderTimeline,
-} from "@/features/orders";
+import { OrderDetail } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
 
 export const metadata: Metadata = {
-  title: "Seguimiento de pedido — Traelo",
+  title: "Detalle del pedido — Traelo",
   robots: { index: false }, // tracking links are private-by-URL, keep them out of search
 };
 
@@ -25,77 +19,47 @@ type Props = {
   searchParams: Promise<{ nuevo?: string }>;
 };
 
-export default async function TrackingPage({ params, searchParams }: Props) {
+export default async function OrderDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
   const { nuevo } = await searchParams;
 
   const pedido = await getPublicPedido(id);
   if (!pedido) notFound();
 
+  // Decide the chrome by auth: signed-in users get the full app shell (nav +
+  // back arrow); public tracking-link viewers get a standalone header.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const content = <OrderDetail pedido={pedido} nuevo={nuevo === "1"} />;
+
+  if (user) {
+    return (
+      <AppShell
+        back={{
+          href: nuevo === "1" ? routes.rastreo : undefined,
+          fallbackHref: routes.rastreo,
+        }}
+      >
+        {content}
+      </AppShell>
+    );
+  }
+
+  // Public viewer (no session): standalone header, no bottom nav.
   return (
     <div className="min-h-dvh bg-bg">
       <header className="border-b border-border bg-bg/95 backdrop-blur">
-        <div className="mx-auto flex max-w-md items-center justify-between px-5 py-3">
-          <div className="flex items-center gap-2.5">
-            <BackButton
-              href={nuevo === "1" ? routes.pedidos : undefined}
-              fallbackHref={routes.home}
-            />
-            <Link href={routes.home} aria-label="Inicio">
-              <Logo variant="auto" size={24} />
-            </Link>
-          </div>
-          <span className="font-mono text-xs text-muted">
-            #{pedido.id.slice(0, 8)}
-          </span>
+        <div className="mx-auto flex max-w-md items-center gap-2.5 px-5 py-3">
+          <BackButton fallbackHref={routes.home} />
+          <Link href={routes.home} aria-label="Inicio">
+            <Logo variant="auto" size={24} />
+          </Link>
         </div>
       </header>
-
-      <main className="mx-auto w-full max-w-md px-5 py-6">
-        {nuevo === "1" && (
-          <Alert tone="success" className="mb-5">
-            ¡Pedido recibido! Te avisaremos cuando confirmemos el precio.
-          </Alert>
-        )}
-
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted">Estado del pedido</p>
-            <p className="mt-0.5 text-xs text-muted">
-              Creado el {formatDate(pedido.created_at)}
-            </p>
-          </div>
-          <EstadoBadge estado={pedido.estado_actual} />
-        </div>
-
-        <Card className="mb-5">
-          <OrderTracker estado={pedido.estado_actual} />
-        </Card>
-
-        <section className="mb-5">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-text">
-              Productos
-            </h2>
-            {pedido.total_real_usd !== null && (
-              <span className="text-sm font-bold text-text">
-                Total {formatUSD(pedido.total_real_usd)}
-              </span>
-            )}
-          </div>
-          <ItemList items={pedido.items} />
-        </section>
-
-        <section>
-          <h2 className="mb-3 font-display text-lg font-bold text-text">
-            Historial
-          </h2>
-          <OrderTimeline
-            createdAt={pedido.created_at}
-            historial={pedido.historial}
-          />
-        </section>
-      </main>
+      <main className="mx-auto w-full max-w-md px-5 py-6">{content}</main>
     </div>
   );
 }

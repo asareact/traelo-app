@@ -140,6 +140,15 @@ export function IconChevronRight({ className, size }: IconProps) {
   );
 }
 
+export function IconArrowLeft({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
+    </svg>
+  );
+}
+
 export function IconCheck({ className, size }: IconProps) {
   return (
     <svg {...base(size, className)}>

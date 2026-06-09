@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
+import { BackButton } from "@/components/ui/back-button";
 import { formatDate, formatUSD } from "@/lib/utils/format";
 import { routes } from "@/config/site";
 import {
@@ -35,9 +36,15 @@ export default async function TrackingPage({ params, searchParams }: Props) {
     <div className="min-h-dvh bg-bg">
       <header className="border-b border-border bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-md items-center justify-between px-5 py-3">
-          <Link href={routes.home}>
-            <Logo variant="dark" size={26} />
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <BackButton
+              href={nuevo === "1" ? routes.pedidos : undefined}
+              fallbackHref={routes.home}
+            />
+            <Link href={routes.home} aria-label="Inicio">
+              <Logo variant="auto" size={24} />
+            </Link>
+          </div>
           <span className="font-mono text-xs text-muted">
             #{pedido.id.slice(0, 8)}
           </span>

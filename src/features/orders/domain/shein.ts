@@ -47,25 +47,52 @@ const TIPOS: [RegExp, string][] = [
   [/\b(2 ?pcs?|set|two piece)\b/i, "Conjunto"],
 ];
 
-/** Descriptive attributes (display priority order) → Spanish. */
+/** Descriptive attributes (display priority order — most distinctive first) → ES. */
 const ATRIBUTOS: [RegExp, string][] = [
+  // Cut / fit
   [/\boversized?\b/i, "oversize"],
   [/\bcrop(ped)?\b/i, "crop"],
+  [/\bbaggy\b/i, "baggy"],
+  [/\bcargo\b/i, "cargo"],
+  [/\bwide ?leg\b/i, "pierna ancha"],
+  [/\bstraight ?leg\b/i, "recto"],
+  [/\bskinny\b/i, "skinny"],
+  [/\bbodycon\b/i, "ceñido"],
+  [/\b(slim|fitted) ?fit\b/i, "ajustado"],
+  [/\bloose ?fit\b/i, "holgado"],
+  [/\bhigh ?waist(ed)?\b/i, "tiro alto"],
+  [/\bmid ?length\b/i, "largo medio"],
+  // Sleeves
   [/\bshort ?sleeve\b/i, "manga corta"],
   [/\blong ?sleeve\b/i, "manga larga"],
   [/\bsleeveless\b/i, "sin mangas"],
-  [/\b(slim|fitted) ?fit\b/i, "ajustado"],
-  [/\bloose ?fit\b/i, "holgado"],
-  [/\bbodycon\b/i, "ceñido"],
-  [/\bhigh ?waist(ed)?\b/i, "tiro alto"],
-  [/\bcotton\b/i, "algodón"],
+  // Fabric
+  [/\bcorduroy\b/i, "de pana"],
   [/\bdenim\b/i, "denim"],
-  [/\b(knit|jersey)\b/i, "de punto"],
+  [/\bcotton\b/i, "algodón"],
+  [/\blinen\b/i, "de lino"],
+  [/\b(knit|jersey|ribbed)\b/i, "de punto"],
+  [/\bsatin\b/i, "de satén"],
+  [/\bvelvet\b/i, "de terciopelo"],
+  [/\bleather\b/i, "de cuero"],
+  [/\blace\b/i, "de encaje"],
+  // Pattern
   [/\bfloral\b/i, "floral"],
   [/\bstriped\b/i, "a rayas"],
   [/\bplaid\b/i, "a cuadros"],
-  [/\blace\b/i, "de encaje"],
+  [/\b(print(ed)?|graphic)\b/i, "estampado"],
+  [/\bsolid( color)?\b/i, "liso"],
+  [/\bcolou?r ?block\b/i, "color block"],
+  [/\btie ?dye\b/i, "tie dye"],
+  [/\bwashed\b/i, "desgastado"],
+  [/\bpleated\b/i, "plisado"],
+  [/\bruffle\b/i, "con volantes"],
+  // Style / season
+  [/\bcasual\b/i, "casual"],
+  [/\b(street ?wear|street ?style)\b/i, "urbano"],
   [/\bvintage\b/i, "vintage"],
+  [/\bsummer\b/i, "de verano"],
+  [/\b(fall ?winter|winter)\b/i, "de invierno"],
 ];
 
 /** Extract the SEO slug (spaces) + product id from a SHEIN product URL. */

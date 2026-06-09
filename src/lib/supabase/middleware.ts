@@ -11,6 +11,18 @@ import { NextResponse, type NextRequest } from "next/server";
  * Public routes (/, /login, /registro, /pedidos/[id]) pass through.
  */
 export async function updateSession(request: NextRequest) {
+  // Safety net: if an OAuth/email `code` lands on the root (Supabase falls back
+  // to Site URL when the redirect isn't allowlisted), forward it to the callback
+  // route so it gets exchanged for a session instead of being dropped.
+  if (
+    request.nextUrl.pathname === "/" &&
+    request.nextUrl.searchParams.has("code")
+  ) {
+    const cb = request.nextUrl.clone();
+    cb.pathname = "/auth/callback";
+    return NextResponse.redirect(cb);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

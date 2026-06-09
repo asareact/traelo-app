@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils/cn";
 
 const SEEN_KEY = "traelo_intro_seen";
+const HARD_CAP_MS = 12000; // safety net if the video never fires `ended`
 
 /**
- * Brand intro splash: the teal arrow drops into the terracotta box (the logo),
- * the wordmark fades up, then the overlay fades out. Plays once per browser
- * session and is skipped entirely for users who prefer reduced motion.
+ * Brand intro splash: a full-screen logo-reveal video that plays once per
+ * browser session. Skipped entirely for reduced-motion users. Mounts only
+ * after hydration (no SSR flash / mismatch). Dismissible via "Saltar".
  *
- * Renders nothing on the server / for returning visitors, so there's no flash
- * and no hydration mismatch — it mounts after hydration only when it should play.
+ * Mobile: object-cover (full-bleed; the centered wordmark stays intact).
+ * Desktop: object-contain on black so nothing is cropped.
  */
 export function SiteIntro() {
   const [show, setShow] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const reduce = window.matchMedia(
@@ -23,61 +27,54 @@ export function SiteIntro() {
     if (sessionStorage.getItem(SEEN_KEY)) return;
 
     sessionStorage.setItem(SEEN_KEY, "1");
-    // Defer the reveal one frame so it isn't a synchronous setState in the
-    // effect body (avoids cascading renders).
     const raf = requestAnimationFrame(() => setShow(true));
-    const t = setTimeout(() => setShow(false), 2380);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t);
-    };
+    return () => cancelAnimationFrame(raf);
   }, []);
+
+  useEffect(() => {
+    if (!show) return;
+
+    // Try to start playback; if autoplay is blocked, don't trap the user.
+    const v = videoRef.current;
+    const p = v?.play?.();
+    if (p && typeof p.catch === "function") p.catch(() => dismiss());
+
+    const cap = window.setTimeout(dismiss, HARD_CAP_MS);
+    return () => clearTimeout(cap);
+  }, [show]);
+
+  function dismiss() {
+    setClosing(true);
+    window.setTimeout(() => setShow(false), 500);
+  }
 
   if (!show) return null;
 
   return (
     <div
-      className="intro-overlay fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg"
-      aria-hidden="true"
+      className={cn(
+        "fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-500",
+        closing ? "opacity-0" : "opacity-100",
+      )}
     >
-      <div className="relative h-[84px] w-[84px]">
-        {/* Box (assembles in) */}
-        <svg
-          className="intro-box absolute inset-0"
-          width={84}
-          height={84}
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <path d="M8 20 L24 27 L24 44 L8 36 Z" fill="#A8431F" />
-          <path d="M40 20 L24 27 L24 44 L40 36 Z" fill="#C4522A" />
-          <path d="M8 20 L16 16 L32 23 L24 27 Z" fill="#D5673D" />
-          <path d="M40 20 L32 16 L16 23 L24 27 Z" fill="#C4522A" />
-        </svg>
-        {/* Arrow (drops in) */}
-        <svg
-          className="intro-arrow absolute inset-0"
-          width={84}
-          height={84}
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <path
-            d="M30 6 C 34 12, 34 18, 27 22 L31 22 L24 30 L17 22 L21 22 C 26 18, 25 12, 22 9"
-            fill="#00B5A0"
-            stroke="#00B5A0"
-            strokeWidth="0.5"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-
-      <span className="intro-word mt-4 font-display text-2xl font-bold tracking-tight text-text">
-        traelo<span style={{ color: "#C4522A" }}>.</span>
-      </span>
-      <span className="intro-tagline mt-1.5 text-sm font-medium text-muted">
-        Compra afuera, recibe aquí.
-      </span>
+      <video
+        ref={videoRef}
+        className="h-full w-full object-cover md:object-contain"
+        src="/intro.mp4"
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onEnded={dismiss}
+      />
+      <button
+        type="button"
+        onClick={dismiss}
+        className="absolute right-5 top-5 rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm transition active:scale-95"
+        style={{ top: "calc(env(safe-area-inset-top) + 1.25rem)" }}
+      >
+        Saltar
+      </button>
     </div>
   );
 }

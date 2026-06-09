@@ -12,19 +12,27 @@ export function Logo({
   className = "",
   size = 32,
 }: {
-  variant?: "dark" | "light";
+  /** "dark"/"light" = fixed wordmark color; "auto" = follows the theme token. */
+  variant?: "dark" | "light" | "auto";
   showText?: boolean;
   className?: string;
   size?: number;
 }) {
-  const wordColor = variant === "light" ? "#F0EBE0" : "#1C1714";
+  const wordColor =
+    variant === "light"
+      ? "#F0EBE0"
+      : variant === "dark"
+        ? "#1C1714"
+        : undefined;
 
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark size={size} />
       {showText && (
         <span
-          className="font-display font-bold tracking-tight"
+          className={`font-display font-bold tracking-tight ${
+            variant === "auto" ? "text-text" : ""
+          }`}
           style={{ color: wordColor, fontSize: size * 0.7 }}
         >
           traelo<span style={{ color: "#C4522A" }}>.</span>

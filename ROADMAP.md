@@ -24,18 +24,30 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 
 ## 2. Estado actual (ACTUALIZAR en cada sesión)
 
-- **Branch de trabajo:** `feat/foundation-auth`
-- **Última fase completada:** Fase 1 (fundación + DB + auth + landing premium)
-- **Próximo:** Fase 2 (formulario de pedido + tracking público)
-- **PR a main:** pendiente de crear por web (ver sección 4 — no usar `gh`)
+- **Branch de trabajo:** `feat/architecture-and-orders`
+- **Última fase completada:** Fase 1 (fundación) + Fase 1.5 (refactor arquitectónico,
+  ver `ARCHITECTURE.md`) + Fase 2 (pedido + tracking) + Fase 3 (dashboard/perfil/nav)
+- **Próximo:** Fase 4 (admin Kanban + procesar items)
+- **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
+- **PR #1** (`feat/foundation-auth` → main) ya está **mergeado**. main está al día.
+  El PR de esta rama se crea por web (sección 4 — no usar `gh`).
 - **Deploy Vercel:** configurado, requiere env vars en el dashboard (ver Fase 7)
 - **Primer admin:** `asarria952807@gmail.com` (rol admin en DB)
+- **Pendiente para probar login:** desactivar "Confirm email" en Supabase o configurar
+  Google OAuth (SETUP.md). Verificación visual del tracking pendiente.
 
 ---
 
 ## 3. Stack y convenciones CRÍTICAS (Next 16 es nuevo — no asumas patrones viejos)
 
-- **Next.js 16** (App Router) + **React 19** + **Tailwind v4**
+> **Estructura del código:** ver `ARCHITECTURE.md`. Resumen: modular por *features*
+> (`app/` → `features/` → `components/ui · lib · types · config`, flechas hacia abajo).
+> Lectura en `features/*/queries.ts` (server-only), escritura en `actions.ts`
+> (`'use server'`), lógica pura en `domain/`. Validación zod en el server siempre.
+> Área cliente mobile-first envuelta en `<AppShell>` (bottom-nav). Primitivas UI en
+> `components/ui` con `cn()`. Auth: `features/auth`. Pedidos: `features/orders`.
+
+- **Next.js 16** (App Router) + **React 19** + **Tailwind v4** + **zod** (validación)
 - **Tailwind v4:** los design tokens van en `@theme` dentro de `src/app/globals.css`.
   **NO hay `tailwind.config.js`.** Utilidades: `bg-bg`, `bg-surface`, `text-primary`,
   `text-accent`, `text-muted`, `border-border`, `rounded-md/lg/full`, `font-display`
@@ -45,11 +57,13 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - **params / searchParams son Promises** → hay que `await`-earlos.
 - **Supabase (`@supabase/ssr`):**
   - `src/lib/supabase/client.ts` — cliente browser (Client Components)
-  - `src/lib/supabase/server.ts` — `createClient()` (server, async, usa cookies) +
-    `createAdminClient()` (service_role, server-only, bypassa RLS)
+  - `src/lib/supabase/server.ts` — `createClient()` (server, async, usa cookies, RLS)
+  - `src/lib/supabase/admin.ts` — `createAdminClient()` (service_role, `server-only`,
+    bypassa RLS; usado p.ej. en el tracking público por UUID)
   - Claves nuevas: `sb_publishable_` (anon) y `sb_secret_` (service_role)
-- **Auth:** email/password + Google OAuth. Server actions en `src/app/login/actions.ts`.
-  Callback OAuth en `src/app/auth/callback/route.ts`.
+  - Env: leer de `@/lib/env` (público) o `@/lib/env.server` (secreto), validado con zod.
+- **Auth:** email/password + Google OAuth. Feature en `src/features/auth/` (actions +
+  schemas + `AuthForm`). Callback OAuth en `src/app/(auth)/auth/callback/route.ts`.
 - **npm:** `.npmrc` fija el registry público (`registry.npmjs.org`). **No lo borres** —
   sin él, el `~/.npmrc` global del usuario (Artifactory de Cox) contamina el lockfile
   y rompe el build de Vercel (E401).
@@ -100,23 +114,45 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] Primer admin creado en DB
 - [x] Fix registry público para Vercel (.npmrc)
 
-### ⬜ Fase 2 — Formulario de pedido + tracking público (PRÓXIMO)
-- [ ] `/pedidos/nuevo` — formulario multi-item: por item URL SHEIN + talla + color +
-      cantidad + notas. Botón "Agregar otro producto". Mobile-first. Requiere auth.
-- [ ] Server action / `POST /api/pedidos` — crea `pedido` (estado COTIZACION) +
-      sus `pedido_items` (RLS: cliente inserta en su propio pedido)
-- [ ] `/pedidos/[id]` — **tracking público SIN auth**. Header con estado actual +
-      barra de progreso. Timeline vertical de estados (usar `ESTADO_LABEL` de types.ts).
-      Botón "copiar link". Es página standalone (sin nav ni bottom bar).
-- [ ] Redirect tras crear pedido → a su tracking o al dashboard
-- [ ] Tests (form validation, creación de pedido, RLS aislamiento)
+### ✅ Fase 2 — Formulario de pedido + tracking público (DONE)
+- [x] `/pedidos/nuevo` — formulario multi-item (URL SHEIN + talla + color + cantidad
+      + notas, stepper, "Agregar otro producto"). Mobile-first. Requiere auth.
+      → `features/orders/components/order-form.tsx`
+- [x] Server action `createOrder` — crea `pedido` (COTIZACION) + `pedido_items` vía
+      cliente RLS (cliente dueño), con rollback si fallan los items. Valida con zod.
+      → `features/orders/actions.ts`
+- [x] `/pedidos/[id]` — **tracking público SIN auth** (admin client por UUID).
+      Tracker de 6 hitos + lista de productos + timeline. Standalone (sin bottom-nav).
+      → `app/pedidos/[id]/page.tsx`, `features/orders/components/order-tracker.tsx`
+- [x] Redirect tras crear pedido → `/pedidos/[id]?nuevo=1` (banner de confirmación)
+- [ ] Tests (form validation, creación de pedido, RLS aislamiento) — PENDIENTE
+- [ ] "Copiar link" en el tracking — PENDIENTE (menor)
+- [ ] Verificación visual con browser headless — PENDIENTE
 
-### ⬜ Fase 3 — Dashboard cliente + perfil
-- [ ] `/dashboard` — lista real de pedidos del cliente con stats (activos, histórico,
-      USD gastado) + badges de estado. Bottom tab bar.
-- [ ] `/perfil` — nombre, teléfono, dirección, cerrar sesión. Bottom tab bar.
-- [ ] Componente `BottomTabBar` (móvil): Inicio · Pedidos · Perfil
-- [ ] Badge de estado reutilizable (colores por estado, ver DESIGN.md)
+### ✅ Fase 3 — Dashboard cliente + perfil + nav (DONE — adelantado en este bloque)
+- [x] `/dashboard` — saludo + CTA "Hacer un pedido" + pedidos recientes (3) con badges.
+      → `app/dashboard/page.tsx`
+- [x] `/perfil` — **editable** (nombre, teléfono, dirección) + correo + cerrar sesión.
+      Feature `features/profile/` (domain/schema/query/action/form).
+- [x] **Gate de pedido:** para crear un pedido el perfil debe tener nombre + teléfono
+      (dirección opcional). Se exige en `/pedidos/nuevo` (página) y en `createOrder`
+      (server, defensa en profundidad) → redirige a `/perfil/completar?next=…`.
+      Aviso en el dashboard si el perfil está incompleto.
+- [x] `BottomNav` (móvil, 5 tabs): Inicio · Pedidos · **Pedir** (CTA central
+      animado) · Rastreo · Perfil. Footer blanco opaco, botón central con borde.
+      → `components/layout/bottom-nav.tsx` + `<AppShell>` (con `AppHeader`: logo + campana)
+- [x] Badge de estado reutilizable (`EstadoBadge`, tinte por hito/terminal).
+- [x] `/pedidos` — lista completa de pedidos del cliente con empty state.
+- [x] **Rediseño dashboard** ("Verano Confiable"): welcome serif, aviso de perfil
+      teal, CTA grande, empty state con caja punteada.
+- [x] `/rastreo` — pedidos en curso (no entregados/cancelados).
+- [x] `/notificaciones` — lista (tabla `notificaciones`, RLS) + empty state.
+      Feature `features/notifications/`. Campana en el header enlaza aquí.
+- [x] **Dark mode ("Luxury Dark")** con toggle claro/oscuro en el header (persiste,
+      sin parpadeo). Tokens en `.dark`, landing forzada a `.light`. CTA y botón central
+      con tratamientos `dark:`. `components/theme/theme-toggle.tsx`. Verificado por capturas.
+- [ ] Stats (activos / histórico / USD gastado) — PENDIENTE (refinamiento)
+- [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
 
 ### ⬜ Fase 4 — Admin Kanban + procesar items
 - [ ] `/admin/kanban` — columnas por estado, cards de pedido, botón "Avanzar" (o drag).
@@ -189,8 +225,10 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 |---|---|
 | `DESIGN.md` | Sistema de diseño, reglas de negocio, inventario de páginas, navegación, auth, decisiones |
 | `SETUP.md` | Env vars, setup de Supabase (email/Google), crear admin, correr el proyecto |
+| `ARCHITECTURE.md` | **Cómo está organizado el código** (capas, features, reglas, gotchas, receta) |
 | `supabase/migrations/` | Esquema de DB (3 archivos numerados) |
-| `src/lib/types.ts` | Tipos del dominio + `ESTADO_LABEL` (labels visibles al cliente) |
+| `src/types/database.ts` | Tipos de filas DB (Profile, Pedido, PedidoItem…), sin lógica |
+| `src/features/orders/domain/estados.ts` | Máquina de estados + `ESTADO_LABEL` + hitos cliente (sin "casillero") |
 | `landing-wireframe.html` | Wireframe de referencia del landing (diseño) |
 | `pages-wireframe.html` | Wireframe de las 7 páginas |
 | `~/.gstack/projects/asareact-traelo-app/` | CEO plan, checkpoints, design audits (fuera del repo) |

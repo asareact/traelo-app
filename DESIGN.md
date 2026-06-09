@@ -55,16 +55,23 @@
   - Warning: `#D4A017`
   - Error: `#B03A2E`
   - Info: `#1E65A8`
-- **Dark mode:** Invertir surface/background. Reducir saturación de primary/accent en 10-15%. Mantener la calidez (no cambiar a grises fríos).
+- **Dark mode ("Luxury Dark"):** lienzo near-black, superficies neutras cálidas, los
+  acentos terracota + teal resaltan. Toggle claro/oscuro en el `AppHeader` (persiste en
+  localStorage, aplicado pre-paint para no parpadear). Se activa con la clase `.dark` en
+  `<html>` (Tailwind v4: `@custom-variant dark`). La landing se mantiene clara (clase
+  `.light`). Implementado en `src/app/globals.css` + `components/theme/theme-toggle.tsx`.
   ```css
-  [data-theme="dark"] {
-    --bg:      #1C1714;
-    --surface: #2A2218;
-    --text:    #F0EBE0;
-    --muted:   #8C7F76;
-    --border:  #3A2E26;
+  .dark {
+    --color-bg:      #070706;
+    --color-surface: #161412;
+    --color-text:    #F4F1EC;
+    --color-muted:   #908A83;
+    --color-border:  #272320;
   }
   ```
+  Tratamientos específicos de dark vía `dark:` utilities: el CTA "Hacer un pedido" pasa
+  de terracota sólido a tarjeta con borde-degradado; el botón central del nav pasa de
+  relleno a contorneado en terracota.
 
 ### CSS Custom Properties (copiar en globals.css)
 ```css

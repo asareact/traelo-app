@@ -114,6 +114,85 @@ export function IconHome({ className, size }: IconProps) {
   );
 }
 
+export function IconUser({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" />
+    </svg>
+  );
+}
+
+export function IconPlus({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+export function IconChevronRight({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export function IconArrowLeft({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
+    </svg>
+  );
+}
+
+export function IconCheck({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M5 12l5 5L20 7" />
+    </svg>
+  );
+}
+
+export function IconSun({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  );
+}
+
+export function IconMoon({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
+  );
+}
+
+export function IconBell({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" />
+      <path d="M10.5 20a1.8 1.8 0 0 0 3 0" />
+    </svg>
+  );
+}
+
+export function IconUserCheck({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M15 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20" />
+      <circle cx="9" cy="7" r="3.5" />
+      <path d="M16 12l2 2 4-4" />
+    </svg>
+  );
+}
+
 export function IconBox({ className, size }: IconProps) {
   return (
     <svg {...base(size, className)}>

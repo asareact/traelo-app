@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: `dark:` utilities apply when inside an `.dark` ancestor
+   (we toggle `.dark` on <html>). Tailwind v4 needs this opt-in. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
   Traelo — Design System "Verano Confiable"
   Tokens defined per DESIGN.md. Tailwind v4 @theme exposes these as utilities
@@ -30,13 +34,26 @@
   --radius-full: 9999px;
 }
 
-/* Dark mode — warm, not cold. Reduce saturation per DESIGN.md. */
+/* Dark mode — "Luxury Dark": near-black canvas, warm-neutral surfaces, the
+   terracotta + teal accents pop against it. Tokens flip the whole app. */
 .dark {
-  --color-bg: #1c1714;
-  --color-surface: #2a2218;
-  --color-text: #f0ebe0;
+  --color-bg: #070706;
+  --color-surface: #161412;
+  --color-text: #f4f1ec;
+  --color-muted: #908a83;
+  --color-border: #272320;
+  color-scheme: dark;
+}
+
+/* Force-light subtree (the public landing uses hand-tuned colors and must stay
+   light even when the app is in dark mode). */
+.light {
+  --color-bg: #fafaf7;
+  --color-surface: #f0ebe0;
+  --color-text: #1c1714;
   --color-muted: #8c7f76;
-  --color-border: #3a2e26;
+  --color-border: #e2d9ce;
+  color-scheme: light;
 }
 
 :root {
@@ -63,5 +80,114 @@ h1, h2, h3 {
   [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* ── Motion: site intro · page transitions · nav attention ─────────────
+   All gated behind no-preference so reduced-motion users get instant UI. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Page transition — runs on every navigation via app/template.tsx */
+  .page-enter {
+    animation: pageEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Site intro splash — the logo arrow drops into the box, then fades out */
+  .intro-overlay {
+    animation: introOut 0.45s ease-in 1.9s forwards;
+  }
+  .intro-box {
+    animation: introBoxIn 0.5s ease-out both;
+    transform-origin: center;
+  }
+  .intro-arrow {
+    animation: introArrowDrop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+  }
+  .intro-word {
+    animation: introWordIn 0.5s ease-out 0.95s both;
+  }
+  .intro-tagline {
+    animation: introWordIn 0.5s ease-out 1.3s both;
+  }
+  @keyframes introBoxIn {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes introArrowDrop {
+    0% {
+      opacity: 0;
+      transform: translateY(-24px);
+    }
+    60% {
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes introWordIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes introOut {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* Bottom-nav "Pedir" — gentle bob + pulsing halo to draw the eye */
+  .nav-pedir-bob {
+    animation: navBob 2.8s ease-in-out infinite;
+  }
+  @keyframes navBob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  .nav-pedir-ring {
+    animation: navPulse 2.4s ease-out infinite;
+  }
+  @keyframes navPulse {
+    0% {
+      transform: scale(0.85);
+      opacity: 0.45;
+    }
+    70% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 }

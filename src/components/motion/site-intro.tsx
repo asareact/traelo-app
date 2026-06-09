@@ -1,83 +1,70 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const SEEN_KEY = "traelo_intro_seen";
+const HARD_CAP_MS = 4500; // safety net if the video never fires `ended` (clip ~3s)
 
 /**
- * Brand intro splash: the teal arrow drops into the terracotta box (the logo),
- * the wordmark fades up, then the overlay fades out. Plays once per browser
- * session and is skipped entirely for users who prefer reduced motion.
+ * Brand intro splash — a full-screen logo-reveal video shown once per session.
  *
- * Renders nothing on the server / for returning visitors, so there's no flash
- * and no hydration mismatch — it mounts after hydration only when it should play.
+ * The overlay container is server-rendered and hidden by CSS; the pre-paint
+ * script in layout.tsx adds `.intro-playing` to <html> for first-time visitors,
+ * so the black overlay is already up at first paint (no flash of the landing).
+ * The video element only mounts when actually playing — returning and
+ * reduced-motion users never download it.
+ *
+ * Fit: full-bleed on mobile (object-cover, centered wordmark stays intact);
+ * a centered full-height portrait column on larger screens (nothing cropped).
  */
 export function SiteIntro() {
-  const [show, setShow] = useState(false);
+  const [active, setActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (reduce) return;
-    if (sessionStorage.getItem(SEEN_KEY)) return;
-
-    sessionStorage.setItem(SEEN_KEY, "1");
-    // Defer the reveal one frame so it isn't a synchronous setState in the
-    // effect body (avoids cascading renders).
-    const raf = requestAnimationFrame(() => setShow(true));
-    const t = setTimeout(() => setShow(false), 2380);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t);
-    };
+  const dismiss = useCallback(() => {
+    document.documentElement.classList.remove("intro-playing"); // CSS fades it out
+    window.setTimeout(() => setActive(false), 500);
   }, []);
 
-  if (!show) return null;
+  useEffect(() => {
+    if (!document.documentElement.classList.contains("intro-playing")) return;
+    sessionStorage.setItem(SEEN_KEY, "1");
+    const raf = requestAnimationFrame(() => setActive(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
+    const p = videoRef.current?.play?.();
+    if (p && typeof p.catch === "function") p.catch(dismiss);
+    const cap = window.setTimeout(dismiss, HARD_CAP_MS);
+    return () => clearTimeout(cap);
+  }, [active, dismiss]);
 
   return (
-    <div
-      className="intro-overlay fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg"
-      aria-hidden="true"
-    >
-      <div className="relative h-[84px] w-[84px]">
-        {/* Box (assembles in) */}
-        <svg
-          className="intro-box absolute inset-0"
-          width={84}
-          height={84}
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <path d="M8 20 L24 27 L24 44 L8 36 Z" fill="#A8431F" />
-          <path d="M40 20 L24 27 L24 44 L40 36 Z" fill="#C4522A" />
-          <path d="M8 20 L16 16 L32 23 L24 27 Z" fill="#D5673D" />
-          <path d="M40 20 L32 16 L16 23 L24 27 Z" fill="#C4522A" />
-        </svg>
-        {/* Arrow (drops in) */}
-        <svg
-          className="intro-arrow absolute inset-0"
-          width={84}
-          height={84}
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <path
-            d="M30 6 C 34 12, 34 18, 27 22 L31 22 L24 30 L17 22 L21 22 C 26 18, 25 12, 22 9"
-            fill="#00B5A0"
-            stroke="#00B5A0"
-            strokeWidth="0.5"
-            strokeLinejoin="round"
+    <div className="site-intro fixed inset-0 z-[100] flex items-center justify-center bg-black">
+      {active && (
+        <>
+          <video
+            ref={videoRef}
+            className="h-dvh w-full object-cover sm:w-auto sm:object-contain"
+            src="/intro.mp4"
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            onEnded={dismiss}
           />
-        </svg>
-      </div>
-
-      <span className="intro-word mt-4 font-display text-2xl font-bold tracking-tight text-text">
-        traelo<span style={{ color: "#C4522A" }}>.</span>
-      </span>
-      <span className="intro-tagline mt-1.5 text-sm font-medium text-muted">
-        Compra afuera, recibe aquí.
-      </span>
+          <button
+            type="button"
+            onClick={dismiss}
+            className="absolute right-5 rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm transition active:scale-95"
+            style={{ top: "calc(env(safe-area-inset-top) + 1.25rem)" }}
+          >
+            Saltar
+          </button>
+        </>
+      )}
     </div>
   );
 }

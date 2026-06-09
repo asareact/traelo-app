@@ -24,17 +24,22 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 
 ## 2. Estado actual (ACTUALIZAR en cada sesión)
 
-- **Branch de trabajo:** `feat/architecture-and-orders`
-- **Última fase completada:** Fase 1 (fundación) + Fase 1.5 (refactor arquitectónico,
-  ver `ARCHITECTURE.md`) + Fase 2 (pedido + tracking) + Fase 3 (dashboard/perfil/nav)
-- **Próximo:** Fase 4 (admin Kanban + procesar items)
+- **Ramas:** `main` (prod) + `develop` (integración), ambas en sync. Default branch = `main`.
+  Flujo: feature branch desde `develop` → merge a `develop` → `develop` a `main`.
+- **Completado:** Fase 1 (fundación) + Fase 1.5 (arquitectura modular, ver `ARCHITECTURE.md`)
+  + Fase 2 (pedido + tracking + **envío por WhatsApp al admin** + modal confirmar) + Fase 3
+  (dashboard/perfil/nav + dark mode) + extras (nombre de producto desde el link de SHEIN,
+  copiar link, signup con confirmar contraseña, safety-net OAuth).
+- **Próximo:** **Fase 4 — Admin (Kanban + procesar items)**. El cliente ya puede crear y
+  enviar pedidos; falta el lado admin para procesarlos y mover estados.
 - **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
-- **PR #1** (`feat/foundation-auth` → main) ya está **mergeado**. main está al día.
-  El PR de esta rama se crea por web (sección 4 — no usar `gh`).
-- **Deploy Vercel:** configurado, requiere env vars en el dashboard (ver Fase 7)
-- **Primer admin:** `asarria952807@gmail.com` (rol admin en DB)
-- **Pendiente para probar login:** desactivar "Confirm email" en Supabase o configurar
-  Google OAuth (SETUP.md). Verificación visual del tracking pendiente.
+- **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp
+  prellenado al admin (`config.whatsapp_phone` = 5358260354). Plantilla en `lib/whatsapp.ts`.
+- **Primer admin:** `asarria952807@gmail.com` (rol admin en DB).
+- **Prod (Vercel `traelo-cu.vercel.app`):** requiere `NEXT_PUBLIC_SITE_URL=https://traelo-cu.vercel.app`
+  (sin `/`) + Production Branch = `main`. Supabase URL Config (allowlist `/auth/callback`)
+  ya puesto. Falta verificar esas 2 env/config en Vercel para que el OAuth entre.
+- **Gotcha de entorno:** usar **Node 18+** (con Node 14 el dev revienta, ver sección 7).
 
 ---
 

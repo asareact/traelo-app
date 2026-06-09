@@ -337,7 +337,9 @@ export default async function Home() {
                     / libra
                   </span>
                 </div>
-                <p className="mb-6 mt-1 text-sm text-white/70">+ tarifa express</p>
+                <p className="mb-6 mt-1 text-sm text-white/70">
+                  + servicio express (según peso)
+                </p>
                 {[
                   "Solo para pedidos de 10+ lbs",
                   "SHEIN: 15-20 días (igual)",

@@ -223,6 +223,20 @@ La palabra **"casillero"** NO se muestra nunca al cliente. Internamente usamos u
 ### Express (aclaración)
 El envío express **solo acelera el tramo EE.UU. → Cuba** (una vez que el pedido está en nuestro poder en EE.UU.). NO acelera la compra/envío de SHEIN (ese tramo es igual: 15-20 días). Solo disponible para pedidos de 10+ lbs.
 
+### Pricing express — PENDIENTE (decisión por la práctica)
+El precio del express **no está cerrado**. Por ahora el landing muestra
+**"$7/lb + servicio express (según peso)"** sin número fijo. El fundador hará
+envíos reales antes del lanzamiento para definir la tarifa express con datos
+propios. NO hardcodear un precio express hasta concluir.
+
+### Costo base real (WeShipYou) — dato actualizado
+Tarifa vigente de WeShipYou (Telegram, supera a la prensa vieja de ~$4/lb / 21 días):
+- **10 lbs = $21.94 USD (~$2.19/lb), envío aéreo, 7-10 días hábiles, ciudades principales.**
+- Escalonado: más peso = menor $/lb. Casillero gratis 30 días. Consolidación incluida.
+- Aduana cubana (exposición del destinatario): 30% de impuesto, límite 500 puntos/envío, umbral libre $0. Pendiente decidir si se cobra aparte o se absorbe.
+- Margen estándar a $7/lb ≈ $4.80/lb sobre el costo base actual.
+- **Curva exacta de $/lb por tramo de peso: pendiente de sacar de la calculadora logueada de WeShipYou.**
+
 ### Flujo de pago (2 momentos distintos)
 1. **Pago del producto:** Cliente paga el total de los artículos SHEIN + markup cuando acepta el precio, en persona (CUP/USD/MLC). El pedido queda en `PENDIENTE_PAGO` hasta que se confirme el pago. Solo después el admin compra en SHEIN.
 2. **Aviso del peso (NO es pago):** Cuando el paquete llega al casillero (`EN_CASILLERO`), el admin lo pesa y envía foto del peso como evidencia. Esto es un **aviso por adelantado** — el cliente ya sabe cuánto pesó antes de recoger.

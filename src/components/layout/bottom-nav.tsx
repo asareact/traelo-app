@@ -51,7 +51,7 @@ export function BottomNav() {
                       <Icon size={26} />
                     </span>
                   </span>
-                  <span className="-mt-1 text-[10px] font-medium text-muted">
+                  <span className="mt-1 text-[10px] font-medium text-muted">
                     {item.label}
                   </span>
                 </Link>

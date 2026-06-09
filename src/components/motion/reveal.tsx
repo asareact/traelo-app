@@ -23,8 +23,10 @@ export function Reveal({
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (reduce) {
-      setShown(true);
-      return;
+      // Reveal next frame (not synchronously in the effect body) — keeps React
+      // from cascading renders and avoids an SSR hydration mismatch.
+      const id = requestAnimationFrame(() => setShown(true));
+      return () => cancelAnimationFrame(id);
     }
     const el = ref.current;
     if (!el) return;

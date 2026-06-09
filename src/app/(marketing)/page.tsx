@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Logo } from "@/components/logo";
-import { Reveal } from "@/components/reveal";
+import { Logo } from "@/components/brand/logo";
+import { Reveal } from "@/components/motion/reveal";
 import {
   IconLink,
   IconShield,
@@ -15,7 +15,7 @@ import {
   IconHome,
   IconBox,
   IconWhatsapp,
-} from "@/components/icons";
+} from "@/components/brand/icons";
 
 // Subtle film grain overlay (premium tactile texture).
 const GRAIN =

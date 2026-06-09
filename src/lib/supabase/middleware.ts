@@ -43,9 +43,12 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   const isAdminRoute = path.startsWith("/admin");
+  // Protect the dashboard, profile, orders list, and the new-order form.
+  // IMPORTANT: /pedidos/[id] is the PUBLIC tracking page — never guard it.
   const isClientProtected =
     path.startsWith("/dashboard") ||
     path.startsWith("/perfil") ||
+    path === "/pedidos" ||
     path === "/pedidos/nuevo";
 
   // Not logged in → redirect protected routes to /login

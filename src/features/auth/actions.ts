@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loginSchema, signupSchema } from "@/features/auth/schemas";
 
 export type AuthState = { error?: string; ok?: string };
 
@@ -11,20 +12,19 @@ export async function login(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
-  const email = String(formData.get("email") || "").trim();
-  const password = String(formData.get("password") || "");
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Revisa tus datos." };
+  }
   const next = String(formData.get("next") || "/dashboard");
 
-  if (!email || !password) {
-    return { error: "Completa el correo y la contraseña." };
-  }
-
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
-  if (error) {
-    return { error: traducirError(error.message) };
-  }
+  if (error) return { error: traducirError(error.message) };
 
   revalidatePath("/", "layout");
   redirect(next);
@@ -35,16 +35,17 @@ export async function signup(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
-  const nombre = String(formData.get("nombre") || "").trim();
-  const email = String(formData.get("email") || "").trim();
-  const password = String(formData.get("password") || "");
-
-  if (!nombre || !email || !password) {
-    return { error: "Completa todos los campos." };
+  const parsed = signupSchema.safeParse({
+    nombre: formData.get("nombre"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Completa todos los campos.",
+    };
   }
-  if (password.length < 6) {
-    return { error: "La contraseña debe tener al menos 6 caracteres." };
-  }
+  const { nombre, email, password } = parsed.data;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -53,9 +54,7 @@ export async function signup(
     options: { data: { nombre } },
   });
 
-  if (error) {
-    return { error: traducirError(error.message) };
-  }
+  if (error) return { error: traducirError(error.message) };
 
   // Email confirmation enabled → no session yet. Tell the user to check inbox.
   if (!data.session) {

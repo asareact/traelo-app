@@ -1,21 +1,24 @@
 "use client";
 
-import { Suspense, useActionState, useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Logo } from "@/components/logo";
-import { login, signup, type AuthState } from "./actions";
+import { env } from "@/lib/env";
+import { Logo } from "@/components/brand/logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
+import { Alert } from "@/components/ui/alert";
+import { cn } from "@/lib/utils/cn";
+import { login, signup, type AuthState } from "@/features/auth/actions";
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-dvh bg-bg" />}>
-      <LoginForm />
-    </Suspense>
-  );
-}
-
-function LoginForm() {
+/**
+ * Login + signup card. Google OAuth (browser redirect) + email/password
+ * (server actions via useActionState). Reads `?next=` to return the user to
+ * where they came from. Must be rendered inside <Suspense> (useSearchParams).
+ */
+export function AuthForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/dashboard";
   const [tab, setTab] = useState<"entrar" | "crear">("entrar");
@@ -26,10 +29,11 @@ function LoginForm() {
     setGoogleLoading(true);
     setGoogleError("");
     const supabase = createClient();
+    const origin = env.NEXT_PUBLIC_SITE_URL || window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
         queryParams: { prompt: "select_account" },
       },
     });
@@ -52,7 +56,6 @@ function LoginForm() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-bg px-6 py-12">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="mb-9 flex flex-col items-center text-center">
           <Link href="/">
             <Logo variant="dark" size={44} />
@@ -62,39 +65,34 @@ function LoginForm() {
 
         {/* Tabs */}
         <div className="mb-6 flex rounded-md bg-surface p-1">
-          <button
-            type="button"
-            onClick={() => setTab("entrar")}
-            className={`flex-1 rounded-[8px] py-2.5 text-sm font-bold transition ${
-              tab === "entrar"
-                ? "bg-white text-text shadow-sm"
-                : "text-muted"
-            }`}
-          >
-            Entrar
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("crear")}
-            className={`flex-1 rounded-[8px] py-2.5 text-sm font-bold transition ${
-              tab === "crear" ? "bg-white text-text shadow-sm" : "text-muted"
-            }`}
-          >
-            Crear cuenta
-          </button>
+          {(["entrar", "crear"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={cn(
+                "flex-1 rounded-[8px] py-2.5 text-sm font-bold transition",
+                tab === t ? "bg-white text-text shadow-sm" : "text-muted",
+              )}
+            >
+              {t === "entrar" ? "Entrar" : "Crear cuenta"}
+            </button>
+          ))}
         </div>
 
         {/* Google */}
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="lg"
           onClick={signInWithGoogle}
           disabled={googleLoading}
-          className="mb-5 flex w-full items-center justify-center gap-3 rounded-full border-[1.5px] border-border bg-white px-6 py-3 text-[15px] font-bold text-text transition hover:bg-surface disabled:opacity-50"
+          className="mb-5 w-full bg-white"
         >
           <GoogleIcon />
           {googleLoading ? "Conectando…" : "Continuar con Google"}
-        </button>
-        {googleError && <ErrorMsg>{googleError}</ErrorMsg>}
+        </Button>
+        {googleError && <Alert tone="error">{googleError}</Alert>}
 
         {/* Divider */}
         <div className="my-5 flex items-center gap-3">
@@ -107,121 +105,66 @@ function LoginForm() {
           <form action={loginAction} className="flex flex-col gap-4">
             <input type="hidden" name="next" value={next} />
             <Field label="Correo electrónico">
-              <input
+              <Input
                 name="email"
                 type="email"
                 autoComplete="email"
                 placeholder="tu@email.com"
-                className={inputCls}
                 required
               />
             </Field>
             <Field label="Contraseña">
-              <input
+              <Input
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className={inputCls}
                 required
               />
             </Field>
-            {loginState.error && <ErrorMsg>{loginState.error}</ErrorMsg>}
-            <SubmitButton pending={loginPending}>Entrar</SubmitButton>
+            {loginState.error && <Alert tone="error">{loginState.error}</Alert>}
+            <Button type="submit" size="lg" disabled={loginPending} className="mt-2">
+              {loginPending ? "Un momento…" : "Entrar"}
+            </Button>
           </form>
         ) : (
           <form action={signupAction} className="flex flex-col gap-4">
             <Field label="Nombre">
-              <input
+              <Input
                 name="nombre"
                 type="text"
                 autoComplete="name"
                 placeholder="Tu nombre"
-                className={inputCls}
                 required
               />
             </Field>
             <Field label="Correo electrónico">
-              <input
+              <Input
                 name="email"
                 type="email"
                 autoComplete="email"
                 placeholder="tu@email.com"
-                className={inputCls}
                 required
               />
             </Field>
             <Field label="Contraseña">
-              <input
+              <Input
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 placeholder="Mínimo 6 caracteres"
-                className={inputCls}
                 required
               />
             </Field>
-            {signupState.error && <ErrorMsg>{signupState.error}</ErrorMsg>}
-            {signupState.ok && <OkMsg>{signupState.ok}</OkMsg>}
-            <SubmitButton pending={signupPending}>Crear cuenta</SubmitButton>
+            {signupState.error && <Alert tone="error">{signupState.error}</Alert>}
+            {signupState.ok && <Alert tone="success">{signupState.ok}</Alert>}
+            <Button type="submit" size="lg" disabled={signupPending} className="mt-2">
+              {signupPending ? "Un momento…" : "Crear cuenta"}
+            </Button>
           </form>
         )}
       </div>
     </main>
-  );
-}
-
-const inputCls =
-  "w-full rounded-md border-[1.5px] border-border bg-bg px-3.5 py-3 text-[15px] text-text outline-none transition focus:border-primary";
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function ErrorMsg({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="rounded-md border border-error/30 bg-error/5 px-3 py-2 text-sm font-medium text-error">
-      {children}
-    </p>
-  );
-}
-
-function OkMsg({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm font-medium text-accent">
-      {children}
-    </p>
-  );
-}
-
-function SubmitButton({
-  pending,
-  children,
-}: {
-  pending: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="mt-2 rounded-full bg-primary px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-    >
-      {pending ? "Un momento…" : children}
-    </button>
   );
 }
 

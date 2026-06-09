@@ -114,6 +114,40 @@ export function IconHome({ className, size }: IconProps) {
   );
 }
 
+export function IconUser({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" />
+    </svg>
+  );
+}
+
+export function IconPlus({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+export function IconChevronRight({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export function IconCheck({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M5 12l5 5L20 7" />
+    </svg>
+  );
+}
+
 export function IconBox({ className, size }: IconProps) {
   return (
     <svg {...base(size, className)}>

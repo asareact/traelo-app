@@ -58,7 +58,7 @@ export function AuthForm() {
       <div className="w-full max-w-sm">
         <div className="mb-9 flex flex-col items-center text-center">
           <Link href="/">
-            <Logo variant="dark" size={44} />
+            <Logo variant="auto" size={44} />
           </Link>
           <p className="mt-3 text-sm text-muted">Entra o crea tu cuenta</p>
         </div>
@@ -72,7 +72,9 @@ export function AuthForm() {
               onClick={() => setTab(t)}
               className={cn(
                 "flex-1 rounded-[8px] py-2.5 text-sm font-bold transition",
-                tab === t ? "bg-white text-text shadow-sm" : "text-muted",
+                tab === t
+                  ? "bg-white text-[#1c1714] shadow-sm dark:bg-white/10 dark:text-text"
+                  : "text-muted",
               )}
             >
               {t === "entrar" ? "Entrar" : "Crear cuenta"}
@@ -87,7 +89,7 @@ export function AuthForm() {
           size="lg"
           onClick={signInWithGoogle}
           disabled={googleLoading}
-          className="mb-5 w-full bg-white"
+          className="mb-5 w-full bg-white text-[#1c1714] hover:bg-white"
         >
           <GoogleIcon />
           {googleLoading ? "Conectando…" : "Continuar con Google"}

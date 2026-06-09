@@ -47,13 +47,13 @@ export default async function DashboardPage() {
         <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
           ¿Qué quieres
           <br />
-          traer hoy?
+          <span className="text-primary">traer hoy?</span>
         </h1>
       </section>
 
       {/* Profile prompt (teal — trust accent) */}
       {perfilIncompleto && (
-        <div className="mb-7 flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent/10 p-4">
+        <div className="mb-7 flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent/10 p-4 dark:bg-white/[0.04]">
           <span className="mt-0.5 shrink-0 text-accent">
             <IconUserCheck size={20} />
           </span>
@@ -70,23 +70,27 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Main CTA */}
+      {/* Main CTA — solid in light, gradient-bordered card in dark */}
       <Link
         href={routes.nuevoPedido}
-        className="block w-full rounded-[24px] bg-primary p-6 text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.28)] transition active:scale-[0.97]"
+        className="block w-full rounded-[24px] bg-primary p-0.5 text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.28)] transition active:scale-[0.97] dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:shadow-[0_0_24px_rgba(196,82,35,0.25)]"
       >
-        <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15">
+        <div className="flex items-center gap-4 rounded-[22px] p-[22px] dark:bg-bg">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:text-black">
             <IconPlus size={26} />
           </span>
-          <span>
-            <span className="mb-1 block text-lg font-bold leading-none">
+          <span className="min-w-0">
+            <span className="mb-1 block text-lg font-bold leading-none dark:text-text">
               Hacer un pedido
             </span>
-            <span className="text-sm text-white/80">
+            <span className="text-sm text-white/80 dark:text-muted">
               Pega tus enlaces de SHEIN
             </span>
           </span>
+          <IconChevronRight
+            size={20}
+            className="ml-auto shrink-0 text-white/60 dark:text-primary"
+          />
         </div>
       </Link>
 

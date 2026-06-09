@@ -29,7 +29,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] dark:bg-bg">
       <ul className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
         {clientNav.map((item) => {
           const Icon = icons[item.icon];
@@ -47,7 +47,7 @@ export function BottomNav() {
                 >
                   <span className="nav-pedir-bob relative -mt-9 flex h-14 w-14 items-center justify-center">
                     <span className="nav-pedir-ring absolute inset-0 rounded-full bg-primary/40" />
-                    <span className="relative flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-primary text-white shadow-lg shadow-primary/30">
+                    <span className="relative flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-primary text-white shadow-lg shadow-primary/30 dark:border-2 dark:border-primary dark:bg-bg dark:text-primary dark:shadow-primary/20">
                       <Icon size={26} />
                     </span>
                   </span>

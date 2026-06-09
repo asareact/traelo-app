@@ -148,6 +148,9 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] `/rastreo` — pedidos en curso (no entregados/cancelados).
 - [x] `/notificaciones` — lista (tabla `notificaciones`, RLS) + empty state.
       Feature `features/notifications/`. Campana en el header enlaza aquí.
+- [x] **Dark mode ("Luxury Dark")** con toggle claro/oscuro en el header (persiste,
+      sin parpadeo). Tokens en `.dark`, landing forzada a `.light`. CTA y botón central
+      con tratamientos `dark:`. `components/theme/theme-toggle.tsx`. Verificado por capturas.
 - [ ] Stats (activos / histórico / USD gastado) — PENDIENTE (refinamiento)
 - [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
 

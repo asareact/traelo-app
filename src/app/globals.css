@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: `dark:` utilities apply when inside an `.dark` ancestor
+   (we toggle `.dark` on <html>). Tailwind v4 needs this opt-in. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
   Traelo — Design System "Verano Confiable"
   Tokens defined per DESIGN.md. Tailwind v4 @theme exposes these as utilities
@@ -30,13 +34,26 @@
   --radius-full: 9999px;
 }
 
-/* Dark mode — warm, not cold. Reduce saturation per DESIGN.md. */
+/* Dark mode — "Luxury Dark": near-black canvas, warm-neutral surfaces, the
+   terracotta + teal accents pop against it. Tokens flip the whole app. */
 .dark {
-  --color-bg: #1c1714;
-  --color-surface: #2a2218;
-  --color-text: #f0ebe0;
+  --color-bg: #070706;
+  --color-surface: #161412;
+  --color-text: #f4f1ec;
+  --color-muted: #908a83;
+  --color-border: #272320;
+  color-scheme: dark;
+}
+
+/* Force-light subtree (the public landing uses hand-tuned colors and must stay
+   light even when the app is in dark mode). */
+.light {
+  --color-bg: #fafaf7;
+  --color-surface: #f0ebe0;
+  --color-text: #1c1714;
   --color-muted: #8c7f76;
-  --color-border: #3a2e26;
+  --color-border: #e2d9ce;
+  color-scheme: light;
 }
 
 :root {

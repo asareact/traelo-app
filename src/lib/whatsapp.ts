@@ -14,6 +14,8 @@ type ItemMsg = {
   color: string | null;
   cantidad: number;
   notas_cliente: string | null;
+  /** Optional label derived from the URL (see features/orders/domain/shein). */
+  nombre?: string | null;
 };
 
 /**
@@ -52,7 +54,8 @@ export function pedidoParaAdmin(opts: {
         .filter(Boolean)
         .join(" · ");
       const nota = it.notas_cliente ? `\n   Nota: ${it.notas_cliente}` : "";
-      return `${i + 1}. ${it.shein_url}\n   ${detalle}${nota}`;
+      const titulo = it.nombre ? `${it.nombre}\n   ` : "";
+      return `${i + 1}. ${titulo}${it.shein_url}\n   ${detalle}${nota}`;
     })
     .join("\n\n");
 

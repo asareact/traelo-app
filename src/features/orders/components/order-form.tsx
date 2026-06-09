@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/modal";
 import { IconPlus, IconWhatsapp } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
 import { whatsappLink, pedidoParaAdmin } from "@/lib/whatsapp";
+import { nombreProductoEs } from "@/features/orders/domain/shein";
 import { createOrder, type CreateOrderState } from "@/features/orders/actions";
 import {
   createOrderSchema,
@@ -77,7 +78,10 @@ export function OrderForm({
             nombre,
             telefono,
             trackingUrl,
-            items,
+            items: items.map((it) => ({
+              ...it,
+              nombre: nombreProductoEs(it.shein_url),
+            })),
           }),
         )
       : null;
@@ -114,6 +118,11 @@ export function OrderForm({
                 onChange={(e) => update(i, { shein_url: e.target.value })}
               />
             </Field>
+            {nombreProductoEs(item.shein_url) && (
+              <p className="-mt-2 text-xs font-medium text-accent">
+                Detectado: {nombreProductoEs(item.shein_url)}
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <Field label="Talla">

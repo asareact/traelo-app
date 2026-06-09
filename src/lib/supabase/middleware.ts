@@ -48,6 +48,8 @@ export async function updateSession(request: NextRequest) {
   const isClientProtected =
     path.startsWith("/dashboard") ||
     path.startsWith("/perfil") ||
+    path.startsWith("/rastreo") ||
+    path.startsWith("/notificaciones") ||
     path === "/pedidos" ||
     path === "/pedidos/nuevo";
 

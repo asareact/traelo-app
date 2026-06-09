@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clientNav } from "@/config/site";
-import { IconHome, IconBox, IconUser, IconPlus } from "@/components/brand/icons";
+import {
+  IconHome,
+  IconBox,
+  IconUser,
+  IconPlus,
+  IconTruck,
+} from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
 
 const icons = {
@@ -11,18 +17,20 @@ const icons = {
   box: IconBox,
   user: IconUser,
   plus: IconPlus,
+  truck: IconTruck,
 } as const;
 
 /**
- * Fixed bottom tab bar — the primary navigation for the mobile client app.
- * The center "Pedir" action is visually elevated (primary circle).
+ * Fixed bottom tab bar — primary navigation for the mobile client app.
+ * Opaque surface for legibility; the center "Pedir" action is elevated with a
+ * white ring and gently animated (bob + pulsing halo) to draw the eye.
  */
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="mx-auto flex max-w-md items-center justify-around px-2">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)]">
+      <ul className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
         {clientNav.map((item) => {
           const Icon = icons[item.icon];
           const active =
@@ -31,20 +39,19 @@ export function BottomNav() {
 
           if ("primary" in item && item.primary) {
             return (
-              <li key={item.href}>
+              <li key={item.href} className="w-16">
                 <Link
                   href={item.href}
-                  className="flex flex-col items-center gap-1 py-2"
+                  className="flex flex-col items-center"
                   aria-label={item.label}
                 >
-                  <span className="nav-pedir-bob relative flex h-12 w-12 -translate-y-3 items-center justify-center">
-                    {/* Pulsing halo to draw the eye */}
+                  <span className="nav-pedir-bob relative -mt-9 flex h-14 w-14 items-center justify-center">
                     <span className="nav-pedir-ring absolute inset-0 rounded-full bg-primary/40" />
-                    <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30">
-                      <Icon size={24} />
+                    <span className="relative flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-primary text-white shadow-lg shadow-primary/30">
+                      <Icon size={26} />
                     </span>
                   </span>
-                  <span className="-mt-2 text-[11px] font-bold text-primary">
+                  <span className="-mt-1 text-[10px] font-medium text-muted">
                     {item.label}
                   </span>
                 </Link>
@@ -53,15 +60,17 @@ export function BottomNav() {
           }
 
           return (
-            <li key={item.href}>
+            <li key={item.href} className="w-16">
               <Link
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2.5 text-[11px] font-medium transition",
-                  active ? "text-primary" : "text-muted",
+                  "flex flex-col items-center gap-1 py-2 text-[10px] transition-colors",
+                  active
+                    ? "font-bold text-primary"
+                    : "font-medium text-muted",
                 )}
               >
-                <Icon size={22} />
+                <Icon size={23} />
                 {item.label}
               </Link>
             </li>

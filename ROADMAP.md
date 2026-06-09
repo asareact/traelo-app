@@ -138,11 +138,18 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       (dirección opcional). Se exige en `/pedidos/nuevo` (página) y en `createOrder`
       (server, defensa en profundidad) → redirige a `/perfil/completar?next=…`.
       Aviso en el dashboard si el perfil está incompleto.
-- [x] `BottomNav` (móvil): Inicio · Pedidos · Pedir (CTA central) · Perfil.
-      → `components/layout/bottom-nav.tsx` + `<AppShell>`
+- [x] `BottomNav` (móvil, 5 tabs): Inicio · Pedidos · **Pedir** (CTA central
+      animado) · Rastreo · Perfil. Footer blanco opaco, botón central con borde.
+      → `components/layout/bottom-nav.tsx` + `<AppShell>` (con `AppHeader`: logo + campana)
 - [x] Badge de estado reutilizable (`EstadoBadge`, tinte por hito/terminal).
 - [x] `/pedidos` — lista completa de pedidos del cliente con empty state.
+- [x] **Rediseño dashboard** ("Verano Confiable"): welcome serif, aviso de perfil
+      teal, CTA grande, empty state con caja punteada.
+- [x] `/rastreo` — pedidos en curso (no entregados/cancelados).
+- [x] `/notificaciones` — lista (tabla `notificaciones`, RLS) + empty state.
+      Feature `features/notifications/`. Campana en el header enlaza aquí.
 - [ ] Stats (activos / histórico / USD gastado) — PENDIENTE (refinamiento)
+- [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
 
 ### ⬜ Fase 4 — Admin Kanban + procesar items
 - [ ] `/admin/kanban` — columnas por estado, cards de pedido, botón "Avanzar" (o drag).

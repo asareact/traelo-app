@@ -3,8 +3,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
-import { Alert } from "@/components/ui/alert";
-import { IconPlus } from "@/components/brand/icons";
+import {
+  IconPlus,
+  IconUserCheck,
+  IconChevronRight,
+  IconBox,
+} from "@/components/brand/icons";
 import { routes } from "@/config/site";
 import { OrderCard } from "@/features/orders";
 import { getMisPedidos } from "@/features/orders/queries";
@@ -32,57 +36,79 @@ export default async function DashboardPage() {
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <p className="text-sm text-muted">Hola{nombre ? `, ${nombre}` : ""} 👋</p>
-        <h1 className="font-display text-2xl font-bold text-text">
-          ¿Qué quieres traer hoy?
+      {/* Welcome */}
+      <section className="mb-7">
+        <div className="mb-1 flex items-center gap-1.5">
+          <span className="text-sm font-medium text-muted">
+            Hola{nombre ? `, ${nombre}` : ""}
+          </span>
+          <span className="text-lg">👋</span>
+        </div>
+        <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
+          ¿Qué quieres
+          <br />
+          traer hoy?
         </h1>
-      </header>
+      </section>
 
+      {/* Profile prompt (teal — trust accent) */}
       {perfilIncompleto && (
-        <Alert tone="info" className="mb-4">
-          Completa tu{" "}
-          <Link
-            href={completarPerfilHref(routes.dashboard)}
-            className="font-bold underline"
-          >
-            nombre y teléfono
-          </Link>{" "}
-          para poder hacer pedidos.
-        </Alert>
+        <div className="mb-7 flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent/10 p-4">
+          <span className="mt-0.5 shrink-0 text-accent">
+            <IconUserCheck size={20} />
+          </span>
+          <p className="text-sm leading-relaxed text-text">
+            Completa tu{" "}
+            <Link
+              href={completarPerfilHref(routes.dashboard)}
+              className="font-bold text-accent underline decoration-accent/30"
+            >
+              nombre y teléfono
+            </Link>{" "}
+            para poder empezar a realizar tus pedidos.
+          </p>
+        </div>
       )}
 
+      {/* Main CTA */}
       <Link
         href={routes.nuevoPedido}
-        className="flex items-center gap-3 rounded-lg bg-primary p-4 text-white transition active:scale-[0.99]"
+        className="block w-full rounded-[24px] bg-primary p-6 text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.28)] transition active:scale-[0.97]"
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
-          <IconPlus size={22} />
-        </span>
-        <span>
-          <span className="block font-bold">Hacer un pedido</span>
-          <span className="block text-sm text-white/80">
-            Pega tus enlaces de SHEIN
+        <div className="flex items-center gap-4">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15">
+            <IconPlus size={26} />
           </span>
-        </span>
+          <span>
+            <span className="mb-1 block text-lg font-bold leading-none">
+              Hacer un pedido
+            </span>
+            <span className="text-sm text-white/80">
+              Pega tus enlaces de SHEIN
+            </span>
+          </span>
+        </div>
       </Link>
 
-      <section className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-text">
+      {/* Recent orders */}
+      <section className="mt-12">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold text-text">
             Pedidos recientes
           </h2>
-          {pedidos.length > 3 && (
-            <Link href={routes.pedidos} className="text-sm font-bold text-primary">
+          {pedidos.length > 0 && (
+            <Link
+              href={routes.pedidos}
+              className="flex items-center gap-1 text-sm font-bold text-primary"
+            >
               Ver todos
+              <IconChevronRight size={14} />
             </Link>
           )}
         </div>
 
         {recientes.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted">
-            Tus pedidos aparecerán aquí.
-          </p>
+          <EmptyOrders />
         ) : (
           <ul className="flex flex-col gap-3">
             {recientes.map((p) => (
@@ -94,5 +120,19 @@ export default async function DashboardPage() {
         )}
       </section>
     </AppShell>
+  );
+}
+
+function EmptyOrders() {
+  return (
+    <div className="flex aspect-[16/9] w-full flex-col items-center justify-center rounded-[28px] border-2 border-dashed border-border bg-surface/40 px-6 text-center">
+      <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-muted">
+        <IconBox size={24} />
+      </span>
+      <p className="font-medium text-muted">Tus pedidos aparecerán aquí.</p>
+      <p className="mt-1 text-xs text-muted/70">
+        Copia un link de SHEIN para comenzar
+      </p>
+    </div>
   );
 }

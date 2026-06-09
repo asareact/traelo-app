@@ -148,6 +148,25 @@ export function IconCheck({ className, size }: IconProps) {
   );
 }
 
+export function IconBell({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" />
+      <path d="M10.5 20a1.8 1.8 0 0 0 3 0" />
+    </svg>
+  );
+}
+
+export function IconUserCheck({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M15 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20" />
+      <circle cx="9" cy="7" r="3.5" />
+      <path d="M16 12l2 2 4-4" />
+    </svg>
+  );
+}
+
 export function IconBox({ className, size }: IconProps) {
   return (
     <svg {...base(size, className)}>

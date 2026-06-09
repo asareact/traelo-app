@@ -151,10 +151,10 @@ h1, h2, h3 {
   @keyframes navBob {
     0%,
     100% {
-      transform: translateY(-12px);
+      transform: translateY(0);
     }
     50% {
-      transform: translateY(-16px);
+      transform: translateY(-4px);
     }
   }
   .nav-pedir-ring {

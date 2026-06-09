@@ -10,6 +10,8 @@ export const routes = {
   pedidos: "/pedidos",
   nuevoPedido: "/pedidos/nuevo",
   pedido: (id: string) => `/pedidos/${id}`,
+  rastreo: "/rastreo",
+  notificaciones: "/notificaciones",
   perfil: "/perfil",
   completarPerfil: "/perfil/completar",
   admin: "/admin",
@@ -20,6 +22,7 @@ export const clientNav = [
   { href: routes.dashboard, label: "Inicio", icon: "home" },
   { href: routes.pedidos, label: "Pedidos", icon: "box" },
   { href: routes.nuevoPedido, label: "Pedir", icon: "plus", primary: true },
+  { href: routes.rastreo, label: "Rastreo", icon: "truck" },
   { href: routes.perfil, label: "Perfil", icon: "user" },
 ] as const;
 

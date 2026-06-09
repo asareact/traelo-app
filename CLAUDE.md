@@ -1,4 +1,11 @@
 
+## START HERE — Project status & continuation
+**Read `ROADMAP.md` first.** It is the source of truth: current status, phases with
+checkboxes, critical conventions (Next 16, Tailwind v4, Supabase, proxy-not-middleware,
+push via SSH not gh), and how to continue with zero prior context. Keep it updated:
+mark tasks `[x]` as you finish them and update the "Estado actual" section.
+Also read `DESIGN.md` (design + business rules) and `SETUP.md` (env/auth) when relevant.
+
 ## Design System
 Always read DESIGN.md before making any visual or UI decisions.
 All font choices, colors, spacing, and aesthetic direction are defined there.

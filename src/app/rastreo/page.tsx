@@ -1,42 +1,50 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
+import { Button } from "@/components/ui/button";
 import { IconTruck } from "@/components/brand/icons";
+import { routes } from "@/config/site";
 import { OrderCard } from "@/features/orders";
 import { getMisPedidos } from "@/features/orders/queries";
 
 export const metadata: Metadata = { title: "Rastreo — Traelo" };
 
-/** Orders currently in flight — everything that isn't delivered or cancelled. */
+/**
+ * All of the user's orders, newest first. Active orders show their milestone in
+ * terracotta; delivered/cancelled ones are muted (still tappable for history).
+ */
 export default async function RastreoPage() {
   const pedidos = await getMisPedidos();
-  const enCurso = pedidos.filter(
-    (p) => p.estado_actual !== "ENTREGADO" && p.estado_actual !== "CANCELADO",
-  );
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-text">Rastreo</h1>
-        <p className="mt-1 text-sm text-muted">
-          Sigue el estado de tus pedidos en camino.
+      <header className="mb-8">
+        <h1 className="font-display text-[34px] font-bold leading-tight tracking-tight text-text">
+          Rastreo
+        </h1>
+        <p className="mt-2 max-w-[280px] text-sm leading-relaxed text-muted">
+          Sigue el estado de tus pedidos.
         </p>
       </header>
 
-      {enCurso.length === 0 ? (
+      {pedidos.length === 0 ? (
         <div className="mt-16 flex flex-col items-center text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface text-muted">
             <IconTruck size={26} />
           </span>
           <p className="mt-4 font-display text-lg font-bold text-text">
-            No tienes pedidos en camino
+            Aún no tienes pedidos
           </p>
           <p className="mt-1 max-w-xs text-sm text-muted">
-            Cuando un pedido esté en proceso, aquí podrás seguir su recorrido.
+            Cuando hagas tu primer pedido, aquí seguirás su recorrido hasta Cuba.
           </p>
+          <Button asChild size="lg" className="mt-6">
+            <Link href={routes.nuevoPedido}>Hacer mi primer pedido</Link>
+          </Button>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {enCurso.map((p) => (
+        <ul className="flex flex-col gap-4 pb-4">
+          {pedidos.map((p) => (
             <li key={p.id}>
               <OrderCard pedido={p} />
             </li>

@@ -145,7 +145,8 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] `/pedidos` — lista completa de pedidos del cliente con empty state.
 - [x] **Rediseño dashboard** ("Verano Confiable"): welcome serif, aviso de perfil
       teal, CTA grande, empty state con caja punteada.
-- [x] `/rastreo` — pedidos en curso (no entregados/cancelados).
+- [x] `/rastreo` — **rediseño**: todos los pedidos (entregados/cancelados atenuados),
+      `OrderCard` con badge de hito + fecha relativa ("Hoy, 11:16").
 - [x] `/notificaciones` — lista (tabla `notificaciones`, RLS) + empty state.
       Feature `features/notifications/`. Campana en el header enlaza aquí.
 - [x] **Dark mode ("Luxury Dark")** con toggle claro/oscuro en el header (persiste,

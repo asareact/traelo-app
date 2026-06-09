@@ -124,3 +124,17 @@ export function milestoneIndex(estado: Estado): number {
 export function milestoneAlcanzado(estadoActual: Estado, m: Milestone): boolean {
   return milestoneIndex(estadoActual) >= MILESTONES.indexOf(m);
 }
+
+/**
+ * Compact status for order summaries (list cards): terminal states keep their
+ * own label and are flagged so the UI can mute them; everything else collapses
+ * to its client-facing milestone label.
+ */
+export function resumenEstado(estado: Estado): {
+  label: string;
+  terminal: boolean;
+} {
+  if (estado === "ENTREGADO") return { label: "Entregado", terminal: true };
+  if (estado === "CANCELADO") return { label: "Cancelado", terminal: true };
+  return { label: MILESTONE_LABEL[milestoneDe(estado)], terminal: false };
+}

@@ -158,6 +158,15 @@ export function AuthForm() {
                 required
               />
             </Field>
+            <Field label="Confirmar contraseña">
+              <Input
+                name="confirmar"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Repite la contraseña"
+                required
+              />
+            </Field>
             {signupState.error && <Alert tone="error">{signupState.error}</Alert>}
             {signupState.ok && <Alert tone="success">{signupState.ok}</Alert>}
             <Button type="submit" size="lg" disabled={signupPending} className="mt-2">

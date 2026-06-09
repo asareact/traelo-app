@@ -39,6 +39,7 @@ export async function signup(
     nombre: formData.get("nombre"),
     email: formData.get("email"),
     password: formData.get("password"),
+    confirmar: formData.get("confirmar"),
   });
   if (!parsed.success) {
     return {
@@ -55,6 +56,14 @@ export async function signup(
   });
 
   if (error) return { error: traducirError(error.message) };
+
+  // Supabase hides "email already registered" to prevent enumeration: it returns
+  // a user with an empty `identities` array (and no session) instead of an error.
+  if (data.user && (data.user.identities?.length ?? 0) === 0) {
+    return {
+      error: "Ya existe una cuenta con ese correo. Inicia sesión.",
+    };
+  }
 
   // Email confirmation enabled → no session yet. Tell the user to check inbox.
   if (!data.session) {

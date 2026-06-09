@@ -51,16 +51,16 @@ export function pedidoParaAdmin(opts: {
       ]
         .filter(Boolean)
         .join(" · ");
-      const nota = it.notas_cliente ? `\n   📝 ${it.notas_cliente}` : "";
+      const nota = it.notas_cliente ? `\n   Nota: ${it.notas_cliente}` : "";
       return `${i + 1}. ${it.shein_url}\n   ${detalle}${nota}`;
     })
     .join("\n\n");
 
   return [
-    `🛍️ *Nuevo pedido Traelo* #${opts.idCorto}`,
+    `*Nuevo pedido Traelo* #${opts.idCorto}`,
     ``,
-    `👤 ${opts.nombre || "Cliente"}${opts.telefono ? ` · ${opts.telefono}` : ""}`,
-    opts.trackingUrl ? `🔗 Seguimiento: ${opts.trackingUrl}` : null,
+    `Cliente: ${opts.nombre || "Cliente"}${opts.telefono ? ` · ${opts.telefono}` : ""}`,
+    opts.trackingUrl ? `Seguimiento: ${opts.trackingUrl}` : null,
     ``,
     `*Productos (${opts.items.length}):*`,
     productos,

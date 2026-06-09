@@ -274,17 +274,19 @@ shein_days: 15-20
   el mensaje pueda incluir el link de seguimiento (que apunta al pedido real).
 - **Helper + plantillas:** `src/lib/whatsapp.ts` (`whatsappLink()` + `pedidoParaAdmin()`).
   Nunca hardcodear el número en componentes — leerlo de config.
-- **Plantilla del mensaje (cliente → admin):**
+- **Plantilla del mensaje (cliente → admin).** Sin emojis: algunos clientes de
+  WhatsApp (Web/Desktop) no tienen la fuente y muestran "tofu" (◇). Solo texto +
+  `*negrita*`:
   ```
-  🛍️ *Nuevo pedido Traelo* #<id8>
+  *Nuevo pedido Traelo* #<id8>
 
-  👤 <nombre> · <telefono>
-  🔗 Seguimiento: <trackingUrl>
+  Cliente: <nombre> · <telefono>
+  Seguimiento: <trackingUrl>
 
   *Productos (N):*
   1. <shein_url>
      Talla <t> · <color> · x<cant>
-     📝 <nota>
+     Nota: <nota>
   2. ...
   ```
 - El número real para enviar el link compartible requiere `NEXT_PUBLIC_SITE_URL` =

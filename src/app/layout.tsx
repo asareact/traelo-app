@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: "Traelo — Tu pedido de SHEIN llega a Cuba",
   description:
     "Pide productos de SHEIN con envío a Cuba. Precio confirmado, tracking en tiempo real, sin transferencias a ciegas.",
+  appleWebApp: { title: "Traelo", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c4522a",
 };
 
 export default function RootLayout({

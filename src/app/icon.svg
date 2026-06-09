@@ -1,0 +1,9 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Traelo mark: open terracotta box with a teal arrow dropping in -->
+  <path d="M8 20 L24 27 L24 44 L8 36 Z" fill="#A8431F" />
+  <path d="M40 20 L24 27 L24 44 L40 36 Z" fill="#C4522A" />
+  <path d="M8 20 L16 16 L32 23 L24 27 Z" fill="#D5673D" />
+  <path d="M40 20 L32 16 L16 23 L24 27 Z" fill="#C4522A" />
+  <path d="M30 6 C 34 12, 34 18, 27 22 L31 22 L24 30 L17 22 L21 22 C 26 18, 25 12, 22 9"
+    fill="#00B5A0" stroke="#00B5A0" stroke-width="0.5" stroke-linejoin="round" />
+</svg>

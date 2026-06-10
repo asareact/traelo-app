@@ -15,6 +15,8 @@ export const routes = {
   perfil: "/perfil",
   completarPerfil: "/perfil/completar",
   admin: "/admin",
+  sobreNosotros: "/sobre-nosotros",
+  soporte: "/soporte",
 } as const;
 
 /** Bottom-nav tabs for the authenticated client area (mobile-first). */

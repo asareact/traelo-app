@@ -36,6 +36,55 @@ export function IconShield({ className, size }: IconProps) {
   );
 }
 
+export function IconMenu({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </svg>
+  );
+}
+
+export function IconClose({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </svg>
+  );
+}
+
+export function IconInfo({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
+export function IconHelp({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.2a2.5 2.5 0 1 1 3.6 2.3c-.8.4-1.1.9-1.1 1.8" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+
+export function IconLogout({ className, size }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </svg>
+  );
+}
+
 export function IconWallet({ className, size }: IconProps) {
   return (
     <svg {...base(size, className)}>

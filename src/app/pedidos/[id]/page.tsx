@@ -36,16 +36,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const content = <OrderDetail pedido={pedido} nuevo={nuevo === "1"} />;
 
   if (user) {
-    return (
-      <AppShell
-        back={{
-          href: nuevo === "1" ? routes.rastreo : undefined,
-          fallbackHref: routes.rastreo,
-        }}
-      >
-        {content}
-      </AppShell>
-    );
+    return <AppShell>{content}</AppShell>;
   }
 
   // Public viewer (no session): standalone header, no bottom nav.

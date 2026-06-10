@@ -58,8 +58,6 @@ export default async function OrderProductsPage({ params }: Props) {
     </>
   );
 
-  const back = { href: routes.pedido(pedido.id), fallbackHref: routes.pedido(pedido.id) };
-
   // Signed-in users keep the app shell; public viewers get a standalone header.
   const supabase = await createClient();
   const {
@@ -67,7 +65,7 @@ export default async function OrderProductsPage({ params }: Props) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    return <AppShell back={back}>{content}</AppShell>;
+    return <AppShell>{content}</AppShell>;
   }
 
   return (

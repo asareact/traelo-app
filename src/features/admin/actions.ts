@@ -1,0 +1,142 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import type { PedidoItem } from "@/types/database";
+import { processItemSchema, advanceStateSchema } from "./schemas";
+
+export type AdminActionState = { error?: string; ok?: boolean };
+
+/** True when the logged-in user is an admin (RLS also enforces this). */
+async function requireAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { supabase, ok: false as const };
+  const { data } = await supabase
+    .from("profiles")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+  return { supabase, ok: data?.rol === "admin" };
+}
+
+/**
+ * Save the admin-filled fields for one item (name + real price + image) and
+ * mark it processed. If that completes the order (all items processed), set the
+ * order total from the real prices and, if it's still in the quote stage, move
+ * it to PRECIO_ACTUALIZADO via the atomic state RPC.
+ */
+export async function processItem(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const parsed = processItemSchema.safeParse({
+    itemId: formData.get("itemId"),
+    producto_nombre: formData.get("producto_nombre"),
+    precio_real_usd: formData.get("precio_real_usd"),
+    producto_imagen: formData.get("producto_imagen"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const { supabase, ok } = await requireAdmin();
+  if (!ok) return { error: "No autorizado." };
+
+  const { itemId, producto_nombre, precio_real_usd, producto_imagen } =
+    parsed.data;
+
+  // Update the item and get its parent order back in one round-trip.
+  const { data: updated, error: updErr } = await supabase
+    .from("pedido_items")
+    .update({
+      producto_nombre,
+      precio_real_usd,
+      producto_imagen,
+      procesado: true,
+    })
+    .eq("id", itemId)
+    .select("pedido_id")
+    .single();
+
+  if (updErr || !updated) {
+    return { error: "No se pudo guardar el item." };
+  }
+
+  const pedidoId = updated.pedido_id as string;
+
+  // Did this complete the order? Re-read its items.
+  const { data: items } = await supabase
+    .from("pedido_items")
+    .select("cantidad, precio_real_usd, procesado")
+    .eq("pedido_id", pedidoId);
+
+  const all = (items ?? []) as Pick<
+    PedidoItem,
+    "cantidad" | "precio_real_usd" | "procesado"
+  >[];
+  const todosProcesados = all.length > 0 && all.every((i) => i.procesado);
+
+  if (todosProcesados) {
+    const total = all.reduce(
+      (sum, i) => sum + (i.precio_real_usd ?? 0) * i.cantidad,
+      0,
+    );
+    await supabase
+      .from("pedidos")
+      .update({ total_real_usd: Number(total.toFixed(2)) })
+      .eq("id", pedidoId);
+
+    // Advance to "precio enviado" only from the quote stage (don't rewind).
+    const { data: pedido } = await supabase
+      .from("pedidos")
+      .select("estado_actual")
+      .eq("id", pedidoId)
+      .single();
+    if (
+      pedido?.estado_actual === "COTIZACION" ||
+      pedido?.estado_actual === "EN_REVISION"
+    ) {
+      await supabase.rpc("update_order_state", {
+        p_pedido_id: pedidoId,
+        p_nuevo_estado: "PRECIO_ACTUALIZADO",
+        p_nota: "Precios reales confirmados",
+      });
+    }
+  }
+
+  revalidatePath("/admin/kanban");
+  return { ok: true };
+}
+
+/** Move an order to a new state (atomic RPC: updates header + appends history). */
+export async function advanceOrderState(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const parsed = advanceStateSchema.safeParse({
+    pedidoId: formData.get("pedidoId"),
+    nuevoEstado: formData.get("nuevoEstado"),
+    nota: formData.get("nota") ?? "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const { supabase, ok } = await requireAdmin();
+  if (!ok) return { error: "No autorizado." };
+
+  const { pedidoId, nuevoEstado, nota } = parsed.data;
+  const { error } = await supabase.rpc("update_order_state", {
+    p_pedido_id: pedidoId,
+    p_nuevo_estado: nuevoEstado,
+    p_nota: nota || null,
+  });
+
+  if (error) return { error: "No se pudo cambiar el estado." };
+
+  revalidatePath("/admin/kanban");
+  return { ok: true };
+}

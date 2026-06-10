@@ -30,8 +30,9 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   + Fase 2 (pedido + tracking + **envío por WhatsApp al admin** + modal confirmar) + Fase 3
   (dashboard/perfil/nav + dark mode) + extras (nombre de producto desde el link de SHEIN,
   copiar link, signup con confirmar contraseña, safety-net OAuth).
-- **Próximo:** **Fase 4 — Admin (Kanban + procesar items)**. El cliente ya puede crear y
-  enviar pedidos; falta el lado admin para procesarlos y mover estados.
+- **Próximo:** **Fase 5 — Transiciones de estado + notificaciones (Resend + WhatsApp)**.
+  Fase 4 (admin Kanban + procesar items) ya construida en `feat/admin-kanban`; falta
+  verificarla logueado como admin y con un curl real de SHEIN antes de cerrarla.
 - **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
 - **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp
   prellenado al admin (`config.whatsapp_phone` = 5358260354). Plantilla en `lib/whatsapp.ts`.
@@ -170,17 +171,26 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [ ] Stats (activos / histórico / USD gastado) — PENDIENTE (refinamiento)
 - [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
 
-### ⬜ Fase 4 — Admin Kanban + procesar items
-- [ ] `/admin/kanban` — columnas por estado, cards de pedido, botón "Avanzar" (o drag).
-      Barra de stats. Solo admin (ya protegido por proxy).
-- [ ] Modal "Procesar item" — **Modo A (curl):** admin pega el curl del BFF API de SHEIN;
-      el backend lo PARSEA (no `exec()` — command injection) y hace `fetch()` con esos
-      headers para extraer nombre/precio/imagen. **Modo B (manual):** admin llena a mano.
-      Campos requeridos para `procesado=true`: nombre + precio_real_usd + imagen.
-      (Ver "Curl Parser Contract" en el CEO plan / DESIGN.md.)
-- [ ] `POST /api/admin/items/[id]/process`
-- [ ] Establecer `total_real_usd` y mover pedido a PRECIO_ACTUALIZADO cuando todos los
-      items estén procesados
+### 🟦 Fase 4 — Admin Kanban + procesar items (CASI — falta verificar con curl real)
+- [x] `/admin/kanban` — columnas por estado (una por estado con pedidos, scroll horizontal),
+      cards de pedido con cliente + contacto + items procesados + total, control "Avanzar"
+      (select de estado → RPC atómico `update_order_state`). Barra de stats. **Desktop-first**
+      (navbar oscuro sticky + `max-w-1200`). Solo admin (proxy + guard en el layout).
+      → `features/admin/` (queries server-only, actions, domain `kanban.ts`/`curl.ts`,
+        schemas zod, components). `app/admin/{layout,page,kanban/page}.tsx`.
+- [x] Modal "Procesar item" — **Modo A (curl):** admin pega "Copy as cURL" de SHEIN; el
+      backend lo **PARSEA** (`domain/curl.ts`, tokenizer propio, **nunca `exec()`**) con guard
+      SSRF (solo https + host SHEIN), hace `fetch()` y extrae nombre/precio/imagen (deep-scan
+      defensivo). **Modo B (manual):** campos editables. El admin revisa antes de guardar.
+      Requeridos para `procesado=true`: nombre + precio_real_usd + imagen (zod).
+- [x] `POST /api/admin/items/[id]/process` — verifica admin, parsea curl, fetch a SHEIN,
+      devuelve los datos extraídos (no escribe DB; el guardado va por la server action
+      `processItem`, que es el trust boundary).
+- [x] Establecer `total_real_usd` (suma precio_real × cantidad) y mover a PRECIO_ACTUALIZADO
+      vía RPC cuando todos los items quedan procesados (solo desde COTIZACION/EN_REVISION).
+- [ ] **PENDIENTE:** validar el mapeo de campos del curl con un curl/respuesta REAL de SHEIN
+      (la extracción es best-effort por deep-scan; el admin igual puede corregir a mano).
+- [ ] **PENDIENTE:** prueba E2E logueado como admin (`asarria952807@gmail.com`).
 
 ### ⬜ Fase 5 — Transiciones de estado + notificaciones
 - [ ] `PATCH /api/pedidos/[id]/estado` — llama `supabase.rpc('update_order_state')`

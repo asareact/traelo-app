@@ -35,7 +35,9 @@ export function AppShell({
         <main
           className={cn(
             "content-enter px-5 pb-28",
-            header ? "pt-2" : "pt-8",
+            // Extra top room so the floating header logo never overlaps the
+            // first content (it straddles down into this space at scroll top).
+            header ? "pt-10" : "pt-8",
             className,
           )}
         >

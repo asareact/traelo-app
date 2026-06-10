@@ -51,7 +51,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   // Public viewer (no session): standalone header, no bottom nav.
   return (
     <div className="min-h-dvh bg-bg">
-      <header className="border-b border-border bg-bg/95 backdrop-blur">
+      <header className="bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center gap-2.5 px-5 py-3">
           <BackButton fallbackHref={routes.home} />
           <Link href={routes.home} aria-label="Inicio">

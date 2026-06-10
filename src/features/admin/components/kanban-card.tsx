@@ -5,9 +5,12 @@ import { IconLink, IconWhatsapp, IconCheck } from "@/components/brand/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import type { KanbanPedido } from "@/features/admin/queries";
-import { AdvanceControl } from "./advance-control";
 
-/** One order on the board: client + contact, item/processing status, actions. */
+/**
+ * One order on the board: client + contact, item/processing status, and the
+ * "Procesar items" action. The card is draggable (the board wraps it) — moving
+ * it to another column is what changes the order's state, Trello-style.
+ */
 export function KanbanCard({
   pedido,
   onProcess,
@@ -92,11 +95,6 @@ export function KanbanCard({
           </span>
         )}
       </Button>
-
-      <AdvanceControl
-        pedidoId={pedido.id}
-        estadoActual={pedido.estado_actual}
-      />
     </article>
   );
 }

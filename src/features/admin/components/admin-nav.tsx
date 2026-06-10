@@ -19,7 +19,7 @@ export function AdminNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#1C1714]">
-      <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-6 px-5">
+      <div className="flex h-14 items-center gap-6 px-6">
         <nav className="flex items-center gap-1">
           {links.map((l) => {
             const active = pathname.startsWith(l.href);

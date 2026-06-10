@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { IconBox } from "@/components/brand/icons";
+import { cn } from "@/lib/utils/cn";
+import type { Estado } from "@/features/orders/domain/estados";
+import { advanceOrderState } from "@/features/admin/actions";
 import type { KanbanPedido } from "@/features/admin/queries";
 import {
   agruparPorEstado,
@@ -12,11 +16,10 @@ import { KanbanCard } from "./kanban-card";
 import { ProcessOrderModal } from "./process-order-modal";
 
 /**
- * The admin board. Renders one column per state that currently has orders
- * (empty columns are hidden to keep the pipeline focused), with horizontal
- * scroll on narrow viewports. Clicking "Procesar items" on a card opens the
- * per-order processing modal. `import type` keeps server-only queries out of
- * the bundle.
+ * Trello-style admin board: ONE column per state (always shown, even empty),
+ * horizontal scroll. Drag a card to another column to move the order to that
+ * state — the drop fires the atomic `advanceOrderState` action. The move is
+ * optimistic (the card jumps immediately) and reverts if the server rejects it.
  */
 export function KanbanBoard({
   pedidos,
@@ -25,9 +28,41 @@ export function KanbanBoard({
   pedidos: KanbanPedido[];
   siteUrl?: string | null;
 }) {
+  const router = useRouter();
   const [activo, setActivo] = useState<KanbanPedido | null>(null);
-  const grupos = agruparPorEstado(pedidos);
-  const columnas = KANBAN_COLUMNS.filter((e) => grupos[e].length > 0);
+  // Optimistic state overrides while a drag-move is in flight / settled.
+  const [overrides, setOverrides] = useState<Record<string, Estado>>({});
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overCol, setOverCol] = useState<Estado | null>(null);
+  const [error, setError] = useState("");
+
+  const effective = pedidos.map((p) =>
+    overrides[p.id] ? { ...p, estado_actual: overrides[p.id] } : p,
+  );
+  const grupos = agruparPorEstado(effective);
+
+  async function move(pedidoId: string, nuevoEstado: Estado) {
+    const card = effective.find((p) => p.id === pedidoId);
+    if (!card || card.estado_actual === nuevoEstado) return;
+
+    setError("");
+    setOverrides((o) => ({ ...o, [pedidoId]: nuevoEstado })); // optimistic
+    const fd = new FormData();
+    fd.set("pedidoId", pedidoId);
+    fd.set("nuevoEstado", nuevoEstado);
+
+    const res = await advanceOrderState({}, fd);
+    if (res?.error) {
+      setOverrides((o) => {
+        const next = { ...o };
+        delete next[pedidoId];
+        return next;
+      });
+      setError(res.error);
+    } else {
+      router.refresh(); // resync with the server (props will agree)
+    }
+  }
 
   if (pedidos.length === 0) {
     return (
@@ -47,28 +82,81 @@ export function KanbanBoard({
 
   return (
     <>
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {columnas.map((estado) => (
-          <section key={estado} className="w-[300px] shrink-0">
-            <div className="mb-3 flex items-center justify-between px-1">
-              <h2 className="text-sm font-bold text-text">
-                {ESTADO_ADMIN_LABEL[estado]}
-              </h2>
-              <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-bold tabular-nums text-muted">
-                {grupos[estado].length}
-              </span>
-            </div>
-            <div className="flex flex-col gap-3">
-              {grupos[estado].map((pedido) => (
-                <KanbanCard
-                  key={pedido.id}
-                  pedido={pedido}
-                  onProcess={() => setActivo(pedido)}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
+      {error && (
+        <p className="rounded-lg bg-error/10 px-3 py-2 text-sm font-medium text-error">
+          {error}
+        </p>
+      )}
+
+      <div className="flex gap-3 overflow-x-auto pb-4">
+        {KANBAN_COLUMNS.map((estado) => {
+          const cards = grupos[estado];
+          const isOver = overCol === estado;
+          return (
+            <section
+              key={estado}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (overCol !== estado) setOverCol(estado);
+              }}
+              onDragLeave={() =>
+                setOverCol((c) => (c === estado ? null : c))
+              }
+              onDrop={(e) => {
+                e.preventDefault();
+                setOverCol(null);
+                if (dragId) move(dragId, estado);
+                setDragId(null);
+              }}
+              className={cn(
+                "w-[288px] shrink-0 rounded-2xl border p-2.5 transition",
+                isOver
+                  ? "border-primary/50 bg-primary/[0.06] ring-2 ring-primary/30"
+                  : "border-transparent bg-surface/40",
+              )}
+            >
+              <div className="mb-2.5 flex items-center justify-between px-1">
+                <h2 className="text-sm font-bold text-text">
+                  {ESTADO_ADMIN_LABEL[estado]}
+                </h2>
+                <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-bold tabular-nums text-muted">
+                  {cards.length}
+                </span>
+              </div>
+
+              <div className="flex min-h-[64px] flex-col gap-2.5">
+                {cards.map((pedido) => (
+                  <div
+                    key={pedido.id}
+                    draggable
+                    onDragStart={(e) => {
+                      setDragId(pedido.id);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragEnd={() => {
+                      setDragId(null);
+                      setOverCol(null);
+                    }}
+                    className={cn(
+                      "cursor-grab active:cursor-grabbing",
+                      dragId === pedido.id && "opacity-40",
+                    )}
+                  >
+                    <KanbanCard
+                      pedido={pedido}
+                      onProcess={() => setActivo(pedido)}
+                    />
+                  </div>
+                ))}
+                {cards.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border/60 py-5 text-center text-xs text-muted/70">
+                    Arrastra aquí
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
       <ProcessOrderModal

@@ -29,7 +29,9 @@ export default async function AdminLayout({
   return (
     <div className="min-h-dvh bg-bg">
       <AdminNav />
-      <main className="mx-auto max-w-[1200px] px-5 py-6">{children}</main>
+      {/* Full-width: the Trello board uses the whole screen so more columns are
+          visible before scrolling (DESIGN's 1200px cap is for narrower views). */}
+      <main className="px-6 py-6">{children}</main>
     </div>
   );
 }

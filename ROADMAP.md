@@ -30,12 +30,21 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   + Fase 2 (pedido + tracking + **envío por WhatsApp al admin** + modal confirmar) + Fase 3
   (dashboard/perfil/nav + dark mode) + extras (nombre de producto desde el link de SHEIN,
   copiar link, signup con confirmar contraseña, safety-net OAuth).
-- **Próximo:** **Fase 5 — Transiciones de estado + notificaciones (Resend + WhatsApp)**.
-  Fase 4 (admin Kanban + procesar items) ya construida en `feat/admin-kanban`; falta
-  verificarla logueado como admin y con un curl real de SHEIN antes de cerrarla.
+- **En la rama `feat/admin-kanban` (sin mergear aún):** Fase 4 (Kanban admin estilo Trello
+  con drag-to-move, procesar items con curl SHEIN → nombre/precio-por-talla/imagen) + Fase 5
+  parcial (aviso al cliente por WhatsApp en cada cambio de estado + aviso de cambio de precio;
+  plantillas en `features/orders/domain/notificaciones.ts`) + Fase 6 (`/admin/config`) +
+  extras: peso + evidencia del paquete, persistencia de imagen de SHEIN en bucket `productos`,
+  evidencia de precio, limpieza de archivos (CANCELADO inmediato, ENTREGADO a los 2 días vía
+  cron `/api/cron/cleanup`). Migraciones **0004 y 0005 ya aplicadas** a Supabase.
+- **Próximo:** verificar la rama logueado como admin → **mergear a `develop`/`main`**. Luego
+  Fase 5 restante (emails Resend, si se quiere) y Fase 7 (lanzamiento).
 - **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
-- **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp
-  prellenado al admin (`config.whatsapp_phone` = 5358260354). Plantilla en `lib/whatsapp.ts`.
+- **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp prellenado
+  al admin (`config.whatsapp_phone` = 5358260354). Plantillas en
+  `features/orders/domain/notificaciones.ts`; helper de link en `lib/whatsapp.ts`.
+- **Storage:** buckets públicos `evidencias` (peso) y `productos` (imagen + evidencia de
+  precio). Solo admin escribe. `CRON_SECRET` requerido en Vercel para el cron de limpieza.
 - **Primer admin:** `asarria952807@gmail.com` (rol admin en DB).
 - **Prod (Vercel `traelo-cu.vercel.app`):** requiere `NEXT_PUBLIC_SITE_URL=https://traelo-cu.vercel.app`
   (sin `/`) + Production Branch = `main`. Supabase URL Config (allowlist `/auth/callback`)

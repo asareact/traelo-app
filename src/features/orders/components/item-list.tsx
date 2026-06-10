@@ -46,14 +46,31 @@ export function ItemList({ items }: { items: PedidoItem[] }) {
                 {nombre}
               </p>
               <p className="mt-0.5 text-xs text-muted">{detalle}</p>
-              <a
-                href={item.shein_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 inline-block text-xs font-bold text-accent underline"
-              >
-                Ver en SHEIN
-              </a>
+              {item.precio_real_usd != null && (
+                <p className="mt-0.5 text-sm font-bold tabular-nums text-text">
+                  ${item.precio_real_usd.toFixed(2)}
+                </p>
+              )}
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <a
+                  href={item.shein_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-accent underline"
+                >
+                  Ver en SHEIN
+                </a>
+                {item.precio_evidencia_url && (
+                  <a
+                    href={item.precio_evidencia_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-primary underline"
+                  >
+                    Ver evidencia de precio
+                  </a>
+                )}
+              </div>
             </div>
           </li>
         );

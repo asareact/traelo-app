@@ -31,7 +31,8 @@ export function ItemProcessForm({
   );
 
   const sugerencia = nombreProductoEs(item.shein_url) ?? "";
-  const [nombre, setNombre] = useState(item.producto_nombre ?? "");
+  // Default to the link-derived label — SHEIN's price endpoint has no name.
+  const [nombre, setNombre] = useState(item.producto_nombre || sugerencia);
   const [precio, setPrecio] = useState(
     item.precio_real_usd != null ? String(item.precio_real_usd) : "",
   );

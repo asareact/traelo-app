@@ -10,12 +10,17 @@ import { extractCurlSchema } from "@/features/admin/schemas";
 /**
  * POST /api/admin/items/[id]/process
  *
- * Admin pastes a SHEIN "Copy as cURL". We PARSE it (never exec — that input is
- * untrusted text) into a URL + headers, `fetch()` it from the server, and return
- * the best-effort extracted { nombre, precio, imagen } so the modal can pre-fill
- * the form. The admin reviews and saves via the `processItem` server action — so
- * this endpoint never writes to the DB. The curl URL is constrained to https
- * SHEIN hosts (SSRF guard in parseCurl).
+ * Admin pastes a SHEIN "Copy as cURL" of the product's realtime-data request. We
+ * PARSE it (never exec — untrusted text) into a URL + headers, then make TWO
+ * server fetches reusing its Cloudflare cookie (cf_clearance is domain-wide):
+ *   - realtime-data  → live price, matched to the item's size
+ *   - static-data    → product name + main image (derived URL, same params)
+ * and return best-effort { nombre, precio, imagen } to pre-fill the modal. The
+ * admin reviews and saves via the `processItem` action — this route never writes
+ * to the DB. URLs are constrained to https SHEIN hosts (SSRF guard in parseCurl).
+ *
+ * Caveat: cf_clearance is short-lived, so a stale curl yields nulls and the UI
+ * falls back to the link-derived name + manual entry. Paste a fresh curl per batch.
  */
 export async function POST(
   request: NextRequest,
@@ -43,6 +48,14 @@ export async function POST(
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
 
+  // The item's size drives size-specific price extraction (SHEIN varies price
+  // per size). Read it from the DB, not the client, as the trust boundary.
+  const { data: item } = await supabase
+    .from("pedido_items")
+    .select("talla")
+    .eq("id", id)
+    .single();
+
   let body: unknown;
   try {
     body = await request.json();
@@ -68,38 +81,73 @@ export async function POST(
     );
   }
 
-  // Fetch SHEIN with a timeout; drop hop-by-hop headers curl injects.
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  let json: unknown;
-  try {
-    const headers = { ...req.headers };
-    delete headers["Content-Length"];
-    delete headers["content-length"];
-    const res = await fetch(req.url, {
-      method: req.method,
-      headers,
-      body: req.method === "GET" || req.method === "HEAD" ? undefined : req.body,
-      signal: controller.signal,
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `SHEIN respondió ${res.status}. El curl puede haber expirado.` },
-        { status: 422 },
-      );
+  // Headers from the curl (minus ones fetch must set itself). The cf_clearance
+  // cookie in here is what passes SHEIN's Cloudflare — and it's domain-wide, so
+  // we can reuse it for a second request.
+  const headers = { ...req.headers };
+  delete headers["Content-Length"];
+  delete headers["content-length"];
+  delete headers["Host"];
+  delete headers["host"];
+
+  const fetchJson = async (url: string): Promise<unknown | null> => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
     }
-    json = await res.json();
-  } catch {
+  };
+
+  // The pasted curl is the realtime endpoint (price, per size). The product NAME
+  // and IMAGE live in the sibling `static_data` endpoint — same params, same
+  // cookies — so we derive its URL and reuse the curl's cf_clearance to fetch it.
+  const realtimeUrl = req.url;
+  const staticUrl = realtimeUrl.replace(
+    "get_goods_detail_realtime_data",
+    "get_goods_detail_static_data",
+  );
+
+  const [realtimeJson, staticJson] = await Promise.all([
+    fetchJson(realtimeUrl),
+    staticUrl !== realtimeUrl ? fetchJson(staticUrl) : Promise.resolve(null),
+  ]);
+
+  if (!realtimeJson && !staticJson) {
     return NextResponse.json(
-      { error: "No se pudo consultar SHEIN con ese curl (¿expiró o cambió?)." },
+      {
+        error:
+          "No se pudo consultar SHEIN con ese curl (probablemente expiró — copia uno nuevo).",
+      },
       { status: 502 },
     );
-  } finally {
-    clearTimeout(timeout);
   }
 
-  const extracted = extractSheinProduct(json);
+  const talla = item?.talla ?? null;
+  const fromRealtime = realtimeJson
+    ? extractSheinProduct(realtimeJson, { talla })
+    : { nombre: null, precio: null, imagen: null };
+  const fromStatic = staticJson
+    ? extractSheinProduct(staticJson, { talla })
+    : { nombre: null, precio: null, imagen: null };
+
+  // Name + image come best from static_data; price from realtime (live, by size).
+  const extracted = {
+    nombre: fromStatic.nombre ?? fromRealtime.nombre,
+    precio: fromRealtime.precio ?? fromStatic.precio,
+    imagen: fromStatic.imagen ?? fromRealtime.imagen,
+  };
+
   if (!extracted.nombre && !extracted.precio && !extracted.imagen) {
     return NextResponse.json(
       {

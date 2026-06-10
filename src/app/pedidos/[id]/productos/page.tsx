@@ -26,10 +26,10 @@ export default async function OrderProductsPage({ params }: Props) {
   const content = (
     <>
       <section className="mb-8">
-        <h1 className="font-display text-[40px] font-bold leading-[1.05] tracking-tight text-text">
+        <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
           Productos
         </h1>
-        <p className="mt-1 text-base font-medium text-muted">
+        <p className="mt-1 text-sm text-muted">
           Pedido #{pedido.id.slice(0, 8)} ·{" "}
           <span className="text-primary">
             {pedido.items.length}{" "}
@@ -49,7 +49,7 @@ export default async function OrderProductsPage({ params }: Props) {
           <p className="text-xs font-bold text-text">
             ¡Tu pedido está en buenas manos!
           </p>
-          <p className="mt-0.5 text-[11px] leading-tight text-muted">
+          <p className="mt-0.5 text-xs leading-tight text-muted">
             Guardamos la evidencia del precio de cada producto para tu
             tranquilidad.
           </p>

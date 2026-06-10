@@ -55,18 +55,16 @@ export function ItemListFull({ items }: { items: PedidoItem[] }) {
             {/* Info */}
             <div className="flex flex-1 flex-col justify-between py-1">
               <div>
-                <h2 className="mb-1.5 line-clamp-2 text-sm font-bold leading-snug text-text">
+                <h2 className="mb-1 line-clamp-2 text-[15px] font-bold leading-snug text-text">
                   {nombre}
                 </h2>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-muted">
-                  {detalle}
-                </p>
+                <p className="text-xs text-muted">{detalle}</p>
               </div>
 
               <div className="mt-3">
                 {item.precio_real_usd != null && (
-                  <div className="mb-3 inline-flex rounded-xl bg-primary/10 px-4 py-2">
-                    <span className="font-display text-[22px] font-bold text-primary">
+                  <div className="mb-3 inline-flex rounded-xl bg-primary/10 px-3.5 py-1.5">
+                    <span className="text-lg font-bold tabular-nums text-primary">
                       ${item.precio_real_usd.toFixed(2)}
                     </span>
                   </div>

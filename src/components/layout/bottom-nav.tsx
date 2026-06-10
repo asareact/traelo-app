@@ -24,6 +24,10 @@ const icons = {
  * Fixed bottom tab bar — primary navigation for the mobile client app.
  * Opaque surface for legibility; the center "Pedir" action is elevated with a
  * white ring and gently animated (bob + pulsing halo) to draw the eye.
+ *
+ * Its `position: fixed` only anchors to the viewport because NO ancestor carries
+ * a `transform`: the page transition animates the content (`.content-enter` on
+ * <main>), never this chrome. Keep it that way (see ARCHITECTURE / globals.css).
  */
 export function BottomNav() {
   const pathname = usePathname();

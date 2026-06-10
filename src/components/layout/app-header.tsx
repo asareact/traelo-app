@@ -19,7 +19,7 @@ export function AppHeader({ back }: { back?: BackConfig }) {
           <BackButton href={back.href} fallbackHref={back.fallbackHref} />
         )}
         <Link href={routes.dashboard} aria-label="Inicio">
-          <Logo variant="auto" size={26} />
+          <Logo variant="auto" size={44} />
         </Link>
       </div>
       <div className="flex items-center gap-2">

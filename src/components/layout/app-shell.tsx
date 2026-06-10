@@ -29,7 +29,16 @@ export function AppShell({
     <div className="min-h-dvh bg-bg">
       <div className="mx-auto w-full max-w-md">
         {header && <AppHeader back={back} />}
-        <main className={cn("px-5 pb-28", header ? "pt-2" : "pt-8", className)}>
+        {/* `content-enter` carries the page-transition "rise". It lives here, on
+            the content only — never on an ancestor of <BottomNav> — so the fixed
+            nav stays anchored to the viewport. See globals.css. */}
+        <main
+          className={cn(
+            "content-enter px-5 pb-28",
+            header ? "pt-2" : "pt-8",
+            className,
+          )}
+        >
           {children}
         </main>
       </div>

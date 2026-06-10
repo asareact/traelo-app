@@ -236,11 +236,17 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   revienta procesando `globals.css` → `SyntaxError: Unexpected token '??='` /
   el overlay muestra "Jest worker encountered child process exceptions". El
   `node --version` debe ser ≥18. Si usas nvm, fija la versión correcta.
-- **`position: fixed` y `transform`:** el template de transición (`.page-enter`)
-  NO debe dejar `transform` residual — rompería el containing block de cualquier
-  overlay `fixed` (modales, intro). Por eso el keyframe `pageEnter` omite
-  `transform` en el `to`. Mismo motivo: el intro vive en el root layout, fuera del
-  subárbol transformado.
+- **`position: fixed` y `transform` (regla de oro):** ningún ancestro del bottom
+  nav (ni de un modal/overlay) puede tener `transform`, o el `fixed` se ancla a
+  ESE ancestro en vez del viewport y "se despega". Ojo: `animation-fill-mode:
+  both`/`forwards` deja el transform *aplicado de forma permanente* (no solo
+  durante la animación), así que el nav quedaba atrapado en TODAS las páginas, no
+  solo al navegar. Por eso: el wrapper de transición (`.page-enter`) es **fade
+  puro sin transform**, y el "rise" característico vive en `.content-enter` sobre
+  `<main>` (que NO contiene al nav — el nav es su hermano). El `.content-enter`
+  usa `backwards` (no `both`) para soltar el transform al terminar y no atrapar
+  modales abiertos después. Mismo principio: el intro vive en el root layout,
+  fuera del subárbol transformado.
 - **Dark mode / Tailwind v4:** `dark:` se cablea a la clase `.dark` vía
   `@custom-variant dark (&:where(.dark, .dark *))` en `globals.css`. Si editas ese
   directivo (o `@theme`) **reinicia `npm run dev`** — Turbopack a veces no recompila

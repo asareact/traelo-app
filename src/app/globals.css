@@ -103,20 +103,40 @@ h1, h2, h3 {
    All gated behind no-preference so reduced-motion users get instant UI. */
 @media (prefers-reduced-motion: no-preference) {
   /* Page transition — runs on every navigation via app/template.tsx.
-     The `to` keyframe deliberately omits `transform` so none lingers after the
-     animation: a residual transform (even translateY(0)) would become the
-     containing block for any `position: fixed` child (modals, overlays) and
-     break them. */
+     This wrapper envelops the WHOLE shell (header + content + fixed nav), so it
+     must stay a pure opacity fade with NO `transform`. A transform here (even a
+     resting one) becomes the containing block for every `position: fixed`
+     descendant — the bottom nav, modals, overlays — and un-pins them from the
+     viewport. The signature "rise" lives on the content instead (.content-enter).
+     Lesson learned: `animation-fill-mode: both` keeps a transform "applied"
+     permanently, so the trap persisted on every page, not just mid-navigation. */
   .page-enter {
-    animation: pageEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: pageFade 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  @keyframes pageEnter {
+  @keyframes pageFade {
     from {
       opacity: 0;
-      transform: translateY(6px);
     }
     to {
       opacity: 1;
+    }
+  }
+
+  /* Content rise — applied to <main> inside <AppShell>, which does NOT contain
+     the fixed bottom nav (the nav is its sibling). `backwards` fill (not `both`)
+     applies the `from` offset on the first frame to avoid a flash, then releases
+     the transform when done, so <main> never lingers as a containing block that
+     could trap a modal opened later. Replays on each navigation because the
+     route template re-mounts the subtree. */
+  .content-enter {
+    animation: contentRise 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  @keyframes contentRise {
+    from {
+      transform: translateY(8px);
+    }
+    to {
+      transform: translateY(0);
     }
   }
 

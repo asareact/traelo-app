@@ -8,6 +8,7 @@ import {
   advanceStateSchema,
   registrarPesoSchema,
 } from "./schemas";
+import { borrarArchivosPedido } from "./storage";
 
 export type AdminActionState = {
   error?: string;
@@ -70,21 +71,6 @@ async function persistProductImage(
   }
 }
 
-/** Delete all stored files for an order (product + evidence). Best-effort. */
-async function limpiarArchivos(supabase: SBClient, pedidoId: string) {
-  for (const bucket of ["productos", "evidencias"]) {
-    try {
-      const { data } = await supabase.storage.from(bucket).list(pedidoId);
-      if (data && data.length) {
-        await supabase.storage
-          .from(bucket)
-          .remove(data.map((f) => `${pedidoId}/${f.name}`));
-      }
-    } catch {
-      /* best-effort cleanup */
-    }
-  }
-}
 
 /**
  * Save the admin-filled fields for one item (name + real price + image) and
@@ -261,9 +247,11 @@ export async function advanceOrderState(
 
   if (error) return { error: "No se pudo cambiar el estado." };
 
-  // Free storage once the order is closed (delivered) or cancelled.
-  if (nuevoEstado === "CANCELADO" || nuevoEstado === "ENTREGADO") {
-    await limpiarArchivos(supabase, pedidoId);
+  // Cancelled orders are dead → free their files now. Delivered orders keep
+  // their files for a grace period (the client may still want the tracking
+  // proof); the scheduled cleanup (/api/cron/cleanup) removes them after 2 days.
+  if (nuevoEstado === "CANCELADO") {
+    await borrarArchivosPedido(supabase, pedidoId);
   }
 
   revalidatePath("/admin/kanban");

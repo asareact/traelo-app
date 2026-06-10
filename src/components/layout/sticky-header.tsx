@@ -27,9 +27,12 @@ export function StickyHeader({
     let raf = 0;
     const update = () => {
       raf = 0;
-      const p = Math.min(1, window.scrollY / 90); // 0 at top → 1 scrolled
+      const p = Math.min(1, window.scrollY / 110); // 0 at top → 1 scrolled
+      const k = 1 - p; // 1 at top → 0 scrolled
       if (logoRef.current) {
-        logoRef.current.style.transform = `scale(${1.18 - 0.18 * p})`;
+        // At top: pushed down (straddling header/body) + bigger. Scrolled: rises
+        // into the bar at its base 44px size. Pure transform → no layout shift.
+        logoRef.current.style.transform = `translateY(${30 * k}px) scale(${1 + 0.45 * k})`;
       }
     };
     const onScroll = () => {
@@ -85,9 +88,9 @@ export function StickyHeader({
             <span
               ref={logoRef}
               className="block origin-center will-change-transform"
-              style={{ transform: "scale(1.18)" }}
+              style={{ transform: "translateY(30px) scale(1.45)" }}
             >
-              <Logo variant="auto" showText={false} size={30} />
+              <Logo variant="auto" showText={false} size={44} />
             </span>
           </Link>
         </div>

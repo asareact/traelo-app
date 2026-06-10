@@ -51,7 +51,7 @@ export function ItemListFull({ items }: { items: PedidoItem[] }) {
               </p>
               <p className="mt-1 text-xs text-muted">{detalle}</p>
               {item.precio_real_usd != null && (
-                <p className="mt-2 text-lg font-bold tabular-nums text-text">
+                <p className="mt-2 text-lg font-bold tabular-nums text-primary">
                   ${item.precio_real_usd.toFixed(2)}
                 </p>
               )}

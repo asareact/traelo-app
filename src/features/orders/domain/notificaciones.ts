@@ -14,6 +14,30 @@
 
 import { ESTADO_LABEL, type Estado } from "./estados";
 
+/**
+ * Build the public tracking URL, guaranteeing an `https://` scheme so WhatsApp
+ * (and other clients) turn it into a clickable link — a bare domain or `http://`
+ * often renders as plain text. Returns null when there's no site URL.
+ * Note: `localhost` URLs are never linkified by WhatsApp; that's expected in dev.
+ */
+export function linkRastreo(
+  siteUrl: string | null | undefined,
+  id: string,
+): string | null {
+  if (!siteUrl) return null;
+  let base = siteUrl.trim().replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(base)) base = "https://" + base;
+  return `${base}/pedidos/${id}`;
+}
+
+/** A product line in a client message — name plus its size/color/qty. */
+export type ProductoMsg = {
+  nombre: string;
+  talla?: string | null;
+  color?: string | null;
+  cantidad?: number | null;
+};
+
 type ItemMsg = {
   shein_url: string;
   talla: string | null;
@@ -99,7 +123,7 @@ export function mensajeCambioEstado(opts: {
   idCorto: string;
   estado: Estado;
   nombreCliente?: string | null;
-  productos: string[];
+  productos: ProductoMsg[];
   trackingUrl?: string | null;
   valorUsd?: number | null;
   pesoLb?: number | null;
@@ -121,7 +145,16 @@ export function mensajeCambioEstado(opts: {
 
   if (opts.productos.length) {
     lines.push(`*Tu pedido:*`);
-    opts.productos.forEach((p, i) => lines.push(`${i + 1}. ${p}`));
+    opts.productos.forEach((p, i) => {
+      const extra = [
+        p.talla && `Talla ${p.talla}`,
+        p.color,
+        p.cantidad && p.cantidad > 1 ? `x${p.cantidad}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      lines.push(`${i + 1}. ${p.nombre}${extra ? ` · ${extra}` : ""}`);
+    });
     lines.push(``);
   }
 

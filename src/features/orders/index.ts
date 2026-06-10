@@ -27,6 +27,8 @@ export {
 export {
   mensajeCambioEstado,
   pedidoParaAdmin,
+  linkRastreo,
   NOTIF_ESTADO,
+  type ProductoMsg,
 } from "./domain/notificaciones";
 export { nombreProductoEs } from "./domain/shein";

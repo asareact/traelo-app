@@ -6,7 +6,11 @@ import { Textarea } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
 import { IconWhatsapp } from "@/components/brand/icons";
 import { whatsappLink } from "@/lib/whatsapp";
-import { mensajeCambioEstado, nombreProductoEs } from "@/features/orders";
+import {
+  mensajeCambioEstado,
+  nombreProductoEs,
+  linkRastreo,
+} from "@/features/orders";
 import type { Estado } from "@/features/orders/domain/estados";
 import { ESTADO_ADMIN_LABEL } from "@/features/admin/domain/kanban";
 import type { KanbanPedido } from "@/features/admin/queries";
@@ -54,11 +58,13 @@ function Body({
   siteUrl?: string | null;
   onClose: () => void;
 }) {
-  const productos = pedido.items.map(
-    (it) =>
-      it.producto_nombre || nombreProductoEs(it.shein_url) || "Producto",
-  );
-  const trackingUrl = siteUrl ? `${siteUrl}/pedidos/${pedido.id}` : null;
+  const productos = pedido.items.map((it) => ({
+    nombre: it.producto_nombre || nombreProductoEs(it.shein_url) || "Producto",
+    talla: it.talla,
+    color: it.color,
+    cantidad: it.cantidad,
+  }));
+  const trackingUrl = linkRastreo(siteUrl, pedido.id);
 
   const [mensaje, setMensaje] = useState(() =>
     mensajeCambioEstado({

@@ -26,6 +26,7 @@ export {
 } from "./domain/estados";
 export {
   mensajeCambioEstado,
+  mensajePrecioCambio,
   pedidoParaAdmin,
   linkRastreo,
   NOTIF_ESTADO,

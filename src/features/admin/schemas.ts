@@ -23,6 +23,13 @@ export const processItemSchema = z.object({
     .trim()
     .url("La imagen debe ser una URL válida.")
     .max(2000),
+  precio_evidencia_url: z
+    .string()
+    .trim()
+    .url("Evidencia inválida.")
+    .max(2000)
+    .optional()
+    .or(z.literal("")),
 });
 
 export type ProcessItemInput = z.infer<typeof processItemSchema>;

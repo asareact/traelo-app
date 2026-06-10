@@ -44,8 +44,11 @@ export interface PedidoItem {
   notas_cliente: string | null;
   // admin-filled
   producto_nombre: string | null;
+  /** Product photo — re-hosted in our `productos` bucket on process. */
   producto_imagen: string | null;
   precio_real_usd: number | null;
+  /** Screenshot proof of the product + price at confirmation time. */
+  precio_evidencia_url: string | null;
   procesado: boolean;
   created_at: string;
 }

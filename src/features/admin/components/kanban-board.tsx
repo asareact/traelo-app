@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { IconBox } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
 import type { Estado } from "@/features/orders/domain/estados";
+import {
+  mensajeCambioEstado,
+  mensajePrecioCambio,
+  nombreProductoEs,
+  linkRastreo,
+} from "@/features/orders";
 import { advanceOrderState } from "@/features/admin/actions";
 import type { KanbanPedido } from "@/features/admin/queries";
 import {
@@ -14,8 +20,18 @@ import {
 } from "@/features/admin/domain/kanban";
 import { KanbanCard } from "./kanban-card";
 import { ProcessOrderModal } from "./process-order-modal";
-import { NotifyClientModal } from "./notify-client-modal";
+import { NotifyClientModal, type NotifyData } from "./notify-client-modal";
 import { WeightModal } from "./weight-modal";
+
+/** Map an order's items to the product lines used in client messages. */
+function productosDe(pedido: KanbanPedido) {
+  return pedido.items.map((it) => ({
+    nombre: it.producto_nombre || nombreProductoEs(it.shein_url) || "Producto",
+    talla: it.talla,
+    color: it.color,
+    cantidad: it.cantidad,
+  }));
+}
 
 /**
  * Trello-style admin board: ONE column per state (always shown, even empty),
@@ -33,11 +49,8 @@ export function KanbanBoard({
   const router = useRouter();
   const [activo, setActivo] = useState<KanbanPedido | null>(null);
   const [pesando, setPesando] = useState<KanbanPedido | null>(null);
-  // After a successful move, offer to notify the client (admin's call).
-  const [notify, setNotify] = useState<{
-    pedido: KanbanPedido;
-    estado: Estado;
-  } | null>(null);
+  // Optional WhatsApp notification to the client (state change / price change).
+  const [notify, setNotify] = useState<NotifyData | null>(null);
   // Optimistic state overrides while a drag-move is in flight / settled.
   const [overrides, setOverrides] = useState<Record<string, Estado>>({});
   const [dragId, setDragId] = useState<string | null>(null);
@@ -70,8 +83,40 @@ export function KanbanBoard({
     } else {
       router.refresh(); // resync with the server (props will agree)
       // Offer to notify the client of the change (optional).
-      setNotify({ pedido: { ...card, estado_actual: nuevoEstado }, estado: nuevoEstado });
+      const moved = { ...card, estado_actual: nuevoEstado };
+      setNotify({
+        titulo: "Avisar al cliente",
+        subtitulo: `Movido a ${ESTADO_ADMIN_LABEL[nuevoEstado]}`,
+        telefono: moved.cliente?.telefono,
+        mensaje: mensajeCambioEstado({
+          idCorto: moved.id.slice(0, 8),
+          estado: nuevoEstado,
+          nombreCliente: moved.cliente?.nombre,
+          productos: productosDe(moved),
+          trackingUrl: linkRastreo(siteUrl, moved.id),
+          valorUsd: moved.total_real_usd,
+          pesoLb: moved.peso_lb,
+        }),
+      });
     }
+  }
+
+  /** Build + open the price-change notification for an order (latest props). */
+  function notificarPrecio(pedidoId: string) {
+    const pedido = pedidos.find((p) => p.id === pedidoId);
+    if (!pedido) return;
+    setNotify({
+      titulo: "Avisar cambio de precio",
+      subtitulo: `Pedido #${pedido.id.slice(0, 8)}`,
+      telefono: pedido.cliente?.telefono,
+      mensaje: mensajePrecioCambio({
+        idCorto: pedido.id.slice(0, 8),
+        nombreCliente: pedido.cliente?.nombre,
+        productos: productosDe(pedido),
+        trackingUrl: linkRastreo(siteUrl, pedido.id),
+        valorUsd: pedido.total_real_usd,
+      }),
+    });
   }
 
   if (pedidos.length === 0) {
@@ -174,14 +219,14 @@ export function KanbanBoard({
         pedido={activo}
         siteUrl={siteUrl}
         onClose={() => setActivo(null)}
+        onNotifyPrice={() => {
+          const id = activo?.id;
+          setActivo(null);
+          if (id) notificarPrecio(id);
+        }}
       />
 
-      <NotifyClientModal
-        pedido={notify?.pedido ?? null}
-        nuevoEstado={notify?.estado ?? null}
-        siteUrl={siteUrl}
-        onClose={() => setNotify(null)}
-      />
+      <NotifyClientModal data={notify} onClose={() => setNotify(null)} />
 
       <WeightModal pedido={pesando} onClose={() => setPesando(null)} />
     </>

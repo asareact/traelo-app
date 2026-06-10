@@ -1,22 +1,24 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
 import { IconCheck } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
 import { nombreProductoEs } from "@/features/orders/domain/shein";
-import { processItem, type AdminActionState } from "@/features/admin/actions";
+import { processItem } from "@/features/admin/actions";
 import type { PedidoItem } from "@/types/database";
 
 /**
- * Process one item. Two ways to fill the admin fields:
- *  - Paste a SHEIN "Copy as cURL" → "Extraer" hits /api/admin/items/[id]/process
- *    which PARSES the curl (never exec) and pre-fills name/price/image.
- *  - Type them by hand.
- * Either way, "Guardar" posts to the `processItem` action (the trust boundary),
- * which validates and marks the item processed.
+ * Process one item. Fill name + real price + product image (paste a SHEIN
+ * "Copy as cURL" → "Extraer", or by hand) and optionally a PRICE EVIDENCE
+ * screenshot. On save the product image is re-hosted in our bucket and the
+ * evidence is uploaded to Storage; `processItem` (the trust boundary) persists
+ * everything and recomputes the order total. Re-saving updates the price/images
+ * (SHEIN prices vary day to day).
  */
 export function ItemProcessForm({
   item,
@@ -25,25 +27,28 @@ export function ItemProcessForm({
   item: PedidoItem;
   index: number;
 }) {
-  const [state, action, pending] = useActionState<AdminActionState, FormData>(
-    processItem,
-    {},
-  );
-
+  const router = useRouter();
   const sugerencia = nombreProductoEs(item.shein_url) ?? "";
-  // Default to the link-derived label — SHEIN's price endpoint has no name.
   const [nombre, setNombre] = useState(item.producto_nombre || sugerencia);
   const [precio, setPrecio] = useState(
     item.precio_real_usd != null ? String(item.precio_real_usd) : "",
   );
   const [imagen, setImagen] = useState(item.producto_imagen ?? "");
   const [editImg, setEditImg] = useState(false);
+
+  // Price evidence (screenshot of the product showing its price).
+  const [evidFile, setEvidFile] = useState<File | null>(null);
+  const [evidPreview, setEvidPreview] = useState(item.precio_evidencia_url ?? "");
+
   const [curl, setCurl] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState("");
 
-  // Saved when the action succeeds OR the item already came in processed.
-  const guardado = state.ok || item.procesado;
+  const [saving, setSaving] = useState(false);
+  const [ok, setOk] = useState(false);
+  const [error, setError] = useState("");
+
+  const guardado = ok || item.procesado;
 
   async function extraer() {
     setExtractError("");
@@ -64,12 +69,77 @@ export function ItemProcessForm({
       } else {
         if (data.nombre) setNombre(data.nombre);
         if (data.precio != null) setPrecio(String(data.precio));
-        if (data.imagen) setImagen(data.imagen);
+        if (data.imagen) {
+          setImagen(data.imagen);
+          setEditImg(false);
+        }
       }
     } catch {
       setExtractError("Error de red al consultar SHEIN.");
     } finally {
       setExtracting(false);
+    }
+  }
+
+  function onPickEvid(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    if (f && !f.type.startsWith("image/")) {
+      setError("La evidencia debe ser una imagen.");
+      return;
+    }
+    if (f && f.size > 8 * 1024 * 1024) {
+      setError("La imagen es muy grande (máx 8MB).");
+      return;
+    }
+    setError("");
+    setEvidFile(f);
+    if (f) setEvidPreview(URL.createObjectURL(f));
+  }
+
+  async function save() {
+    setError("");
+    setSaving(true);
+    try {
+      let evidenciaUrl = item.precio_evidencia_url ?? "";
+      if (evidFile) {
+        const supabase = createClient();
+        const ext = (evidFile.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${item.pedido_id}/precio-${item.id}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("productos")
+          .upload(path, evidFile, {
+            upsert: true,
+            contentType: evidFile.type,
+          });
+        if (upErr) {
+          setError("No se pudo subir la evidencia: " + upErr.message);
+          setSaving(false);
+          return;
+        }
+        evidenciaUrl = supabase.storage
+          .from("productos")
+          .getPublicUrl(path).data.publicUrl;
+      }
+
+      const fd = new FormData();
+      fd.set("itemId", item.id);
+      fd.set("producto_nombre", nombre);
+      fd.set("precio_real_usd", precio);
+      fd.set("producto_imagen", imagen);
+      if (evidenciaUrl) fd.set("precio_evidencia_url", evidenciaUrl);
+
+      const res = await processItem({}, fd);
+      if (res?.error) {
+        setError(res.error);
+        setSaving(false);
+        return;
+      }
+      setOk(true);
+      setSaving(false);
+      router.refresh();
+    } catch {
+      setError("Error al guardar el item.");
+      setSaving(false);
     }
   }
 
@@ -85,14 +155,18 @@ export function ItemProcessForm({
     <div
       className={cn(
         "rounded-2xl border p-4",
-        guardado ? "border-accent/40 bg-accent/[0.04]" : "border-border bg-surface",
+        guardado
+          ? "border-accent/40 bg-accent/[0.04]"
+          : "border-border bg-surface",
       )}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-muted">
             Producto {index + 1}
-            {sugerencia && <span className="ml-1 text-accent">· {sugerencia}</span>}
+            {sugerencia && (
+              <span className="ml-1 text-accent">· {sugerencia}</span>
+            )}
           </p>
           <a
             href={item.shein_url}
@@ -145,13 +219,9 @@ export function ItemProcessForm({
         )}
       </div>
 
-      {/* Save form */}
-      <form action={action} className="flex flex-col gap-3">
-        <input type="hidden" name="itemId" value={item.id} />
-
+      <div className="flex flex-col gap-3">
         <Field label="Nombre del producto">
           <Input
-            name="producto_nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder={sugerencia || "Nombre real del producto"}
@@ -161,7 +231,6 @@ export function ItemProcessForm({
         <div className="grid grid-cols-2 gap-3">
           <Field label="Precio real (USD)">
             <Input
-              name="precio_real_usd"
               type="number"
               inputMode="decimal"
               step="0.01"
@@ -176,14 +245,11 @@ export function ItemProcessForm({
           </Field>
         </div>
 
-        {/* The URL is always submitted via this hidden field; the UI shows the
-            actual image (not the raw URL) once we have one. */}
-        <input type="hidden" name="producto_imagen" value={imagen} />
+        {/* Product image */}
         <div>
           <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
-            Imagen
+            Imagen del producto
           </span>
-
           {imagen && /^https?:\/\//i.test(imagen) && !editImg ? (
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -232,11 +298,33 @@ export function ItemProcessForm({
           )}
         </div>
 
-        {state.error && <Alert tone="error">{state.error}</Alert>}
+        {/* Price evidence (screenshot showing the price) */}
+        <div>
+          <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
+            Evidencia de precio (captura con el precio)
+          </span>
+          {evidPreview && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={evidPreview}
+              alt="Evidencia de precio"
+              className="mb-2 max-h-44 w-full rounded-xl border border-border bg-bg object-contain"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onPickEvid}
+            className="block w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-bg file:px-4 file:py-2 file:text-sm file:font-bold file:text-text"
+          />
+        </div>
+
+        {error && <Alert tone="error">{error}</Alert>}
 
         <button
-          type="submit"
-          disabled={pending}
+          type="button"
+          onClick={save}
+          disabled={saving}
           className={cn(
             "rounded-full px-5 py-2.5 text-sm font-bold transition disabled:opacity-50",
             guardado
@@ -244,13 +332,13 @@ export function ItemProcessForm({
               : "bg-primary text-white hover:opacity-90",
           )}
         >
-          {pending
+          {saving
             ? "Guardando…"
             : guardado
               ? "Guardado · actualizar"
               : "Guardar item"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

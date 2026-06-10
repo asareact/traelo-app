@@ -6,92 +6,44 @@ import { Textarea } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
 import { IconWhatsapp } from "@/components/brand/icons";
 import { whatsappLink } from "@/lib/whatsapp";
-import {
-  mensajeCambioEstado,
-  nombreProductoEs,
-  linkRastreo,
-} from "@/features/orders";
-import type { Estado } from "@/features/orders/domain/estados";
-import { ESTADO_ADMIN_LABEL } from "@/features/admin/domain/kanban";
-import type { KanbanPedido } from "@/features/admin/queries";
 
 /**
- * After a state move, the admin OPTIONALLY notifies the client on WhatsApp. The
- * message is built from a reusable template for the target state (product names
- * + order details + tracking link — never a SHEIN link) and is fully editable
- * before sending. Sending just opens a prefilled wa.me chat to the client.
+ * Generic "notify the client on WhatsApp" editor. The caller builds the message
+ * (state change, price change, …) from the reusable templates and passes it in;
+ * this modal just shows it editable and opens a prefilled wa.me chat. Optional
+ * and admin-controlled. No message copy lives here.
  */
+export type NotifyData = {
+  titulo: string;
+  subtitulo?: string;
+  telefono?: string | null;
+  mensaje: string;
+};
+
 export function NotifyClientModal({
-  pedido,
-  nuevoEstado,
-  siteUrl,
+  data,
   onClose,
 }: {
-  pedido: KanbanPedido | null;
-  nuevoEstado: Estado | null;
-  siteUrl?: string | null;
+  data: NotifyData | null;
   onClose: () => void;
 }) {
-  const open = pedido != null && nuevoEstado != null;
   return (
-    <Modal open={open} onClose={onClose} className="sm:max-w-lg">
-      {pedido && nuevoEstado && (
-        <Body
-          pedido={pedido}
-          nuevoEstado={nuevoEstado}
-          siteUrl={siteUrl}
-          onClose={onClose}
-        />
-      )}
+    <Modal open={data != null} onClose={onClose} className="sm:max-w-lg">
+      {data && <Body data={data} onClose={onClose} />}
     </Modal>
   );
 }
 
-function Body({
-  pedido,
-  nuevoEstado,
-  siteUrl,
-  onClose,
-}: {
-  pedido: KanbanPedido;
-  nuevoEstado: Estado;
-  siteUrl?: string | null;
-  onClose: () => void;
-}) {
-  const productos = pedido.items.map((it) => ({
-    nombre: it.producto_nombre || nombreProductoEs(it.shein_url) || "Producto",
-    talla: it.talla,
-    color: it.color,
-    cantidad: it.cantidad,
-  }));
-  const trackingUrl = linkRastreo(siteUrl, pedido.id);
-
-  const [mensaje, setMensaje] = useState(() =>
-    mensajeCambioEstado({
-      idCorto: pedido.id.slice(0, 8),
-      estado: nuevoEstado,
-      nombreCliente: pedido.cliente?.nombre,
-      productos,
-      trackingUrl,
-      valorUsd: pedido.total_real_usd,
-      pesoLb: pedido.peso_lb,
-    }),
-  );
-
-  const waHref = whatsappLink(pedido.cliente?.telefono, mensaje);
+function Body({ data, onClose }: { data: NotifyData; onClose: () => void }) {
+  const [mensaje, setMensaje] = useState(data.mensaje);
+  const waHref = whatsappLink(data.telefono, mensaje);
 
   return (
     <div className="flex flex-col">
-      <h2 className="font-display text-xl font-bold text-text">
-        Avisar al cliente
-      </h2>
-      <p className="mt-1 text-sm text-muted">
-        Movido a{" "}
-        <span className="font-bold text-text">
-          {ESTADO_ADMIN_LABEL[nuevoEstado]}
-        </span>
-        . Puedes enviarle este mensaje por WhatsApp (opcional).
-      </p>
+      <h2 className="font-display text-xl font-bold text-text">{data.titulo}</h2>
+      {data.subtitulo && (
+        <p className="mt-1 text-sm text-muted">{data.subtitulo}</p>
+      )}
 
       <Textarea
         value={mensaje}

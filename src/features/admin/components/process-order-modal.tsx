@@ -13,10 +13,12 @@ export function ProcessOrderModal({
   pedido,
   siteUrl,
   onClose,
+  onNotifyPrice,
 }: {
   pedido: KanbanPedido | null;
   siteUrl?: string | null;
   onClose: () => void;
+  onNotifyPrice: () => void;
 }) {
   return (
     <Modal open={pedido != null} onClose={onClose} className="sm:max-w-2xl">
@@ -58,6 +60,20 @@ export function ProcessOrderModal({
             {pedido.items.map((item, i) => (
               <ItemProcessForm key={item.id} item={item} index={i} />
             ))}
+          </div>
+
+          {/* If the price changed (SHEIN varies day to day), notify the client. */}
+          <div className="mt-4 border-t border-border pt-4">
+            <button
+              type="button"
+              onClick={onNotifyPrice}
+              className="w-full rounded-full border-[1.5px] border-border bg-bg px-5 py-2.5 text-sm font-bold text-text transition hover:bg-surface"
+            >
+              Avisar cambio de precio al cliente
+            </button>
+            <p className="mt-1.5 text-center text-xs text-muted">
+              Úsalo si el precio cambió respecto a la cotización anterior.
+            </p>
           </div>
         </div>
       )}

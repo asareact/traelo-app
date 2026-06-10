@@ -38,6 +38,23 @@ export type ProductoMsg = {
   cantidad?: number | null;
 };
 
+/** Shared formatting for the "*Tu pedido:*" product list (without trailing blank). */
+function lineasProductos(productos: ProductoMsg[]): string[] {
+  if (!productos.length) return [];
+  const out = ["*Tu pedido:*"];
+  productos.forEach((p, i) => {
+    const extra = [
+      p.talla && `Talla ${p.talla}`,
+      p.color,
+      p.cantidad && p.cantidad > 1 ? `x${p.cantidad}` : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    out.push(`${i + 1}. ${p.nombre}${extra ? ` · ${extra}` : ""}`);
+  });
+  return out;
+}
+
 type ItemMsg = {
   shein_url: string;
   talla: string | null;
@@ -144,18 +161,7 @@ export function mensajeCambioEstado(opts: {
   ];
 
   if (opts.productos.length) {
-    lines.push(`*Tu pedido:*`);
-    opts.productos.forEach((p, i) => {
-      const extra = [
-        p.talla && `Talla ${p.talla}`,
-        p.color,
-        p.cantidad && p.cantidad > 1 ? `x${p.cantidad}` : null,
-      ]
-        .filter(Boolean)
-        .join(" · ");
-      lines.push(`${i + 1}. ${p.nombre}${extra ? ` · ${extra}` : ""}`);
-    });
-    lines.push(``);
+    lines.push(...lineasProductos(opts.productos), ``);
   }
 
   const detalles: string[] = [];
@@ -167,6 +173,46 @@ export function mensajeCambioEstado(opts: {
   }
 
   if (opts.trackingUrl) lines.push(`Sigue tu pedido aquí: ${opts.trackingUrl}`);
+
+  return lines.filter((l) => l !== null).join("\n");
+}
+
+/**
+ * The PRICE-CHANGE message sent ADMIN → CLIENT. Used when the order's price was
+ * already quoted and changed (SHEIN prices vary day to day). Reminds the client
+ * of the new total and to complete the payment. No SHEIN links.
+ */
+export function mensajePrecioCambio(opts: {
+  idCorto: string;
+  nombreCliente?: string | null;
+  productos: ProductoMsg[];
+  trackingUrl?: string | null;
+  valorUsd?: number | null;
+}): string {
+  const saludo = opts.nombreCliente
+    ? `Hola ${opts.nombreCliente.split(" ")[0]}, `
+    : "";
+
+  const lines: (string | null)[] = [
+    `*Traelo* · Pedido #${opts.idCorto}`,
+    ``,
+    `${saludo}el precio de tu pedido se actualizó (los precios en la tienda cambian de un día a otro).`,
+    ``,
+  ];
+
+  if (opts.productos.length) {
+    lines.push(...lineasProductos(opts.productos), ``);
+  }
+
+  if (opts.valorUsd != null) {
+    lines.push(`*Nuevo total: $${opts.valorUsd.toFixed(2)}*`, ``);
+  }
+
+  lines.push(
+    `Recuerda completar el pago para que podamos comprar tu pedido al precio actual.`,
+  );
+  if (opts.trackingUrl)
+    lines.push(``, `Sigue tu pedido aquí: ${opts.trackingUrl}`);
 
   return lines.filter((l) => l !== null).join("\n");
 }

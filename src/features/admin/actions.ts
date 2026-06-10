@@ -9,7 +9,14 @@ import {
   registrarPesoSchema,
 } from "./schemas";
 
-export type AdminActionState = { error?: string; ok?: boolean };
+export type AdminActionState = {
+  error?: string;
+  ok?: boolean;
+  /** True when this save changed an already-set price (client was re-quoted). */
+  precioCambio?: boolean;
+};
+
+type SBClient = Awaited<ReturnType<typeof createClient>>;
 
 /** True when the logged-in user is an admin (RLS also enforces this). */
 async function requireAdmin() {
@@ -27,6 +34,59 @@ async function requireAdmin() {
 }
 
 /**
+ * Re-host a product image in our `productos` bucket so the order keeps a valid
+ * image even if the SHEIN CDN link rots. Best-effort: on any failure we keep the
+ * original URL. Skips images already hosted by us. Stable path per item, so a
+ * re-process overwrites the previous copy.
+ */
+async function persistProductImage(
+  supabase: SBClient,
+  pedidoId: string,
+  itemId: string,
+  sourceUrl: string | null | undefined,
+): Promise<string | null> {
+  if (!sourceUrl) return sourceUrl ?? null;
+  if (sourceUrl.includes("/storage/v1/object/public/productos/"))
+    return sourceUrl;
+  try {
+    const res = await fetch(sourceUrl, { cache: "no-store" });
+    if (!res.ok) return sourceUrl;
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+    if (!contentType.startsWith("image/")) return sourceUrl;
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    const ext = contentType.includes("png")
+      ? "png"
+      : contentType.includes("webp")
+        ? "webp"
+        : "jpg";
+    const path = `${pedidoId}/${itemId}.${ext}`;
+    const { error } = await supabase.storage
+      .from("productos")
+      .upload(path, bytes, { contentType, upsert: true });
+    if (error) return sourceUrl;
+    return supabase.storage.from("productos").getPublicUrl(path).data.publicUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
+
+/** Delete all stored files for an order (product + evidence). Best-effort. */
+async function limpiarArchivos(supabase: SBClient, pedidoId: string) {
+  for (const bucket of ["productos", "evidencias"]) {
+    try {
+      const { data } = await supabase.storage.from(bucket).list(pedidoId);
+      if (data && data.length) {
+        await supabase.storage
+          .from(bucket)
+          .remove(data.map((f) => `${pedidoId}/${f.name}`));
+      }
+    } catch {
+      /* best-effort cleanup */
+    }
+  }
+}
+
+/**
  * Save the admin-filled fields for one item (name + real price + image) and
  * mark it processed. If that completes the order (all items processed), set the
  * order total from the real prices and, if it's still in the quote stage, move
@@ -41,6 +101,7 @@ export async function processItem(
     producto_nombre: formData.get("producto_nombre"),
     precio_real_usd: formData.get("precio_real_usd"),
     producto_imagen: formData.get("producto_imagen"),
+    precio_evidencia_url: formData.get("precio_evidencia_url") ?? "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
@@ -49,27 +110,50 @@ export async function processItem(
   const { supabase, ok } = await requireAdmin();
   if (!ok) return { error: "No autorizado." };
 
-  const { itemId, producto_nombre, precio_real_usd, producto_imagen } =
-    parsed.data;
+  const {
+    itemId,
+    producto_nombre,
+    precio_real_usd,
+    producto_imagen,
+    precio_evidencia_url,
+  } = parsed.data;
 
-  // Update the item and get its parent order back in one round-trip.
-  const { data: updated, error: updErr } = await supabase
+  // Read current values to detect a price change worth notifying about.
+  const { data: prev } = await supabase
     .from("pedido_items")
-    .update({
-      producto_nombre,
-      precio_real_usd,
-      producto_imagen,
-      procesado: true,
-    })
+    .select("pedido_id, precio_real_usd")
     .eq("id", itemId)
-    .select("pedido_id")
     .single();
+  if (!prev) return { error: "Item no encontrado." };
+  const pedidoId = prev.pedido_id as string;
+  const precioCambio =
+    prev.precio_real_usd != null &&
+    Number(prev.precio_real_usd) !== precio_real_usd;
 
-  if (updErr || !updated) {
+  // Re-host the product image in our bucket (survives SHEIN CDN link rot).
+  const imagenFinal = await persistProductImage(
+    supabase,
+    pedidoId,
+    itemId,
+    producto_imagen,
+  );
+
+  const update: Record<string, unknown> = {
+    producto_nombre,
+    precio_real_usd,
+    producto_imagen: imagenFinal,
+    procesado: true,
+  };
+  if (precio_evidencia_url) update.precio_evidencia_url = precio_evidencia_url;
+
+  const { error: updErr } = await supabase
+    .from("pedido_items")
+    .update(update)
+    .eq("id", itemId);
+
+  if (updErr) {
     return { error: "No se pudo guardar el item." };
   }
-
-  const pedidoId = updated.pedido_id as string;
 
   // Did this complete the order? Re-read its items.
   const { data: items } = await supabase
@@ -112,7 +196,7 @@ export async function processItem(
   }
 
   revalidatePath("/admin/kanban");
-  return { ok: true };
+  return { ok: true, precioCambio };
 }
 
 /**
@@ -176,6 +260,11 @@ export async function advanceOrderState(
   });
 
   if (error) return { error: "No se pudo cambiar el estado." };
+
+  // Free storage once the order is closed (delivered) or cancelled.
+  if (nuevoEstado === "CANCELADO" || nuevoEstado === "ENTREGADO") {
+    await limpiarArchivos(supabase, pedidoId);
+  }
 
   revalidatePath("/admin/kanban");
   return { ok: true };

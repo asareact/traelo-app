@@ -12,12 +12,6 @@ export default async function NotificacionesPage() {
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-text">
-          Notificaciones
-        </h1>
-      </header>
-
       {notificaciones.length === 0 ? (
         <div className="mt-16 flex flex-col items-center text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface text-muted">

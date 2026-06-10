@@ -31,19 +31,12 @@ export default async function DashboardPage() {
 
   const pedidos = await getMisPedidos();
   const recientes = pedidos.slice(0, 3);
-  const nombre = profile?.nombre?.split(" ")[0] || "";
   const perfilIncompleto = !isProfileComplete(profile);
 
   return (
     <AppShell>
-      {/* Welcome */}
+      {/* Hero CTA (the greeting now lives in the header) */}
       <section className="mb-7">
-        <div className="mb-1 flex items-center gap-1.5">
-          <span className="text-sm font-medium text-muted">
-            Hola{nombre ? `, ${nombre}` : ""}
-          </span>
-          <span className="text-lg">👋</span>
-        </div>
         <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
           ¿Qué quieres
           <br />

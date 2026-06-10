@@ -59,8 +59,8 @@ export function StickyHeader({
     <>
       <header className="sticky top-0 z-40 bg-bg/70 pt-[max(env(safe-area-inset-top),0.5rem)] backdrop-blur-md">
         <div className="relative flex h-14 items-center justify-between px-5">
-          {/* Left: menu/back + label (kept under ~48% so it never reaches the logo) */}
-          <div className="flex min-w-0 max-w-[48%] items-center gap-2.5">
+          {/* Left: menu/back + the greeting (Home only) */}
+          <div className="flex min-w-0 max-w-[55%] items-center gap-2.5">
             {isMain ? (
               <button
                 type="button"
@@ -73,7 +73,7 @@ export function StickyHeader({
             ) : (
               <BackButton fallbackHref={backFallback} />
             )}
-            {label && (
+            {isHome && label && (
               <span className="truncate text-[15px] font-bold text-text">
                 {label}
               </span>
@@ -92,21 +92,29 @@ export function StickyHeader({
             </Link>
           </div>
 
-          {/* Centered brand mark — floats, then rises into the bar on scroll */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link
-              href={routes.dashboard}
-              aria-label="Inicio"
-              className="pointer-events-auto block"
-            >
-              <span
-                ref={logoRef}
-                className="block origin-center will-change-transform"
-                style={{ transform: "translateY(30px) scale(1.45)" }}
+          {/* Center: floating brand mark on Home, the page title elsewhere */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 max-w-[58%] -translate-x-1/2 -translate-y-1/2">
+            {isHome ? (
+              <Link
+                href={routes.dashboard}
+                aria-label="Inicio"
+                className="pointer-events-auto block"
               >
-                <Logo variant="auto" showText={false} size={44} />
-              </span>
-            </Link>
+                <span
+                  ref={logoRef}
+                  className="block origin-center will-change-transform"
+                  style={{ transform: "translateY(30px) scale(1.45)" }}
+                >
+                  <Logo variant="auto" showText={false} size={44} />
+                </span>
+              </Link>
+            ) : (
+              title && (
+                <span className="block truncate text-center text-[15px] font-bold text-text">
+                  {title}
+                </span>
+              )
+            )}
           </div>
         </div>
       </header>

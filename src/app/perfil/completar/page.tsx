@@ -34,10 +34,7 @@ export default async function CompletarPerfilPage({ searchParams }: Props) {
   return (
     <AppShell>
       <header className="mb-5">
-        <h1 className="font-display text-2xl font-bold text-text">
-          Completa tu perfil
-        </h1>
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-sm text-muted">
           Necesitamos tu nombre y teléfono para procesar tu pedido y coordinar
           la entrega. Lo haces una sola vez.
         </p>

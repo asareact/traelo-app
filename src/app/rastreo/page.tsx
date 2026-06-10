@@ -18,11 +18,8 @@ export default async function RastreoPage() {
 
   return (
     <AppShell>
-      <header className="mb-8">
-        <h1 className="font-display text-[34px] font-bold leading-tight tracking-tight text-text">
-          Rastreo
-        </h1>
-        <p className="mt-2 max-w-[280px] text-sm leading-relaxed text-muted">
+      <header className="mb-6">
+        <p className="max-w-[280px] text-sm leading-relaxed text-muted">
           Sigue el estado de tus pedidos.
         </p>
       </header>

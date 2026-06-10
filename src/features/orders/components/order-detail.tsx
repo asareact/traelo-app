@@ -35,10 +35,7 @@ export function OrderDetail({
       )}
 
       <section className="mb-8">
-        <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
-          Detalle del pedido
-        </h1>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="font-mono text-lg font-bold text-text">
             #{pedido.id.slice(0, 8)}
           </span>

@@ -22,12 +22,25 @@ export interface HeaderInfo {
   backFallback: string;
 }
 
+/** Titles for the main pages (Home uses the greeting instead, so it's null). */
+const MAIN_TITLES: Record<string, string> = {
+  [routes.pedidos]: "Pedidos",
+  [routes.nuevoPedido]: "Nuevo pedido",
+  [routes.rastreo]: "Rastreo",
+  [routes.perfil]: "Perfil",
+};
+
 export function resolveHeader(pathname: string): HeaderInfo {
   const isHome = pathname === routes.dashboard;
   const isMain = MAIN_ROUTES.has(pathname);
 
   if (isMain) {
-    return { isMain: true, isHome, title: null, backFallback: routes.dashboard };
+    return {
+      isMain: true,
+      isHome,
+      title: isHome ? null : (MAIN_TITLES[pathname] ?? null),
+      backFallback: routes.dashboard,
+    };
   }
 
   // Secondary pages → title + back.

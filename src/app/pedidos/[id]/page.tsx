@@ -45,7 +45,10 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
       <header className="bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center gap-2.5 px-5 py-3">
           <BackButton fallbackHref={routes.home} />
-          <Link href={routes.home} aria-label="Inicio">
+          <span className="text-[15px] font-bold text-text">
+            Detalle del pedido
+          </span>
+          <Link href={routes.home} aria-label="Inicio" className="ml-auto">
             <Logo variant="auto" size={24} />
           </Link>
         </div>

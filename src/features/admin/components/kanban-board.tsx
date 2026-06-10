@@ -14,6 +14,7 @@ import {
 } from "@/features/admin/domain/kanban";
 import { KanbanCard } from "./kanban-card";
 import { ProcessOrderModal } from "./process-order-modal";
+import { NotifyClientModal } from "./notify-client-modal";
 
 /**
  * Trello-style admin board: ONE column per state (always shown, even empty),
@@ -30,6 +31,11 @@ export function KanbanBoard({
 }) {
   const router = useRouter();
   const [activo, setActivo] = useState<KanbanPedido | null>(null);
+  // After a successful move, offer to notify the client (admin's call).
+  const [notify, setNotify] = useState<{
+    pedido: KanbanPedido;
+    estado: Estado;
+  } | null>(null);
   // Optimistic state overrides while a drag-move is in flight / settled.
   const [overrides, setOverrides] = useState<Record<string, Estado>>({});
   const [dragId, setDragId] = useState<string | null>(null);
@@ -61,6 +67,8 @@ export function KanbanBoard({
       setError(res.error);
     } else {
       router.refresh(); // resync with the server (props will agree)
+      // Offer to notify the client of the change (optional).
+      setNotify({ pedido: { ...card, estado_actual: nuevoEstado }, estado: nuevoEstado });
     }
   }
 
@@ -163,6 +171,13 @@ export function KanbanBoard({
         pedido={activo}
         siteUrl={siteUrl}
         onClose={() => setActivo(null)}
+      />
+
+      <NotifyClientModal
+        pedido={notify?.pedido ?? null}
+        nuevoEstado={notify?.estado ?? null}
+        siteUrl={siteUrl}
+        onClose={() => setNotify(null)}
       />
     </>
   );

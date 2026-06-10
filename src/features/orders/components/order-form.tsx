@@ -8,7 +8,8 @@ import { Alert } from "@/components/ui/alert";
 import { Modal } from "@/components/ui/modal";
 import { IconPlus, IconWhatsapp } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
-import { whatsappLink, pedidoParaAdmin } from "@/lib/whatsapp";
+import { whatsappLink } from "@/lib/whatsapp";
+import { pedidoParaAdmin } from "@/features/orders/domain/notificaciones";
 import { nombreProductoEs } from "@/features/orders/domain/shein";
 import { createOrder, type CreateOrderState } from "@/features/orders/actions";
 import {

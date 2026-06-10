@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Alert } from "@/components/ui/alert";
 import { CopyLinkButton } from "@/components/ui/copy-link-button";
 import { cn } from "@/lib/utils/cn";
+import { routes } from "@/config/site";
+import { IconChevronRight } from "@/components/brand/icons";
 import type { PedidoCompleto } from "@/types/database";
 import { resumenEstado } from "@/features/orders/domain/estados";
 import { OrderTracker } from "@/features/orders/components/order-tracker";
@@ -58,7 +61,18 @@ export function OrderDetail({
       </Section>
 
       <Section title="Productos">
-        <ItemList items={pedido.items} />
+        <ItemList items={pedido.items.slice(0, 3)} />
+        {pedido.items.length > 0 && (
+          <Link
+            href={`${routes.pedido(pedido.id)}/productos`}
+            className="mt-4 flex items-center justify-center gap-1 rounded-full border border-border bg-surface py-3 text-sm font-bold text-primary transition active:scale-[0.98]"
+          >
+            {pedido.items.length > 3
+              ? `Ver todos (${pedido.items.length})`
+              : "Ver detalles"}
+            <IconChevronRight size={15} />
+          </Link>
+        )}
       </Section>
 
       <Section title="Costo del pedido">

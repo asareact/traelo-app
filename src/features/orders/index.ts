@@ -16,6 +16,7 @@ export { OrderDetail } from "./components/order-detail";
 export { OrderTracker } from "./components/order-tracker";
 export { OrderTimeline } from "./components/order-timeline";
 export { ItemList } from "./components/item-list";
+export { ItemListFull } from "./components/item-list-full";
 export { EstadoBadge } from "./components/estado-badge";
 
 // Domain (pure, client-safe)

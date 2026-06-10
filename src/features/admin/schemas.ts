@@ -36,6 +36,24 @@ export const advanceStateSchema = z.object({
 
 export type AdvanceStateInput = z.infer<typeof advanceStateSchema>;
 
+/** Registering the package weight (+ optional evidence photo URL). */
+export const registrarPesoSchema = z.object({
+  pedidoId: z.string().uuid("Pedido inválido."),
+  peso_lb: z.coerce
+    .number({ message: "Peso inválido." })
+    .positive("El peso debe ser mayor que 0.")
+    .max(1000, "Peso fuera de rango."),
+  evidencia_url: z
+    .string()
+    .trim()
+    .url("Evidencia inválida.")
+    .max(2000)
+    .optional()
+    .or(z.literal("")),
+});
+
+export type RegistrarPesoInput = z.infer<typeof registrarPesoSchema>;
+
 /** The curl-extract request (the URL host is re-checked server-side). */
 export const extractCurlSchema = z.object({
   curl: z.string().trim().min(10, "Pega el comando curl completo."),

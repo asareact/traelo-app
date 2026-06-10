@@ -4,24 +4,29 @@ import Link from "next/link";
 import { IconLink, IconWhatsapp, IconCheck } from "@/components/brand/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
+import { permitePeso } from "@/features/orders/domain/estados";
 import type { KanbanPedido } from "@/features/admin/queries";
 
 /**
- * One order on the board: client + contact, item/processing status, and the
- * "Procesar items" action. The card is draggable (the board wraps it) — moving
- * it to another column is what changes the order's state, Trello-style.
+ * One order on the board: client + contact, status, and the primary action —
+ * "Procesar items" early on, or "Registrar peso" once the package is at the US
+ * casillero (see permitePeso). Draggable (the board wraps it): moving it to
+ * another column changes the order's state, Trello-style.
  */
 export function KanbanCard({
   pedido,
   onProcess,
+  onWeigh,
 }: {
   pedido: KanbanPedido;
   onProcess: () => void;
+  onWeigh: () => void;
 }) {
   const idCorto = pedido.id.slice(0, 8);
   const digits = (pedido.cliente?.telefono ?? "").replace(/\D/g, "");
   const completo =
     pedido.total_items > 0 && pedido.items_procesados === pedido.total_items;
+  const pesar = permitePeso(pedido.estado_actual);
 
   return (
     <article className="rounded-2xl border border-border bg-bg p-4 shadow-sm">
@@ -70,31 +75,50 @@ export function KanbanCard({
         </span>
       </div>
 
-      <div className="mt-2 text-sm">
-        <span className="text-muted">Total: </span>
-        {pedido.total_real_usd != null ? (
-          <span className="font-bold tabular-nums text-text">
-            ${pedido.total_real_usd.toFixed(2)}
+      <div className="mt-2 flex items-center justify-between text-sm">
+        <span>
+          <span className="text-muted">Total: </span>
+          {pedido.total_real_usd != null ? (
+            <span className="font-bold tabular-nums text-text">
+              ${pedido.total_real_usd.toFixed(2)}
+            </span>
+          ) : (
+            <span className="text-muted">sin precio</span>
+          )}
+        </span>
+        {pedido.peso_lb != null && (
+          <span className="font-bold tabular-nums text-accent">
+            {pedido.peso_lb} lb
           </span>
-        ) : (
-          <span className="text-muted">sin precio</span>
         )}
       </div>
 
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        onClick={onProcess}
-        className="mt-3 w-full"
-      >
-        Procesar items
-        {!completo && pedido.total_items > 0 && (
-          <span className="ml-1 rounded-full bg-warning/15 px-1.5 text-xs font-bold text-warning">
-            {pedido.total_items - pedido.items_procesados}
-          </span>
-        )}
-      </Button>
+      {pesar ? (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={onWeigh}
+          className="mt-3 w-full"
+        >
+          {pedido.peso_lb != null ? "Editar peso" : "Registrar peso"}
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={onProcess}
+          className="mt-3 w-full"
+        >
+          Procesar items
+          {!completo && pedido.total_items > 0 && (
+            <span className="ml-1 rounded-full bg-warning/15 px-1.5 text-xs font-bold text-warning">
+              {pedido.total_items - pedido.items_procesados}
+            </span>
+          )}
+        </Button>
+      )}
     </article>
   );
 }

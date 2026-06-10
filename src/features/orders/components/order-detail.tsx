@@ -65,6 +65,27 @@ export function OrderDetail({
         <CostSummary items={pedido.items} total={pedido.total_real_usd} />
       </Section>
 
+      {pedido.peso_lb != null && (
+        <Section title="Peso del paquete">
+          <div className="rounded-[28px] border border-border bg-surface p-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted">Peso confirmado</span>
+              <span className="text-lg font-bold tabular-nums text-text">
+                {pedido.peso_lb} lb
+              </span>
+            </div>
+            {pedido.peso_evidencia_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={pedido.peso_evidencia_url}
+                alt="Evidencia del peso del paquete"
+                className="mt-4 w-full rounded-xl border border-border object-contain"
+              />
+            )}
+          </div>
+        </Section>
+      )}
+
       <Section title="Historial de eventos" last>
         <OrderTimeline
           createdAt={pedido.created_at}

@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PedidoItem } from "@/types/database";
-import { processItemSchema, advanceStateSchema } from "./schemas";
+import {
+  processItemSchema,
+  advanceStateSchema,
+  registrarPesoSchema,
+} from "./schemas";
 
 export type AdminActionState = { error?: string; ok?: boolean };
 
@@ -106,6 +110,42 @@ export async function processItem(
       });
     }
   }
+
+  revalidatePath("/admin/kanban");
+  return { ok: true };
+}
+
+/**
+ * Save the package weight (+ optional evidence photo URL) on an order. The photo
+ * itself is uploaded to Supabase Storage from the client first; here we only
+ * persist its URL. Re-saving the weight alone keeps any existing photo.
+ */
+export async function registrarPeso(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const parsed = registrarPesoSchema.safeParse({
+    pedidoId: formData.get("pedidoId"),
+    peso_lb: formData.get("peso_lb"),
+    evidencia_url: formData.get("evidencia_url") ?? "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const { supabase, ok } = await requireAdmin();
+  if (!ok) return { error: "No autorizado." };
+
+  const { pedidoId, peso_lb, evidencia_url } = parsed.data;
+  const update: Record<string, unknown> = { peso_lb };
+  if (evidencia_url) update.peso_evidencia_url = evidencia_url;
+
+  const { error } = await supabase
+    .from("pedidos")
+    .update(update)
+    .eq("id", pedidoId);
+
+  if (error) return { error: "No se pudo guardar el peso." };
 
   revalidatePath("/admin/kanban");
   return { ok: true };

@@ -74,6 +74,7 @@ function Body({
       productos,
       trackingUrl,
       valorUsd: pedido.total_real_usd,
+      pesoLb: pedido.peso_lb,
     }),
   );
 

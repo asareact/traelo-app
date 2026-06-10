@@ -58,6 +58,16 @@ export function esTerminal(estado: Estado): boolean {
   return ESTADOS_TERMINALES.includes(estado);
 }
 
+/**
+ * Whether the admin can register the package weight + evidence for an order:
+ * from when it's received at the US casillero (EN_CASILLERO) onward. Before that
+ * the package hasn't arrived to be weighed; CANCELADO is excluded.
+ */
+export function permitePeso(estado: Estado): boolean {
+  if (estado === "CANCELADO") return false;
+  return ESTADOS.indexOf(estado) >= ESTADOS.indexOf("EN_CASILLERO");
+}
+
 // ─────────────────────────────────────────────────────────────
 // Client-facing milestones — the 6-step journey shown on tracking.
 // Each internal state maps to exactly one milestone.

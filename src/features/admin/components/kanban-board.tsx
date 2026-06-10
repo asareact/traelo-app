@@ -15,6 +15,7 @@ import {
 import { KanbanCard } from "./kanban-card";
 import { ProcessOrderModal } from "./process-order-modal";
 import { NotifyClientModal } from "./notify-client-modal";
+import { WeightModal } from "./weight-modal";
 
 /**
  * Trello-style admin board: ONE column per state (always shown, even empty),
@@ -31,6 +32,7 @@ export function KanbanBoard({
 }) {
   const router = useRouter();
   const [activo, setActivo] = useState<KanbanPedido | null>(null);
+  const [pesando, setPesando] = useState<KanbanPedido | null>(null);
   // After a successful move, offer to notify the client (admin's call).
   const [notify, setNotify] = useState<{
     pedido: KanbanPedido;
@@ -153,6 +155,7 @@ export function KanbanBoard({
                     <KanbanCard
                       pedido={pedido}
                       onProcess={() => setActivo(pedido)}
+                      onWeigh={() => setPesando(pedido)}
                     />
                   </div>
                 ))}
@@ -179,6 +182,8 @@ export function KanbanBoard({
         siteUrl={siteUrl}
         onClose={() => setNotify(null)}
       />
+
+      <WeightModal pedido={pesando} onClose={() => setPesando(null)} />
     </>
   );
 }

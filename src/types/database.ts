@@ -26,6 +26,9 @@ export interface Pedido {
   estado_actual: Estado;
   total_real_usd: number | null;
   nota_admin: string | null;
+  // Set by the admin once the package is weighed at the US casillero.
+  peso_lb: number | null;
+  peso_evidencia_url: string | null;
   created_at: string;
   updated_at: string;
 }

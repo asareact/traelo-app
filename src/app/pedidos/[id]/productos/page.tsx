@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Logo } from "@/components/brand/logo";
 import { BackButton } from "@/components/ui/back-button";
 import { routes } from "@/config/site";
+import { IconSparkle } from "@/components/brand/icons";
 import { ItemListFull } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
 
@@ -24,16 +25,36 @@ export default async function OrderProductsPage({ params }: Props) {
 
   const content = (
     <>
-      <section className="mb-6">
-        <h1 className="font-display text-[28px] font-bold leading-tight tracking-tight text-text">
+      <section className="mb-8">
+        <h1 className="font-display text-[40px] font-bold leading-[1.05] tracking-tight text-text">
           Productos
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          Pedido #{pedido.id.slice(0, 8)} · {pedido.items.length}{" "}
-          {pedido.items.length === 1 ? "producto" : "productos"}
+        <p className="mt-1 text-base font-medium text-muted">
+          Pedido #{pedido.id.slice(0, 8)} ·{" "}
+          <span className="text-primary">
+            {pedido.items.length}{" "}
+            {pedido.items.length === 1 ? "producto" : "productos"}
+          </span>
         </p>
       </section>
+
       <ItemListFull items={pedido.items} />
+
+      {/* Reassurance tip */}
+      <div className="mt-10 flex items-center gap-4 rounded-[32px] border-2 border-dashed border-border bg-bg p-6">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+          <IconSparkle size={24} />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-text">
+            ¡Tu pedido está en buenas manos!
+          </p>
+          <p className="mt-0.5 text-[11px] leading-tight text-muted">
+            Guardamos la evidencia del precio de cada producto para tu
+            tranquilidad.
+          </p>
+        </div>
+      </div>
     </>
   );
 

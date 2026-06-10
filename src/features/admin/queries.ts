@@ -83,6 +83,14 @@ export interface KanbanStats {
   entregados: number;
 }
 
+/** Business config as a key→value map (admin-only page; RLS allows the read). */
+export async function getConfig(): Promise<Record<string, string>> {
+  if (!(await isCallerAdmin())) return {};
+  const supabase = await createClient();
+  const { data } = await supabase.from("config").select("key, value");
+  return Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
+}
+
 export function statsDe(pedidos: KanbanPedido[]): KanbanStats {
   return {
     total: pedidos.length,

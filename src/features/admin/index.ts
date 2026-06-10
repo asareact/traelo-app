@@ -10,6 +10,8 @@
 export {
   processItem,
   advanceOrderState,
+  updateConfig,
+  registrarPeso,
   type AdminActionState,
 } from "./actions";
 
@@ -17,6 +19,7 @@ export {
 export { AdminNav } from "./components/admin-nav";
 export { StatsBar } from "./components/stats-bar";
 export { KanbanBoard } from "./components/kanban-board";
+export { ConfigForm } from "./components/config-form";
 
 // Domain (pure, client-safe)
 export {

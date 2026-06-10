@@ -61,6 +61,24 @@ export const registrarPesoSchema = z.object({
 
 export type RegistrarPesoInput = z.infer<typeof registrarPesoSchema>;
 
+/** Editable business config (config table). Values are stored as text. */
+export const configSchema = z.object({
+  whatsapp_phone: z
+    .string()
+    .trim()
+    .regex(/^\d{8,15}$/, "Solo dígitos, formato internacional sin +."),
+  precio_por_lb: z.coerce
+    .number({ message: "Precio inválido." })
+    .positive("Debe ser mayor que 0.")
+    .max(1000),
+  markup_factor: z.coerce
+    .number({ message: "Factor inválido." })
+    .min(1, "El factor no puede ser menor que 1.")
+    .max(10),
+});
+
+export type ConfigInput = z.infer<typeof configSchema>;
+
 /** The curl-extract request (the URL host is re-checked server-side). */
 export const extractCurlSchema = z.object({
   curl: z.string().trim().min(10, "Pega el comando curl completo."),

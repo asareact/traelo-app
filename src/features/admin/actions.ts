@@ -7,6 +7,7 @@ import {
   processItemSchema,
   advanceStateSchema,
   registrarPesoSchema,
+  configSchema,
 } from "./schemas";
 import { borrarArchivosPedido } from "./storage";
 
@@ -218,6 +219,37 @@ export async function registrarPeso(
   if (error) return { error: "No se pudo guardar el peso." };
 
   revalidatePath("/admin/kanban");
+  return { ok: true };
+}
+
+/** Update the business config (whatsapp phone, price per lb, markup factor). */
+export async function updateConfig(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const parsed = configSchema.safeParse({
+    whatsapp_phone: formData.get("whatsapp_phone"),
+    precio_por_lb: formData.get("precio_por_lb"),
+    markup_factor: formData.get("markup_factor"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const { supabase, ok } = await requireAdmin();
+  if (!ok) return { error: "No autorizado." };
+
+  const rows = [
+    { key: "whatsapp_phone", value: parsed.data.whatsapp_phone },
+    { key: "precio_por_lb", value: parsed.data.precio_por_lb.toFixed(2) },
+    { key: "markup_factor", value: String(parsed.data.markup_factor) },
+  ];
+  const { error } = await supabase.from("config").upsert(rows, {
+    onConflict: "key",
+  });
+  if (error) return { error: "No se pudo guardar la configuración." };
+
+  revalidatePath("/admin/config");
   return { ok: true };
 }
 

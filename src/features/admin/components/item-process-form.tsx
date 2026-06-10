@@ -37,6 +37,7 @@ export function ItemProcessForm({
     item.precio_real_usd != null ? String(item.precio_real_usd) : "",
   );
   const [imagen, setImagen] = useState(item.producto_imagen ?? "");
+  const [editImg, setEditImg] = useState(false);
   const [curl, setCurl] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState("");
@@ -175,25 +176,61 @@ export function ItemProcessForm({
           </Field>
         </div>
 
-        <Field label="URL de la imagen">
-          <Input
-            name="producto_imagen"
-            type="url"
-            inputMode="url"
-            value={imagen}
-            onChange={(e) => setImagen(e.target.value)}
-            placeholder="https://img.ltwebstatic.com/..."
-          />
-        </Field>
+        {/* The URL is always submitted via this hidden field; the UI shows the
+            actual image (not the raw URL) once we have one. */}
+        <input type="hidden" name="producto_imagen" value={imagen} />
+        <div>
+          <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
+            Imagen
+          </span>
 
-        {imagen && /^https?:\/\//i.test(imagen) && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imagen}
-            alt="Vista previa"
-            className="h-20 w-20 rounded-lg border border-border object-cover"
-          />
-        )}
+          {imagen && /^https?:\/\//i.test(imagen) && !editImg ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imagen}
+                alt="Imagen del producto"
+                className="h-32 w-24 rounded-lg border border-border bg-bg object-cover"
+              />
+              <div className="flex flex-col items-start gap-1.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setEditImg(true)}
+                  className="font-bold text-primary"
+                >
+                  Cambiar imagen
+                </button>
+                <a
+                  href={imagen}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted hover:underline"
+                >
+                  Ver grande
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Input
+                type="url"
+                inputMode="url"
+                value={imagen}
+                onChange={(e) => setImagen(e.target.value)}
+                placeholder="https://img.ltwebstatic.com/..."
+              />
+              {imagen && /^https?:\/\//i.test(imagen) && (
+                <button
+                  type="button"
+                  onClick={() => setEditImg(false)}
+                  className="mt-1.5 text-xs font-bold text-primary"
+                >
+                  Ver imagen
+                </button>
+              )}
+            </>
+          )}
+        </div>
 
         {state.error && <Alert tone="error">{state.error}</Alert>}
 

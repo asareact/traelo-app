@@ -26,7 +26,7 @@ export default async function PedidosPage() {
         <ul className="flex flex-col gap-3">
           {pedidos.map((p) => (
             <li key={p.id}>
-              <OrderCard pedido={p} />
+              <OrderCard pedido={p} conAcciones />
             </li>
           ))}
         </ul>

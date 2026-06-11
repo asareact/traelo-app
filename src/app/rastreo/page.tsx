@@ -43,7 +43,7 @@ export default async function RastreoPage() {
         <ul className="flex flex-col gap-4 pb-4">
           {pedidos.map((p) => (
             <li key={p.id}>
-              <OrderCard pedido={p} />
+              <OrderCard pedido={p} conAcciones />
             </li>
           ))}
         </ul>

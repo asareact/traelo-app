@@ -165,10 +165,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       `lib/whatsapp.ts` (plantilla `pedidoParaAdmin`), `components/ui/modal.tsx`.
 - [x] **"Copiar link"** en el tracking — `components/ui/copy-link-button.tsx`.
 - [x] **CRUD del cliente:** editar/eliminar el pedido propio mientras está en cotización
-      (`permiteEdicionCliente` en `domain/estados.ts`). Botones en el detalle (solo dueño,
-      nunca en el tracking público). Editar reutiliza `OrderForm` (`mode="edit"`, prefill) →
-      `updateOrder` (reemplaza items + resetea a COTIZACION + limpia total). Eliminar →
-      `deleteOrder` (cascade). Ambas validan propiedad + estado vía admin client (trust
+      (`permiteEdicionCliente` en `domain/estados.ts`). Acciones en el detalle (`OrderActions`)
+      y en las cards de `/pedidos` y `/rastreo` (`OrderCardActions`, lápiz/papelera con
+      **lucide-react**, superpuestas como hermanas del `<Link>` para no anidar botón en anchor).
+      Solo dueño, nunca en el tracking público. Editar reutiliza `OrderForm` (`mode="edit"`,
+      prefill) → `updateOrder` (reemplaza items + resetea a COTIZACION + limpia total). Eliminar
+      → `deleteOrder` (cascade). Ambas validan propiedad + estado vía admin client (trust
       boundary; sin abrir RLS de delete/update al cliente).
 - [x] Verificación visual con browser headless (capturas en claro/oscuro).
 - [ ] Tests (form validation, creación de pedido, RLS aislamiento) — PENDIENTE

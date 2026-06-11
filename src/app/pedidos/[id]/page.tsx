@@ -8,6 +8,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { routes } from "@/config/site";
 import { OrderDetail } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
+import { getCambioCup } from "@/features/cambio/queries";
 
 export const metadata: Metadata = {
   title: "Detalle del pedido — Traelo",
@@ -26,6 +27,8 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const pedido = await getPublicPedido(id);
   if (!pedido) notFound();
 
+  const tasas = await getCambioCup();
+
   // Decide the chrome by auth: signed-in users get the full app shell (nav +
   // back arrow); public tracking-link viewers get a standalone header.
   const supabase = await createClient();
@@ -33,7 +36,9 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const content = <OrderDetail pedido={pedido} nuevo={nuevo === "1"} />;
+  const content = (
+    <OrderDetail pedido={pedido} nuevo={nuevo === "1"} tasas={tasas} />
+  );
 
   if (user) {
     return <AppShell>{content}</AppShell>;

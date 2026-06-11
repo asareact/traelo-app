@@ -1,5 +1,11 @@
 import { formatUSD } from "@/lib/utils/format";
 import { totalProductos } from "@/features/orders/domain/pricing";
+import {
+  convertirUsd,
+  fmtCup,
+  fmtMlc,
+  type TasasCambio,
+} from "@/features/cambio";
 import type { PedidoItem } from "@/types/database";
 
 /**
@@ -11,13 +17,17 @@ import type { PedidoItem } from "@/types/database";
 export function CostSummary({
   items,
   total,
+  tasas,
 }: {
   items: PedidoItem[];
   total: number | null;
+  tasas?: TasasCambio | null;
 }) {
   const subtotal = totalProductos(items);
   const envio =
     total !== null && subtotal !== null ? Math.max(0, total - subtotal) : null;
+  const montoUsd = total ?? subtotal;
+  const enCup = montoUsd !== null && tasas ? convertirUsd(montoUsd, tasas) : null;
 
   if (subtotal === null && total === null) {
     return (
@@ -40,6 +50,17 @@ export function CostSummary({
             {formatUSD(total ?? subtotal)}
           </span>
         </div>
+        {enCup && (
+          <div className="flex items-center justify-end gap-2 text-sm">
+            <span className="font-bold tabular-nums text-text">
+              ≈ {fmtCup(enCup.cup)} CUP
+            </span>
+            <span className="text-muted/40">·</span>
+            <span className="font-bold tabular-nums text-accent">
+              {fmtMlc(enCup.mlc)} MLC
+            </span>
+          </div>
+        )}
       </div>
       <p className="mt-4 px-4 text-center text-[11px] leading-relaxed text-muted">
         El total final puede variar tras confirmar el peso y la cotización

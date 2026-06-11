@@ -30,15 +30,25 @@ export function StickyHeader({
   const { isMain, isHome, title, backFallback } = resolveHeader(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const logoRef = useRef<HTMLSpanElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const p = Math.min(1, window.scrollY / 110);
-      const k = 1 - p;
+      const y = window.scrollY;
       if (logoRef.current) {
-        logoRef.current.style.transform = `translateY(${30 * k}px) scale(${1 + 0.45 * k})`;
+        // The mark floats at the top, then RISES and FADES OUT on scroll (never
+        // lands in a fixed collapsed slot). Fade finishes early (~55px) so it's
+        // cleanly gone, not lingering at low opacity.
+        const fade = Math.min(1, y / 55);
+        logoRef.current.style.opacity = String(1 - fade);
+        logoRef.current.style.transform = `translateY(${14 - 40 * Math.min(1, y / 80)}px) scale(1.3)`;
+      }
+      // Header goes solid quickly so content scrolling under it is hidden (no
+      // backdrop-blur — that was the source of the jank).
+      if (bgRef.current) {
+        bgRef.current.style.opacity = String(Math.min(1, 0.6 + y / 50));
       }
     };
     const onScroll = () => {
@@ -57,7 +67,13 @@ export function StickyHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-bg/70 pt-[max(env(safe-area-inset-top),0.5rem)] backdrop-blur-md">
+      <header className="sticky top-0 z-40 pt-[max(env(safe-area-inset-top),0.5rem)]">
+        {/* Background layer — opacity is scroll-driven (translucent → solid). */}
+        <div
+          ref={bgRef}
+          className="absolute inset-0 -z-10 bg-bg"
+          style={{ opacity: 0.5 }}
+        />
         <div className="relative flex h-14 items-center justify-between px-5">
           {/* Left: menu/back + the greeting (Home only) */}
           <div className="flex min-w-0 max-w-[55%] items-center gap-2.5">
@@ -92,18 +108,24 @@ export function StickyHeader({
             </Link>
           </div>
 
-          {/* Center: floating brand mark on Home, the page title elsewhere */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 max-w-[58%] -translate-x-1/2 -translate-y-1/2">
+          {/* Center: floating brand mark on Home, the page title elsewhere.
+              `inset-y-0 flex items-center` centers it in the row exactly like the
+              side buttons, so the collapsed (resting) position is always right;
+              the scroll transform only floats it down from there. */}
+          <div className="pointer-events-none absolute inset-y-0 left-1/2 flex max-w-[58%] -translate-x-1/2 items-center justify-center">
             {isHome ? (
               <Link
                 href={routes.dashboard}
                 aria-label="Inicio"
-                className="pointer-events-auto block"
+                className="pointer-events-auto flex items-center"
               >
                 <span
                   ref={logoRef}
-                  className="block origin-center will-change-transform"
-                  style={{ transform: "translateY(30px) scale(1.45)" }}
+                  className="flex origin-center"
+                  style={{
+                    transform: "translateY(14px) scale(1.3)",
+                    willChange: "transform, opacity",
+                  }}
                 >
                   <Logo variant="auto" showText={false} size={44} />
                 </span>

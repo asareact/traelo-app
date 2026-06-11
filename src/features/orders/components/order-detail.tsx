@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/site";
 import { IconChevronRight } from "@/components/brand/icons";
 import type { PedidoCompleto } from "@/types/database";
+import type { TasasCambio } from "@/features/cambio";
 import { resumenEstado } from "@/features/orders/domain/estados";
 import { OrderTracker } from "@/features/orders/components/order-tracker";
 import { ItemList } from "@/features/orders/components/item-list";
@@ -20,9 +21,11 @@ import { OrderTimeline } from "@/features/orders/components/order-timeline";
 export function OrderDetail({
   pedido,
   nuevo,
+  tasas,
 }: {
   pedido: PedidoCompleto;
   nuevo?: boolean;
+  tasas?: TasasCambio | null;
 }) {
   const { label, terminal } = resumenEstado(pedido.estado_actual);
 
@@ -73,7 +76,11 @@ export function OrderDetail({
       </Section>
 
       <Section title="Costo del pedido">
-        <CostSummary items={pedido.items} total={pedido.total_real_usd} />
+        <CostSummary
+          items={pedido.items}
+          total={pedido.total_real_usd}
+          tasas={tasas}
+        />
       </Section>
 
       {pedido.peso_lb != null && (

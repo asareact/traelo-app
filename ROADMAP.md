@@ -42,10 +42,13 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   naranja solo ahí). **Inicio enriquecido:** tarjeta de **pedido activo**, **stats** (activos/entregados/
   USD), **cambio del día CUP/MLC** (feature `features/cambio`, API cubanomic con `revalidate:3600`,
   fallback a elTOQUE) + total del pedido también en CUP/MLC. Migraciones **0004 y 0005 ya aplicadas**.
-- **Próximo:** **Fase 7 (lanzamiento)** — verificar env vars en Vercel (`NEXT_PUBLIC_SITE_URL`,
-  `CRON_SECRET`, `CUBANOMIC_TOKEN` opcional), Google OAuth, `whatsapp_phone` real, decidir email
-  confirmation, montar tests (no existen aún). Opcional: Fase 5 restante (emails Resend) e
-  "Inicio Ola 3" (prueba social real + referidos, ver §6).
+- **LANZADO:** prod está vivo y validado con un pedido real de punta a punta (env vars de
+  Supabase + `NEXT_PUBLIC_SITE_URL`, Supabase URL Config, `whatsapp_phone` real y Google OAuth
+  ya funcionan; hay usuarios registrados).
+- **Próximo (nada bloquea, todo es pulido):** `CRON_SECRET` cuando se acerque el primer pedido
+  entregado (el cron corre a los 2 días); decidir email confirmation; montar tests (no existen
+  aún); QA/design-review en vivo. Opcional: Fase 5 restante (emails Resend, notif in-app
+  marcar leídas) e "Inicio Ola 3" (prueba social real + referidos, ver §6).
 - **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
 - **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp prellenado
   al admin (`config.whatsapp_phone` = 5358260354). Plantillas en
@@ -243,15 +246,21 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] `/admin/config` — editar `whatsapp_phone`, `precio_por_lb`, `markup_factor`
       (tabla `config`, RLS admin write). → `features/admin/components/config-form.tsx`.
 
-### ⬜ Fase 7 — Preparación de lanzamiento
-- [ ] QA pass (/qa) + design review en el sitio live (/design-review)
-- [ ] Vercel: configurar env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SITE_URL = dominio de Vercel)
-- [ ] Supabase URL Configuration: Site URL + Redirect URLs con el dominio de prod
-- [ ] Habilitar Google OAuth (Google Cloud Console + Supabase) — pasos en SETUP.md
-- [ ] Decidir email confirmation ON/OFF (+ SMTP custom con Resend si ON)
-- [x] Merge a `main` + default branch = `main` (ya hecho; flujo `develop` → `main`).
-- [ ] Definir el `whatsapp_phone` real en config antes de lanzar
+### 🟦 Fase 7 — Preparación de lanzamiento (prod YA funciona — E2E real pasó)
+> **Prod está vivo y validado:** un pedido real (un amigo como cliente) pasó de punta a
+> punta en prod, lo que confirma que el deploy en Vercel, las env vars de Supabase +
+> `NEXT_PUBLIC_SITE_URL`, la Supabase URL Config y el `whatsapp_phone` real ya están bien.
+- [x] Vercel: env vars de Supabase (URL, anon, service_role) + `NEXT_PUBLIC_SITE_URL`.
+- [x] Supabase URL Configuration (Site URL + Redirect URLs con el dominio de prod).
+- [x] `whatsapp_phone` real en config (el pedido E2E llegó al WhatsApp del admin).
+- [x] Merge a `main` + default branch = `main` (flujo `develop` → `main`).
+- [x] Habilitar Google OAuth — **funciona en prod** (hay usuarios registrados por Google).
+- [ ] `CRON_SECRET` en Vercel para el cron de limpieza (`/api/cron/cleanup`) — **no urgente**:
+      el cron solo corre 2 días después de entregar, y aún no hay pedidos cerrados. Verificar
+      cuando se acerque el primer pedido entregado.
+- [ ] Decidir email confirmation ON/OFF (+ SMTP custom con Resend si ON) — **pendiente**, puede
+      quedar sin revisar por ahora.
+- [ ] QA pass (/qa) + design review en el sitio live (/design-review) — opcional pero recomendado.
 
 ---
 

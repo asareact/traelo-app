@@ -29,6 +29,8 @@ export type AdminActionState = {
   ok?: boolean;
   /** True when this save changed an already-set price (client was re-quoted). */
   precioCambio?: boolean;
+  /** The recomputed order total (products + shipping) after saving a weight. */
+  total?: number | null;
 };
 
 type SBClient = Awaited<ReturnType<typeof createClient>>;
@@ -256,7 +258,7 @@ export async function registrarPeso(
   }
 
   revalidatePath("/admin/kanban");
-  return { ok: true };
+  return { ok: true, total };
 }
 
 /** Update the business config (whatsapp phone, price per lb, markup factor). */

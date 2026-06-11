@@ -195,6 +195,53 @@ export function mensajeCambioEstado(opts: {
 }
 
 /**
+ * The WEIGHT message sent ADMIN → CLIENT. Used right after the package is weighed
+ * (or its weight is corrected): announces the weight and the final shipping cost,
+ * broken down (products + shipping + total to pay). No SHEIN links. Works for both
+ * the first weigh-in and a later correction (the admin can tweak the wording in the
+ * send modal).
+ */
+export function mensajePeso(opts: {
+  idCorto: string;
+  nombreCliente?: string | null;
+  productos: ProductoMsg[];
+  trackingUrl?: string | null;
+  productosUsd?: number | null;
+  envioUsd?: number | null;
+  valorUsd?: number | null;
+  pesoLb?: number | null;
+}): string {
+  const saludo = opts.nombreCliente
+    ? `Hola ${opts.nombreCliente.split(" ")[0]}, `
+    : "";
+
+  const peso = opts.pesoLb != null ? ` (${opts.pesoLb} lb)` : "";
+  const lines: (string | null)[] = [
+    `*Traelo* · Pedido #${opts.idCorto}`,
+    ``,
+    `${saludo}ya tenemos el peso de tu paquete${peso} y este es el costo de tu envío.`,
+    ``,
+  ];
+
+  if (opts.productos.length) {
+    lines.push(...lineasProductos(opts.productos), ``);
+  }
+
+  const desglose: string[] = [];
+  if (opts.productosUsd != null)
+    desglose.push(`Productos: $${opts.productosUsd.toFixed(2)}`);
+  if (opts.envioUsd != null)
+    desglose.push(`Envío${peso}: $${opts.envioUsd.toFixed(2)}`);
+  if (opts.valorUsd != null)
+    desglose.push(`*Total a pagar: $${opts.valorUsd.toFixed(2)}*`);
+  if (desglose.length) lines.push(...desglose, ``);
+
+  if (opts.trackingUrl) lines.push(`Sigue tu pedido aquí: ${opts.trackingUrl}`);
+
+  return lines.filter((l) => l !== null).join("\n");
+}
+
+/**
  * The PRICE-CHANGE message sent ADMIN → CLIENT. Used when the order's price was
  * already quoted and changed (SHEIN prices vary day to day). Reminds the client
  * of the new total and to complete the payment. No SHEIN links.

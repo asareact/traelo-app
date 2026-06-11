@@ -29,6 +29,7 @@ export {
 export {
   mensajeCambioEstado,
   mensajePrecioCambio,
+  mensajePeso,
   pedidoParaAdmin,
   linkRastreo,
   NOTIF_ESTADO,

@@ -19,13 +19,17 @@ import type { KanbanPedido } from "@/features/admin/queries";
 export function WeightModal({
   pedido,
   onClose,
+  onSaved,
 }: {
   pedido: KanbanPedido | null;
   onClose: () => void;
+  /** Called after a successful save, with the entered weight and recomputed total
+   *  — lets the board offer an optional WhatsApp notice to the client. */
+  onSaved: (pedido: KanbanPedido, pesoLb: number, total: number | null) => void;
 }) {
   return (
     <Modal open={pedido != null} onClose={onClose} className="sm:max-w-md">
-      {pedido && <Body pedido={pedido} onClose={onClose} />}
+      {pedido && <Body pedido={pedido} onClose={onClose} onSaved={onSaved} />}
     </Modal>
   );
 }
@@ -33,9 +37,11 @@ export function WeightModal({
 function Body({
   pedido,
   onClose,
+  onSaved,
 }: {
   pedido: KanbanPedido;
   onClose: () => void;
+  onSaved: (pedido: KanbanPedido, pesoLb: number, total: number | null) => void;
 }) {
   const router = useRouter();
   const [peso, setPeso] = useState(
@@ -100,6 +106,7 @@ function Body({
         return;
       }
       router.refresh();
+      onSaved(pedido, pesoNum, res.total ?? null);
       onClose();
     } catch {
       setError("Error al guardar el peso.");

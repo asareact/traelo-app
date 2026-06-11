@@ -8,6 +8,7 @@ import type { Estado } from "@/features/orders/domain/estados";
 import {
   mensajeCambioEstado,
   mensajePrecioCambio,
+  mensajePeso,
   nombreProductoEs,
   linkRastreo,
   totalProductos,
@@ -116,6 +117,38 @@ export function KanbanBoard({
         }),
       });
     }
+  }
+
+  /**
+   * Offer to notify the client of the registered/updated weight + final shipping
+   * cost. Uses the total recomputed by the server (passed back from registrarPeso)
+   * so the breakdown is exact; shipping = total − product subtotal.
+   */
+  function notificarPeso(
+    pedido: KanbanPedido,
+    pesoLb: number,
+    total: number | null,
+  ) {
+    const productosUsd = totalProductos(pedido.items);
+    const envioUsd =
+      total != null && productosUsd != null
+        ? Number(Math.max(0, total - productosUsd).toFixed(2))
+        : null;
+    setNotify({
+      titulo: "Avisar el peso al cliente",
+      subtitulo: `Pedido #${pedido.id.slice(0, 8)} · ${pesoLb} lb`,
+      telefono: pedido.cliente?.telefono,
+      mensaje: mensajePeso({
+        idCorto: pedido.id.slice(0, 8),
+        nombreCliente: pedido.cliente?.nombre,
+        productos: productosDe(pedido),
+        trackingUrl: linkRastreo(siteUrl, pedido.id),
+        productosUsd,
+        envioUsd,
+        valorUsd: total,
+        pesoLb,
+      }),
+    });
   }
 
   /** Build + open the price-change notification for an order (latest props). */
@@ -245,7 +278,11 @@ export function KanbanBoard({
 
       <NotifyClientModal data={notify} onClose={() => setNotify(null)} />
 
-      <WeightModal pedido={pesando} onClose={() => setPesando(null)} />
+      <WeightModal
+        pedido={pesando}
+        onClose={() => setPesando(null)}
+        onSaved={notificarPeso}
+      />
     </>
   );
 }

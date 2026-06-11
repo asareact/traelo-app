@@ -238,6 +238,9 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       plantillas por estado destino en `features/orders/domain/notificaciones.ts` (nombres de
       producto + talla/color + link de tracking `https` + peso/valor; **nunca** links de SHEIN).
 - [x] **Aviso de cambio de precio** ("recuerda pagar") cuando se actualiza precio + evidencia.
+- [x] **Aviso de peso por WhatsApp** al registrar/corregir el peso: el modal de peso ofrece
+      enviar al cliente el peso + costo final desglosado (Productos / Envío / Total a pagar),
+      con botón "No notificar". Plantilla `mensajePeso` en `notificaciones.ts`.
 - [ ] Integración Resend + templates de email (7 eventos, ver tabla en DESIGN.md) — opcional,
       si se quiere además del WhatsApp.
 - [ ] Notificaciones in-app: marcar leídas / badge de no-leídas.

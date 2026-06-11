@@ -24,31 +24,42 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 
 ## 2. Estado actual (ACTUALIZAR en cada sesión)
 
-- **Ramas:** `main` (prod) + `develop` (integración), ambas en sync. Default branch = `main`.
-  Flujo: feature branch desde `develop` → merge a `develop` → `develop` a `main`.
-- **Completado:** Fase 1 (fundación) + Fase 1.5 (arquitectura modular, ver `ARCHITECTURE.md`)
-  + Fase 2 (pedido + tracking + **envío por WhatsApp al admin** + modal confirmar) + Fase 3
-  (dashboard/perfil/nav + dark mode) + extras (nombre de producto desde el link de SHEIN,
-  copiar link, signup con confirmar contraseña, safety-net OAuth).
-- **En la rama `feat/admin-kanban` (sin mergear aún):** Fase 4 (Kanban admin estilo Trello
-  con drag-to-move, procesar items con curl SHEIN → nombre/precio-por-talla/imagen) + Fase 5
-  parcial (aviso al cliente por WhatsApp en cada cambio de estado + aviso de cambio de precio;
-  plantillas en `features/orders/domain/notificaciones.ts`) + Fase 6 (`/admin/config`) +
-  extras: peso + evidencia del paquete, persistencia de imagen de SHEIN en bucket `productos`,
-  evidencia de precio, limpieza de archivos (CANCELADO inmediato, ENTREGADO a los 2 días vía
-  cron `/api/cron/cleanup`). Migraciones **0004 y 0005 ya aplicadas** a Supabase.
-- **Próximo:** verificar la rama logueado como admin → **mergear a `develop`/`main`**. Luego
-  Fase 5 restante (emails Resend, si se quiere) y Fase 7 (lanzamiento).
+- **Ramas:** `main` (prod) + `develop` (integración), **en sync** (`main` = merge de `develop`).
+  Default branch = `main`. Flujo: feature branch desde `develop` → merge a `develop` → `develop` a `main`.
+- **Completado y MERGEADO a `main`:** Fase 1 (fundación) + Fase 1.5 (arquitectura modular, ver
+  `ARCHITECTURE.md`) + Fase 2 (pedido + tracking + **envío por WhatsApp al admin** + modal confirmar)
+  + Fase 3 (dashboard/perfil/nav + dark mode) + **Fase 4** (Kanban admin estilo Trello con
+  drag-to-move, procesar items con curl SHEIN → nombre/precio-por-talla/imagen) + **Fase 5 parcial**
+  (aviso al cliente por WhatsApp en cada cambio de estado + aviso de cambio de precio; plantillas en
+  `features/orders/domain/notificaciones.ts`) + **Fase 6** (`/admin/config`).
+- **Extras ya en `main`:** nombre de producto desde el link de SHEIN, copiar link, signup con
+  confirmar contraseña, safety-net OAuth; peso + evidencia del paquete; persistencia de imagen de
+  SHEIN en bucket `productos`; evidencia de precio; limpieza de archivos (CANCELADO inmediato,
+  ENTREGADO a los 2 días vía cron `/api/cron/cleanup`). **Rediseño del header** (sticky translúcido,
+  logo flotante que sube y se desvanece al scroll, menú hamburguesa lateral, título por ruta, escudo
+  admin dentro del menú) + páginas **Sobre nosotros** y **Soporte**. **Página de productos** rediseñada
+  (máx 3 en el detalle + `/pedidos/[id]/productos` con imágenes grandes, estilo "playful", precio
+  naranja solo ahí). **Inicio enriquecido:** tarjeta de **pedido activo**, **stats** (activos/entregados/
+  USD), **cambio del día CUP/MLC** (feature `features/cambio`, API cubanomic con `revalidate:3600`,
+  fallback a elTOQUE) + total del pedido también en CUP/MLC. Migraciones **0004 y 0005 ya aplicadas**.
+- **Próximo:** **Fase 7 (lanzamiento)** — verificar env vars en Vercel (`NEXT_PUBLIC_SITE_URL`,
+  `CRON_SECRET`, `CUBANOMIC_TOKEN` opcional), Google OAuth, `whatsapp_phone` real, decidir email
+  confirmation, montar tests (no existen aún). Opcional: Fase 5 restante (emails Resend) e
+  "Inicio Ola 3" (prueba social real + referidos, ver §6).
 - **Arquitectura:** modular por features. **Lee `ARCHITECTURE.md` antes de tocar código.**
 - **Modelo de envío del pedido:** al confirmar, se guarda en DB + se abre WhatsApp prellenado
   al admin (`config.whatsapp_phone` = 5358260354). Plantillas en
   `features/orders/domain/notificaciones.ts`; helper de link en `lib/whatsapp.ts`.
 - **Storage:** buckets públicos `evidencias` (peso) y `productos` (imagen + evidencia de
   precio). Solo admin escribe. `CRON_SECRET` requerido en Vercel para el cron de limpieza.
+- **Cambio del día:** feature `features/cambio` consume la API de cubanomic (USD.CUP / MLC.CUP
+  median, MLC a razón del USD = usdCup/mlcCup) con `revalidate:3600`. Token con default en
+  `env.server.ts` (`CUBANOMIC_TOKEN`, opcional override en Vercel). Si el feed cae → fallback a
+  elTOQUE (`https://eltoque.com/tasas-de-cambio-cuba`).
 - **Primer admin:** `asarria952807@gmail.com` (rol admin en DB).
 - **Prod (Vercel `traelo-cu.vercel.app`):** requiere `NEXT_PUBLIC_SITE_URL=https://traelo-cu.vercel.app`
-  (sin `/`) + Production Branch = `main`. Supabase URL Config (allowlist `/auth/callback`)
-  ya puesto. Falta verificar esas 2 env/config en Vercel para que el OAuth entre.
+  (sin `/`) + `CRON_SECRET` (cron de limpieza) + Production Branch = `main`. Supabase URL Config
+  (allowlist `/auth/callback`) ya puesto. Falta verificar esas env/config en Vercel para el OAuth.
 - **Gotcha de entorno:** usar **Node 18+** (con Node 14 el dev revienta, ver sección 7).
 
 ---
@@ -101,8 +112,9 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 4. **Git / push:** el remote usa el alias SSH `git@github-asareact:...` (cuenta asareact).
    **NO usar `gh`** — está logueado con otra cuenta (asarriatomic) sin permisos. Los PR
    se crean por la web: `https://github.com/asareact/traelo-app/compare/main...<branch>?expand=1`
-5. **Antes de commitear:** corre `npm run build` y verifica que pasa. Sigue `DESIGN.md`
-   para todo lo visual. Un commit por cambio lógico.
+5. **Antes de commitear:** corre `npm run lint` + `npx tsc --noEmit` (NO `npm run build`
+   con el dev levantado — comparten `.next` y corrompe el dev server de Turbopack). Sigue
+   `DESIGN.md` para todo lo visual. Un commit por cambio lógico.
 6. **Verificación visual:** usa el browser headless de gstack
    (`~/.claude/skills/gstack/browse/dist/browse goto <url>` + `screenshot`) para confirmar.
 
@@ -177,10 +189,25 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [x] **Dark mode ("Luxury Dark")** con toggle claro/oscuro en el header (persiste,
       sin parpadeo). Tokens en `.dark`, landing forzada a `.light`. CTA y botón central
       con tratamientos `dark:`. `components/theme/theme-toggle.tsx`. Verificado por capturas.
-- [ ] Stats (activos / histórico / USD gastado) — PENDIENTE (refinamiento)
+- [x] Stats (activos / entregados / USD gastado) — grid en el Inicio + tarjeta de pedido activo.
+- [x] **Cambio del día CUP/MLC** en el Inicio (feature `features/cambio`, fallback a elTOQUE).
 - [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
 
-### 🟦 Fase 4 — Admin Kanban + procesar items (CASI — falta verificar con curl real)
+### ✅ Fase 3.6 — Rediseño de header + páginas + cambio del día (DONE, en `main`)
+- [x] **Header sticky** translúcido, altura fija, sin línea de borde. Logo **flota** sobre
+      header/body y al hacer scroll **sube y se desvanece** (sin estado final "colapsado"
+      buggy). Footer (bottom-nav) y menú vía **portal a `document.body`** (escapa el
+      containing-block de transforms). → `components/layout/sticky-header.tsx` + `header-nav.ts`.
+- [x] **Menú hamburguesa lateral** (panel drawer) solo en páginas principales; **botón back**
+      en secundarias. Título por ruta en el nav (saludo en Inicio, nombre de página en el resto;
+      sin h1/saludo duplicados en el body). Escudo de admin movido al menú.
+      → `components/layout/menu-drawer.tsx`.
+- [x] Páginas **Sobre nosotros** (`/sobre-nosotros`) y **Soporte** (`/soporte`, botón WhatsApp + FAQ).
+- [x] **Página de productos:** máx 3 en el detalle + `/pedidos/[id]/productos` con imágenes grandes
+      (estilo "playful", precio naranja solo ahí). "Ver detalles" (≤3) / "Ver todos (N)" (>3).
+- [x] **Cambio del día** (feature `features/cambio`) en Inicio + total del pedido en CUP/MLC.
+
+### ✅ Fase 4 — Admin Kanban + procesar items (DONE, en `main`)
 - [x] `/admin/kanban` — columnas por estado (una por estado con pedidos, scroll horizontal),
       cards de pedido con cliente + contacto + items procesados + total, control "Avanzar"
       (select de estado → RPC atómico `update_order_state`). Barra de stats. **Desktop-first**
@@ -197,22 +224,23 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       `processItem`, que es el trust boundary).
 - [x] Establecer `total_real_usd` (suma precio_real × cantidad) y mover a PRECIO_ACTUALIZADO
       vía RPC cuando todos los items quedan procesados (solo desde COTIZACION/EN_REVISION).
-- [ ] **PENDIENTE:** validar el mapeo de campos del curl con un curl/respuesta REAL de SHEIN
-      (la extracción es best-effort por deep-scan; el admin igual puede corregir a mano).
-- [ ] **PENDIENTE:** prueba E2E logueado como admin (`asarria952807@gmail.com`).
+- [x] Validado el mapeo del curl con una respuesta REAL de SHEIN (nombre + precio-por-talla +
+      og:image, reutilizando `cf_clearance` para `get_goods_detail_static_data`).
+- [ ] **PENDIENTE:** prueba E2E logueado como admin (`asarria952807@gmail.com`) en prod.
 
-### ⬜ Fase 5 — Transiciones de estado + notificaciones
-- [ ] `PATCH /api/pedidos/[id]/estado` — llama `supabase.rpc('update_order_state')`
-      (atómico). Solo admin.
-- [ ] Integración Resend + templates de email (7 eventos, ver tabla en DESIGN.md):
-      COTIZACION, PRECIO_ACTUALIZADO, PENDIENTE_PAGO, PAGADO, EN_CASILLERO (label "Recibido
-      en EE.UU."), ENVIADO_CUBA, DISPONIBLE_ENTREGA
-- [ ] Generación de link WhatsApp `wa.me/{phone}?text=...` (phone desde config)
-- [ ] Email async tras confirmar el cambio de estado (si falla, el estado igual persiste)
+### 🟦 Fase 5 — Transiciones de estado + notificaciones (WhatsApp DONE; emails pendientes)
+- [x] Transición de estado atómica vía RPC `update_order_state` (desde el Kanban admin, solo admin).
+- [x] **Aviso al cliente por WhatsApp** en cada cambio de estado (opcional, decisión del admin):
+      plantillas por estado destino en `features/orders/domain/notificaciones.ts` (nombres de
+      producto + talla/color + link de tracking `https` + peso/valor; **nunca** links de SHEIN).
+- [x] **Aviso de cambio de precio** ("recuerda pagar") cuando se actualiza precio + evidencia.
+- [ ] Integración Resend + templates de email (7 eventos, ver tabla en DESIGN.md) — opcional,
+      si se quiere además del WhatsApp.
+- [ ] Notificaciones in-app: marcar leídas / badge de no-leídas.
 
-### ⬜ Fase 6 — Config admin
-- [ ] `/admin/config` — editar `whatsapp_phone`, `precio_por_lb`, `markup_factor`
-      (tabla `config`, RLS admin write). Form simple.
+### ✅ Fase 6 — Config admin (DONE, en `main`)
+- [x] `/admin/config` — editar `whatsapp_phone`, `precio_por_lb`, `markup_factor`
+      (tabla `config`, RLS admin write). → `features/admin/components/config-form.tsx`.
 
 ### ⬜ Fase 7 — Preparación de lanzamiento
 - [ ] QA pass (/qa) + design review en el sitio live (/design-review)
@@ -242,6 +270,10 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 ## 7. Gotchas (errores que ya resolvimos — no repetir)
 
 - **Push:** usar SSH `github-asareact`, no `gh` (cuenta equivocada).
+- **No `npm run build` con el dev levantado:** comparten la carpeta `.next` y el build
+  corrompe el servidor de Turbopack (deja de reflejar cambios). Para verificar antes de
+  commitear usa `npm run lint` + `npx tsc --noEmit`. Si ya se corrompió: mata el puerto
+  3000, borra `.next` y reinicia `npm run dev`.
 - **`.npmrc`:** debe fijar registry público o Vercel falla con E401.
 - **`proxy.ts`** no `middleware.ts` (Next 16).
 - **Bootstrap del primer admin:** el trigger `prevent_role_change()` permite cambios

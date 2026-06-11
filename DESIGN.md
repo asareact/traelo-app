@@ -304,15 +304,22 @@ shein_days: 15-20
 | `/login` | Login | No | Logo centrado, tabs "Entrar / Crear cuenta", email + password, link "¿Olvidaste tu contraseña?". Sin sidebar. |
 | `/registro` | Registro | No | Igual que login pero tab "Crear cuenta" activo. Campos: nombre, email, password. |
 | `/pedidos/nuevo` | Nuevo Pedido | Sí | Formulario multi-item: URL SHEIN + talla + color + cantidad + notas por item. Botón "Agregar otro producto". |
-| `/pedidos/[id]` | Tracking | No | **Público.** Header rojo con estado actual + barra de progreso. Timeline vertical de estados. Botón "Copiar link". |
-| `/dashboard` | Mis Pedidos | Sí | Saludo + stats (pedidos activos, histórico, USD gastado) + lista de pedidos con badges de estado. Bottom tab bar. |
-| `/perfil` | Perfil | Sí | Nombre, email, teléfono, dirección. Botón "Cerrar sesión". Bottom tab bar. |
+| `/pedidos` | Mis Pedidos | Sí | Lista completa de pedidos del cliente con badges + empty state. |
+| `/pedidos/[id]` | Tracking | No | **Público.** Estado actual + barra de progreso. Productos (máx 3) + costo (USD y CUP/MLC) + peso/evidencia + timeline. Botón "Copiar link". Con sesión usa `<AppShell>`; público, header standalone. |
+| `/pedidos/[id]/productos` | Productos | No | Lista dedicada de todos los productos con imágenes grandes y detalles al lado (estilo "playful", precio en naranja). |
+| `/dashboard` | Inicio | Sí | Tarjeta de pedido activo + CTA "Hacer un pedido" + stats (activos/entregados/USD) + cambio del día CUP/MLC + pedidos recientes. El saludo vive en el header. Bottom tab bar. |
+| `/rastreo` | Rastreo | Sí | Todos los pedidos (entregados/cancelados atenuados), `OrderCard` con badge de hito + fecha relativa. |
+| `/perfil` | Perfil | Sí | Nombre, email, teléfono, dirección (editable). Botón "Cerrar sesión". Bottom tab bar. |
+| `/perfil/completar` | Completar Perfil | Sí | Gate: exige nombre + teléfono antes de poder pedir. Redirige con `?next=…`. |
+| `/notificaciones` | Notificaciones | Sí | Lista (tabla `notificaciones`, RLS) + empty state. La campana del header enlaza aquí. |
+| `/sobre-nosotros` | Sobre Nosotros | No | Página informativa. Accesible desde el menú hamburguesa. |
+| `/soporte` | Soporte | No | Botón de WhatsApp (phone desde `config`) + FAQ. Accesible desde el menú hamburguesa. |
 
 ### Portal Admin (desktop-first, max-width: 1200px)
 
 | Ruta | Nombre | Auth | Descripción |
 |------|--------|------|-------------|
-| `/admin/kanban` | Kanban | Admin | Navbar top oscuro. Barra de stats. Kanban horizontal con scroll. Cards con botón "Procesar items" en EN_REVISION. |
+| `/admin/kanban` | Kanban | Admin | Navbar top oscuro, full-width. Barra de stats. Kanban estilo Trello: **todas** las columnas de estado siempre visibles, drag-and-drop de cards entre columnas para cambiar el estado. Modal "Procesar items" (curl SHEIN o manual); modal de peso + evidencia en estados de casillero/entrega; aviso opcional al cliente por WhatsApp en cada cambio. |
 | `/admin/config` | Configuración | Admin | Navbar top oscuro. Formulario para editar whatsapp_phone, precio_por_lb, markup_factor. Toggles de notificaciones. |
 
 ---
@@ -341,20 +348,34 @@ Landing completo de 9 secciones. Wireframe en `landing-wireframe.html`. Navbar s
 
 ## Navigation
 
+### Portal Cliente — Header sticky
+```
+┌─────────────────────────────────────────────┐
+│ ☰ / ‹       [ título / logo flotante ]   🌓 🔔 │  ← sticky top, translúcido, sin borde
+└─────────────────────────────────────────────┘
+```
+- **Sticky translúcido**, altura fija, sin línea de borde inferior. → `components/layout/sticky-header.tsx`.
+- **Logo:** en el Inicio **flota** sobre header/body y al hacer scroll **sube y se desvanece**.
+- **Izquierda:** menú **hamburguesa** (☰) en páginas principales · botón **back** (‹) en secundarias.
+- **Centro:** título por ruta (saludo en Inicio, nombre de página en el resto). Sin h1/saludo en el body.
+- **Derecha:** toggle claro/oscuro + campana (→ `/notificaciones`).
+- **Menú hamburguesa (panel lateral):** Sobre nosotros · Soporte · Cerrar sesión + **Panel de admin**
+  (solo si el usuario es admin — el escudo de admin vive aquí, no en una barra aparte).
+  → `components/layout/menu-drawer.tsx`. Renderizado vía portal a `document.body`.
+
 ### Portal Cliente — Bottom Tab Bar
 ```
-┌─────────────────────────────┐
-│         contenido           │
-│                             │
-└─────────────────────────────┘
-┌─────────────────────────────┐
-│   🏠 Inicio │ 📋 Pedidos │ 👤 Perfil   │  ← fixed bottom, 56px height
-└─────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│  🏠 Inicio │ 📦 Pedidos │ ➕ Pedir │ 🚚 Rastreo │ 👤 Perfil │  ← fixed bottom, 64px
+└─────────────────────────────────────────────┘
 ```
-- Tabs: **Inicio** (`/`) · **Pedidos** (`/dashboard`) · **Perfil** (`/perfil`)
-- Botón flotante **+** en Pedidos lleva a `/pedidos/nuevo`
-- La landing page tiene navbar propio (no bottom bar) hasta que el usuario hace login
-- En `/pedidos/[id]` (tracking público) no hay bottom bar — es una página standalone compartible
+- 5 tabs: **Inicio** (`/dashboard`) · **Pedidos** (`/pedidos`) · **Pedir** (CTA central elevado →
+  `/pedidos/nuevo`) · **Rastreo** (`/rastreo`) · **Perfil** (`/perfil`). → `config/site.ts` `clientNav`.
+- El botón central **Pedir** es elevado (anillo blanco + animación bob/halo).
+- Renderizado vía **portal a `document.body`** para que el `position: fixed` ancle al viewport
+  sin importar transforms de ancestros (ver gotcha en ROADMAP §7).
+- La landing page tiene navbar propio (no bottom bar) hasta que el usuario hace login.
+- En `/pedidos/[id]` (tracking público sin sesión) no hay bottom bar — standalone compartible.
 
 ### Portal Admin — Top Navbar
 ```
@@ -365,6 +386,8 @@ Landing completo de 9 secciones. Wireframe en `landing-wireframe.html`. Navbar s
 - Links: Kanban (activo por defecto) · Configuración
 - Logo "traelo admin." a la derecha en terracota
 - Salir como link discreto
+- **Full-width** (no `max-w-1200` en el contenido del Kanban, para caber todas las columnas).
+- Se llega desde el menú hamburguesa del portal cliente ("Panel de admin", solo admins) o por URL.
 
 ---
 

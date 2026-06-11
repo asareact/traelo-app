@@ -272,8 +272,10 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [ ] `CRON_SECRET` en Vercel para el cron de limpieza (`/api/cron/cleanup`) — **no urgente**:
       el cron solo corre 2 días después de entregar, y aún no hay pedidos cerrados. Verificar
       cuando se acerque el primer pedido entregado.
-- [ ] Decidir email confirmation ON/OFF (+ SMTP custom con Resend si ON) — **pendiente**, puede
-      quedar sin revisar por ahora.
+- [x] Email confirmation: **decidido OFF**. Agrega fricción para audiencia WhatsApp-first y los
+      de Google ya vienen verificados. Encenderla recién cuando haya **dominio propio** (ahí se
+      conecta Resend, free tier 3k/mes, y se verifica SPF/DKIM). El SMTP integrado de Supabase
+      es solo para pruebas (rate-limit bajo + cae en spam).
 - [ ] QA pass (/qa) + design review en el sitio live (/design-review) — opcional pero recomendado.
 
 ---

@@ -23,7 +23,7 @@ import {
 import { KanbanCard } from "./kanban-card";
 import { ProcessOrderModal } from "./process-order-modal";
 import { NotifyClientModal, type NotifyData } from "./notify-client-modal";
-import { WeightModal } from "./weight-modal";
+import { WeightModal, type CostosPeso } from "./weight-modal";
 
 /** Map an order's items to the product lines used in client messages. */
 function productosDe(pedido: KanbanPedido) {
@@ -127,16 +127,20 @@ export function KanbanBoard({
   function notificarPeso(
     pedido: KanbanPedido,
     pesoLb: number,
-    total: number | null,
+    costos: CostosPeso,
   ) {
+    const { total, recargoExpress, totalExpress } = costos;
     const productosUsd = totalProductos(pedido.items);
     const envioUsd =
       total != null && productosUsd != null
         ? Number(Math.max(0, total - productosUsd).toFixed(2))
         : null;
+    // Tag the notify modal when the order qualifies for the express upgrade.
+    const tag =
+      recargoExpress != null ? ` · Express +$${recargoExpress.toFixed(2)}` : "";
     setNotify({
       titulo: "Avisar el peso al cliente",
-      subtitulo: `Pedido #${pedido.id.slice(0, 8)} · ${pesoLb} lb`,
+      subtitulo: `Pedido #${pedido.id.slice(0, 8)} · ${pesoLb} lb${tag}`,
       telefono: pedido.cliente?.telefono,
       mensaje: mensajePeso({
         idCorto: pedido.id.slice(0, 8),
@@ -147,6 +151,8 @@ export function KanbanBoard({
         envioUsd,
         valorUsd: total,
         pesoLb,
+        recargoExpressUsd: recargoExpress,
+        totalExpressUsd: totalExpress,
       }),
     });
   }

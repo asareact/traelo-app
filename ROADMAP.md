@@ -300,10 +300,13 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     chico NUNCA va solo (1 lb solo = pérdida $10.47 vs $7; consolidado = +$3.44). Sin mínimo de pedido.
   - Tabla ref (cliente $7/lb · costo real · ganancia): 5lb $35/$27.81/**+$7** · 15lb $105/$68.11/**+$37**
     · 30lb $210/$113/**+$97** · 50lb $350/$184.58/**+$165** · 100lb $700/$368.97/**+$331**.
-- **Express del negocio — modelo:** $7/lb base **+ $1.15/lb (reembolso de lo que WSY cobra de más)
-  + tu fee de servicio (ganancia pura)**. Recomendado fee **$1.50/lb → express $9.65/lb** (te deja
-  ~$4.9/lb). Solo para 10+ lb (donde el recargo WSY es limpio $1.15/lb). PENDIENTE: agregar a la
-  config `recargo_express_por_lb` (hoy `costoEnvio` es plano, no hay express en el código).
+- **Express del negocio — IMPLEMENTADO.** Modelo: $7/lb base **+ recargo express por libra**
+  (`config.recargo_express_por_lb`, default **2.65** = ~$1.15 reembolso WSY + ~$1.50 fee). Solo se
+  ofrece para **10+ lb** (`PESO_MIN_EXPRESS` en `domain/pricing.ts`: `aplicaExpress`, `recargoExpress`).
+  Al registrar el peso, si es 10+ lb: tag "Express disponible" en el modal de peso, `registrarPeso`
+  devuelve `recargoExpress`/`totalExpress`, y la plantilla `mensajePeso` ofrece el express por WhatsApp
+  con el desglose (Total a pagar / +$X express / Total con express). Editable en `/admin/config`.
+  El express es una OPCIÓN que el cliente acepta por WhatsApp; no cambia el `total_real_usd` guardado.
 - **Aduana cubana (~35%):** los aranceles los estima WeShipYou y **los paga el cliente al recibir**
   (no es costo del negocio). Ej. real: $26 sobre $73 declarado (12 lb), $37 sobre 20 lb. Decidir si
   se le comunica al cliente por adelantado en la plantilla.

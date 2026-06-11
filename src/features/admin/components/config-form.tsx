@@ -49,20 +49,36 @@ export function ConfigForm({
           />
         </Field>
         <Field
-          label="Factor de markup"
-          hint="Multiplicador de referencia."
+          label="Recargo express por libra (USD)"
+          hint="Se suma al precio por libra solo en pedidos de 10+ lb. Cubre el extra del transportista (~$1.15) + tu servicio."
         >
           <Input
-            name="markup_factor"
+            name="recargo_express_por_lb"
             type="number"
             inputMode="decimal"
             step="0.01"
-            min="1"
-            defaultValue={config.markup_factor ?? ""}
-            placeholder="1.30"
+            min="0"
+            defaultValue={config.recargo_express_por_lb ?? "2.65"}
+            placeholder="2.65"
           />
         </Field>
       </div>
+
+      <Field
+        label="Factor de markup"
+        hint="Multiplicador de referencia para cálculos manuales."
+      >
+        <Input
+          name="markup_factor"
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="1"
+          defaultValue={config.markup_factor ?? ""}
+          placeholder="1.30"
+          className="max-w-[12rem]"
+        />
+      </Field>
 
       {state.error && <Alert tone="error">{state.error}</Alert>}
       {state.ok && <Alert tone="success">Configuración guardada.</Alert>}

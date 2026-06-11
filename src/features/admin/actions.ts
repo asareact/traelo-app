@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PedidoItem } from "@/types/database";
-import { totalPedido } from "@/features/orders/domain/pricing";
+import {
+  totalPedido,
+  aplicaExpress,
+  recargoExpress,
+} from "@/features/orders/domain/pricing";
 import {
   processItemSchema,
   advanceStateSchema,
@@ -24,6 +28,19 @@ async function getPrecioPorLb(supabase: SBClient): Promise<number> {
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_PRECIO_POR_LB;
 }
 
+/** Per-pound EXPRESS surcharge from config (USD), with a safe default. The
+ *  default = ~$1.15 forwarder express extra + ~$1.50 service fee (ROADMAP §6). */
+const DEFAULT_RECARGO_EXPRESS = 2.65;
+async function getRecargoExpressPorLb(supabase: SBClient): Promise<number> {
+  const { data } = await supabase
+    .from("config")
+    .select("value")
+    .eq("key", "recargo_express_por_lb")
+    .single();
+  const n = data ? Number(data.value) : NaN;
+  return Number.isFinite(n) && n >= 0 ? n : DEFAULT_RECARGO_EXPRESS;
+}
+
 export type AdminActionState = {
   error?: string;
   ok?: boolean;
@@ -31,6 +48,10 @@ export type AdminActionState = {
   precioCambio?: boolean;
   /** The recomputed order total (products + shipping) after saving a weight. */
   total?: number | null;
+  /** EXPRESS upgrade (only for 10+ lb): the per-order surcharge and the total
+   *  with express. Null when the order doesn't qualify or has no priced items. */
+  recargoExpress?: number | null;
+  totalExpress?: number | null;
 };
 
 type SBClient = Awaited<ReturnType<typeof createClient>>;
@@ -257,8 +278,19 @@ export async function registrarPeso(
       .eq("id", pedidoId);
   }
 
+  // EXPRESS upgrade: only for 10+ lb orders that have a total. We don't change
+  // the saved total (express is an OPTION the client may choose) — we just hand
+  // back the numbers so the weight notification can offer it with a breakdown.
+  let recargoExpressUsd: number | null = null;
+  let totalExpress: number | null = null;
+  if (total !== null && aplicaExpress(peso_lb)) {
+    const recargoPorLb = await getRecargoExpressPorLb(supabase);
+    recargoExpressUsd = recargoExpress(peso_lb, recargoPorLb);
+    totalExpress = Number((total + recargoExpressUsd).toFixed(2));
+  }
+
   revalidatePath("/admin/kanban");
-  return { ok: true, total };
+  return { ok: true, total, recargoExpress: recargoExpressUsd, totalExpress };
 }
 
 /** Update the business config (whatsapp phone, price per lb, markup factor). */
@@ -269,6 +301,7 @@ export async function updateConfig(
   const parsed = configSchema.safeParse({
     whatsapp_phone: formData.get("whatsapp_phone"),
     precio_por_lb: formData.get("precio_por_lb"),
+    recargo_express_por_lb: formData.get("recargo_express_por_lb"),
     markup_factor: formData.get("markup_factor"),
   });
   if (!parsed.success) {
@@ -281,6 +314,10 @@ export async function updateConfig(
   const rows = [
     { key: "whatsapp_phone", value: parsed.data.whatsapp_phone },
     { key: "precio_por_lb", value: parsed.data.precio_por_lb.toFixed(2) },
+    {
+      key: "recargo_express_por_lb",
+      value: parsed.data.recargo_express_por_lb.toFixed(2),
+    },
     { key: "markup_factor", value: String(parsed.data.markup_factor) },
   ];
   const { error } = await supabase.from("config").upsert(rows, {

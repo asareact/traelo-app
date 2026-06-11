@@ -8,7 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
 import { registrarPeso } from "@/features/admin/actions";
+import { PESO_MIN_EXPRESS } from "@/features/orders";
 import type { KanbanPedido } from "@/features/admin/queries";
+
+/** Costs handed back to the board after a weight save (for the client notice). */
+export type CostosPeso = {
+  total: number | null;
+  recargoExpress: number | null;
+  totalExpress: number | null;
+};
 
 /**
  * Register the package weight + an optional evidence photo. The photo is
@@ -23,9 +31,9 @@ export function WeightModal({
 }: {
   pedido: KanbanPedido | null;
   onClose: () => void;
-  /** Called after a successful save, with the entered weight and recomputed total
-   *  — lets the board offer an optional WhatsApp notice to the client. */
-  onSaved: (pedido: KanbanPedido, pesoLb: number, total: number | null) => void;
+  /** Called after a successful save, with the entered weight + recomputed totals
+   *  (standard + express) — lets the board offer an optional WhatsApp notice. */
+  onSaved: (pedido: KanbanPedido, pesoLb: number, costos: CostosPeso) => void;
 }) {
   return (
     <Modal open={pedido != null} onClose={onClose} className="sm:max-w-md">
@@ -41,7 +49,7 @@ function Body({
 }: {
   pedido: KanbanPedido;
   onClose: () => void;
-  onSaved: (pedido: KanbanPedido, pesoLb: number, total: number | null) => void;
+  onSaved: (pedido: KanbanPedido, pesoLb: number, costos: CostosPeso) => void;
 }) {
   const router = useRouter();
   const [peso, setPeso] = useState(
@@ -106,7 +114,11 @@ function Body({
         return;
       }
       router.refresh();
-      onSaved(pedido, pesoNum, res.total ?? null);
+      onSaved(pedido, pesoNum, {
+        total: res.total ?? null,
+        recargoExpress: res.recargoExpress ?? null,
+        totalExpress: res.totalExpress ?? null,
+      });
       onClose();
     } catch {
       setError("Error al guardar el peso.");
@@ -134,6 +146,11 @@ function Body({
             onChange={(e) => setPeso(e.target.value)}
             placeholder="0.00"
           />
+          {parseFloat(peso.replace(",", ".")) >= PESO_MIN_EXPRESS && (
+            <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+              Express disponible (10+ lb)
+            </span>
+          )}
         </Field>
 
         <div>

@@ -71,6 +71,10 @@ export const configSchema = z.object({
     .number({ message: "Precio inválido." })
     .positive("Debe ser mayor que 0.")
     .max(1000),
+  recargo_express_por_lb: z.coerce
+    .number({ message: "Recargo inválido." })
+    .min(0, "No puede ser negativo.")
+    .max(1000),
   markup_factor: z.coerce
     .number({ message: "Factor inválido." })
     .min(1, "El factor no puede ser menor que 1.")

@@ -42,4 +42,11 @@ export {
   type ProductoMsg,
 } from "./domain/notificaciones";
 export { nombreProductoEs } from "./domain/shein";
-export { totalProductos, costoEnvio, totalPedido } from "./domain/pricing";
+export {
+  totalProductos,
+  costoEnvio,
+  totalPedido,
+  recargoExpress,
+  aplicaExpress,
+  PESO_MIN_EXPRESS,
+} from "./domain/pricing";

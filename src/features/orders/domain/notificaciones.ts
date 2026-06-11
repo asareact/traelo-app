@@ -210,6 +210,10 @@ export function mensajePeso(opts: {
   envioUsd?: number | null;
   valorUsd?: number | null;
   pesoLb?: number | null;
+  /** EXPRESS upgrade offer (only for 10+ lb): the surcharge and the total with
+   *  express. When both are present, the message offers the faster option. */
+  recargoExpressUsd?: number | null;
+  totalExpressUsd?: number | null;
 }): string {
   const saludo = opts.nombreCliente
     ? `Hola ${opts.nombreCliente.split(" ")[0]}, `
@@ -231,10 +235,21 @@ export function mensajePeso(opts: {
   if (opts.productosUsd != null)
     desglose.push(`Productos: $${opts.productosUsd.toFixed(2)}`);
   if (opts.envioUsd != null)
-    desglose.push(`Envío${peso}: $${opts.envioUsd.toFixed(2)}`);
+    desglose.push(`Envío estándar${peso}: $${opts.envioUsd.toFixed(2)}`);
   if (opts.valorUsd != null)
     desglose.push(`*Total a pagar: $${opts.valorUsd.toFixed(2)}*`);
   if (desglose.length) lines.push(...desglose, ``);
+
+  // EXPRESS upgrade offer (10+ lb only): faster delivery for a per-pound extra.
+  if (opts.recargoExpressUsd != null && opts.totalExpressUsd != null) {
+    lines.push(
+      `*¿Lo quieres más rápido?*`,
+      `Puedes elegir *envío express* (llega en 3-7 días en vez de 5-15) por $${opts.recargoExpressUsd.toFixed(2)} adicionales.`,
+      `*Total con express: $${opts.totalExpressUsd.toFixed(2)}*`,
+      `Avísanos si lo prefieres y te lo confirmamos.`,
+      ``,
+    );
+  }
 
   if (opts.trackingUrl) lines.push(`Sigue tu pedido aquí: ${opts.trackingUrl}`);
 

@@ -35,6 +35,9 @@ export function ItemProcessForm({
   );
   const [imagen, setImagen] = useState(item.producto_imagen ?? "");
   const [editImg, setEditImg] = useState(false);
+  // Product image uploaded from the device (alternative to a URL / curl extract).
+  const [imgFile, setImgFile] = useState<File | null>(null);
+  const [imgFilePreview, setImgFilePreview] = useState("");
 
   // Price evidence (screenshot of the product showing its price).
   const [evidFile, setEvidFile] = useState<File | null>(null);
@@ -81,6 +84,24 @@ export function ItemProcessForm({
     }
   }
 
+  function onPickImg(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    if (f && !f.type.startsWith("image/")) {
+      setError("La imagen del producto debe ser una imagen.");
+      return;
+    }
+    if (f && f.size > 8 * 1024 * 1024) {
+      setError("La imagen es muy grande (máx 8MB).");
+      return;
+    }
+    setError("");
+    setImgFile(f);
+    if (f) {
+      setImgFilePreview(URL.createObjectURL(f));
+      setEditImg(false);
+    }
+  }
+
   function onPickEvid(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     if (f && !f.type.startsWith("image/")) {
@@ -100,9 +121,31 @@ export function ItemProcessForm({
     setError("");
     setSaving(true);
     try {
+      const supabase = createClient();
+
+      // A device photo (if any) takes priority over the URL/curl image. Upload it
+      // to our `productos` bucket on a stable path so re-picking overwrites; the
+      // resulting public URL becomes the item image (processItem leaves URLs that
+      // already live in our bucket untouched).
+      let imagenFinal = imagen;
+      if (imgFile) {
+        const ext = (imgFile.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${item.pedido_id}/${item.id}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("productos")
+          .upload(path, imgFile, { upsert: true, contentType: imgFile.type });
+        if (upErr) {
+          setError("No se pudo subir la imagen: " + upErr.message);
+          setSaving(false);
+          return;
+        }
+        imagenFinal = supabase.storage
+          .from("productos")
+          .getPublicUrl(path).data.publicUrl;
+      }
+
       let evidenciaUrl = item.precio_evidencia_url ?? "";
       if (evidFile) {
-        const supabase = createClient();
         const ext = (evidFile.name.split(".").pop() || "jpg").toLowerCase();
         const path = `${item.pedido_id}/precio-${item.id}.${ext}`;
         const { error: upErr } = await supabase.storage
@@ -125,7 +168,7 @@ export function ItemProcessForm({
       fd.set("itemId", item.id);
       fd.set("producto_nombre", nombre);
       fd.set("precio_real_usd", precio);
-      fd.set("producto_imagen", imagen);
+      fd.set("producto_imagen", imagenFinal);
       if (evidenciaUrl) fd.set("precio_evidencia_url", evidenciaUrl);
 
       const res = await processItem({}, fd);
@@ -134,6 +177,9 @@ export function ItemProcessForm({
         setSaving(false);
         return;
       }
+      setImagen(imagenFinal);
+      setImgFile(null);
+      setImgFilePreview("");
       setOk(true);
       setSaving(false);
       router.refresh();
@@ -245,12 +291,33 @@ export function ItemProcessForm({
           </Field>
         </div>
 
-        {/* Product image */}
+        {/* Product image: device photo > hosted/URL image > manual URL input.
+            The device upload is always offered, so on mobile (no curl) the admin
+            can just snap/pick a photo instead of pasting a URL. */}
         <div>
           <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
             Imagen del producto
           </span>
-          {imagen && /^https?:\/\//i.test(imagen) && !editImg ? (
+          {imgFile ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imgFilePreview}
+                alt="Imagen del producto"
+                className="h-32 w-24 rounded-lg border border-border bg-bg object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setImgFile(null);
+                  setImgFilePreview("");
+                }}
+                className="text-xs font-bold text-primary"
+              >
+                Quitar foto
+              </button>
+            </div>
+          ) : imagen && /^https?:\/\//i.test(imagen) && !editImg ? (
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -296,6 +363,19 @@ export function ItemProcessForm({
               )}
             </>
           )}
+
+          {/* Always available: upload a photo from the device. */}
+          <div className="mt-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onPickImg}
+              className="block w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-bg file:px-4 file:py-2 file:text-sm file:font-bold file:text-text"
+            />
+            <p className="mt-1 text-[11px] text-muted">
+              O sube una foto del producto desde el dispositivo.
+            </p>
+          </div>
         </div>
 
         {/* Price evidence (screenshot showing the price) */}

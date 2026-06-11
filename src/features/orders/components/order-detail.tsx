@@ -79,6 +79,7 @@ export function OrderDetail({
         <CostSummary
           items={pedido.items}
           total={pedido.total_real_usd}
+          pesoLb={pedido.peso_lb}
           tasas={tasas}
         />
       </Section>

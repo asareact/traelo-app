@@ -10,6 +10,7 @@ import {
   mensajePrecioCambio,
   nombreProductoEs,
   linkRastreo,
+  totalProductos,
 } from "@/features/orders";
 import { advanceOrderState } from "@/features/admin/actions";
 import type { KanbanPedido } from "@/features/admin/queries";
@@ -31,6 +32,22 @@ function productosDe(pedido: KanbanPedido) {
     color: it.color,
     cantidad: it.cantidad,
   }));
+}
+
+/**
+ * Cost fields for the client message. `total_real_usd` already includes shipping
+ * once the package is weighed, so the shipping line is just total − subtotal (no
+ * need for the per-pound rate here). Subtotal/envío stay null until both numbers
+ * are known, in which case the message shows the plain value instead of a split.
+ */
+function desgloseCosto(pedido: KanbanPedido) {
+  const valorUsd = pedido.total_real_usd;
+  const productosUsd = totalProductos(pedido.items);
+  const envioUsd =
+    valorUsd != null && productosUsd != null
+      ? Number(Math.max(0, valorUsd - productosUsd).toFixed(2))
+      : null;
+  return { valorUsd, productosUsd, envioUsd };
 }
 
 /**
@@ -94,7 +111,7 @@ export function KanbanBoard({
           nombreCliente: moved.cliente?.nombre,
           productos: productosDe(moved),
           trackingUrl: linkRastreo(siteUrl, moved.id),
-          valorUsd: moved.total_real_usd,
+          ...desgloseCosto(moved),
           pesoLb: moved.peso_lb,
         }),
       });

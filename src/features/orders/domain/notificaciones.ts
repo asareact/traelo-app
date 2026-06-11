@@ -142,7 +142,12 @@ export function mensajeCambioEstado(opts: {
   nombreCliente?: string | null;
   productos: ProductoMsg[];
   trackingUrl?: string | null;
+  /** Grand total (products + shipping). */
   valorUsd?: number | null;
+  /** Product subtotal — shown when there's a shipping line to break down. */
+  productosUsd?: number | null;
+  /** Shipping cost (peso × precio_por_lb). When > 0, the total is broken down. */
+  envioUsd?: number | null;
   pesoLb?: number | null;
 }): string {
   const headline =
@@ -164,10 +169,22 @@ export function mensajeCambioEstado(opts: {
     lines.push(...lineasProductos(opts.productos), ``);
   }
 
+  // Once the weight is known we charge shipping, so break the total down:
+  //   Productos: $X / Envío (N lb): $Y / *Total a pagar: $Z*
+  // Before that, just show the product value (and peso if we somehow have it).
   const detalles: string[] = [];
-  if (opts.valorUsd != null)
-    detalles.push(`Valor del pedido: $${opts.valorUsd.toFixed(2)}`);
-  if (opts.pesoLb != null) detalles.push(`Peso: ${opts.pesoLb} lb`);
+  if (opts.envioUsd != null && opts.envioUsd > 0) {
+    if (opts.productosUsd != null)
+      detalles.push(`Productos: $${opts.productosUsd.toFixed(2)}`);
+    const lbTxt = opts.pesoLb != null ? ` (${opts.pesoLb} lb)` : "";
+    detalles.push(`Envío${lbTxt}: $${opts.envioUsd.toFixed(2)}`);
+    if (opts.valorUsd != null)
+      detalles.push(`*Total a pagar: $${opts.valorUsd.toFixed(2)}*`);
+  } else {
+    if (opts.valorUsd != null)
+      detalles.push(`Valor del pedido: $${opts.valorUsd.toFixed(2)}`);
+    if (opts.pesoLb != null) detalles.push(`Peso: ${opts.pesoLb} lb`);
+  }
   if (detalles.length) {
     lines.push(...detalles, ``);
   }

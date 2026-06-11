@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PedidoItem } from "@/types/database";
+import { totalPedido } from "@/features/orders/domain/pricing";
 import {
   processItemSchema,
   advanceStateSchema,
@@ -10,6 +11,18 @@ import {
   configSchema,
 } from "./schemas";
 import { borrarArchivosPedido } from "./storage";
+
+/** Per-pound shipping rate from config (USD), with a safe default. */
+const DEFAULT_PRECIO_POR_LB = 7;
+async function getPrecioPorLb(supabase: SBClient): Promise<number> {
+  const { data } = await supabase
+    .from("config")
+    .select("value")
+    .eq("key", "precio_por_lb")
+    .single();
+  const n = data ? Number(data.value) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_PRECIO_POR_LB;
+}
 
 export type AdminActionState = {
   error?: string;
@@ -155,21 +168,25 @@ export async function processItem(
   const todosProcesados = all.length > 0 && all.every((i) => i.procesado);
 
   if (todosProcesados) {
-    const total = all.reduce(
-      (sum, i) => sum + (i.precio_real_usd ?? 0) * i.cantidad,
-      0,
-    );
-    await supabase
-      .from("pedidos")
-      .update({ total_real_usd: Number(total.toFixed(2)) })
-      .eq("id", pedidoId);
-
-    // Advance to "precio enviado" only from the quote stage (don't rewind).
+    // Grand total = product subtotal + shipping (if the weight is already known,
+    // e.g. re-processing an item after the package was weighed). Reading peso_lb
+    // here keeps the shipping charge from being wiped on a re-process.
     const { data: pedido } = await supabase
       .from("pedidos")
-      .select("estado_actual")
+      .select("estado_actual, peso_lb")
       .eq("id", pedidoId)
       .single();
+
+    const precioPorLb = await getPrecioPorLb(supabase);
+    const total = totalPedido(all, pedido?.peso_lb ?? null, precioPorLb);
+    if (total !== null) {
+      await supabase
+        .from("pedidos")
+        .update({ total_real_usd: total })
+        .eq("id", pedidoId);
+    }
+
+    // Advance to "precio enviado" only from the quote stage (don't rewind).
     if (
       pedido?.estado_actual === "COTIZACION" ||
       pedido?.estado_actual === "EN_REVISION"
@@ -217,6 +234,26 @@ export async function registrarPeso(
     .eq("id", pedidoId);
 
   if (error) return { error: "No se pudo guardar el peso." };
+
+  // Now that the weight is known, fold the shipping cost into the order total
+  // (product subtotal + peso × precio_por_lb). This is what makes the client's
+  // cost breakdown and the total-to-pay reflect the pounds.
+  const { data: items } = await supabase
+    .from("pedido_items")
+    .select("cantidad, precio_real_usd")
+    .eq("pedido_id", pedidoId);
+  const precioPorLb = await getPrecioPorLb(supabase);
+  const total = totalPedido(
+    (items ?? []) as Pick<PedidoItem, "cantidad" | "precio_real_usd">[],
+    peso_lb,
+    precioPorLb,
+  );
+  if (total !== null) {
+    await supabase
+      .from("pedidos")
+      .update({ total_real_usd: total })
+      .eq("id", pedidoId);
+  }
 
   revalidatePath("/admin/kanban");
   return { ok: true };

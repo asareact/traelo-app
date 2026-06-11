@@ -17,15 +17,21 @@ import type { PedidoItem } from "@/types/database";
 export function CostSummary({
   items,
   total,
+  pesoLb,
   tasas,
 }: {
   items: PedidoItem[];
   total: number | null;
+  pesoLb?: number | null;
   tasas?: TasasCambio | null;
 }) {
   const subtotal = totalProductos(items);
+  // Shipping is charged by weight, so it's only real once the package is weighed.
+  // Until then show "Por confirmar" instead of a misleading $0.00.
   const envio =
-    total !== null && subtotal !== null ? Math.max(0, total - subtotal) : null;
+    pesoLb != null && total !== null && subtotal !== null
+      ? Math.max(0, total - subtotal)
+      : null;
   const montoUsd = total ?? subtotal;
   const enCup = montoUsd !== null && tasas ? convertirUsd(montoUsd, tasas) : null;
 

@@ -26,3 +26,20 @@ export function costoEnvio(libras: number, precioPorLb: number): number {
   const lbs = Math.max(1, libras); // minimum 1 lb
   return lbs * precioPorLb;
 }
+
+/**
+ * The full amount to charge for an order: product subtotal + shipping by weight.
+ * Shipping is only added once the package weight is known (it's unknown until the
+ * box is weighed in the US). Returns null when no item has a confirmed price yet
+ * (nothing to total). This is what `pedidos.total_real_usd` should hold.
+ */
+export function totalPedido(
+  items: { precio_real_usd: number | null; cantidad: number }[],
+  pesoLb: number | null | undefined,
+  precioPorLb: number,
+): number | null {
+  const productos = totalProductos(items);
+  if (productos === null) return null;
+  const envio = pesoLb != null ? costoEnvio(pesoLb, precioPorLb) : 0;
+  return Number((productos + envio).toFixed(2));
+}

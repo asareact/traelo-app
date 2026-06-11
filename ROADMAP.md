@@ -288,6 +288,23 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - **SEO** (metadatos, sitemap): deferido a post-lanzamiento.
 - **OG tags dinámicos** en tracking: deferido (evaluar tras primeros 10 pedidos).
 - **Multi-admin:** Fase 2 del negocio.
+- **App móvil / distribución (decidido el camino, sin construir aún):** NO Flutter. Estrategia:
+  **una sola PWA** (reusa el código actual) → si se quiere un "APK descargable" para Android,
+  empaquetar la misma PWA como **TWA con Bubblewrap** (un artefacto, no un segundo código) →
+  Flutter solo si se choca con una pared concreta que la PWA/TWA no resuelva. Razonamiento:
+  en Cuba el cuello de botella es la distribución, no el cliente; el App Store de iOS está
+  capado para Apple IDs cubanas (→ PWA es la única vía "app" en iOS), y en Android la norma es
+  el APK directo, que el TWA cubre. La PWA es más fuerte justo en Android y más débil en iOS,
+  así que un nativo solo-Android sería pagar doble código por donde la PWA ya rinde.
+  Prerrequisitos para encenderla bien (hoy faltan): **service worker** (no existe), íconos PNG
+  192/512 + apple-touch-icon (hoy solo `icon.svg`). Recomendado **@serwist/next** (sucesor de
+  next-pwa, compatible con Next 16; probar con `next build`+`next start`, no en el dev de Turbopack).
+- **Push notifications (atado a la PWA de arriba):** Android = push completo como cualquier app
+  (Web Push, app cerrada/2.º plano). iOS = funciona desde iOS 16.4 **solo con la PWA instalada
+  en la pantalla de inicio**, algo menos confiable. Requiere el service worker + backend de
+  suscripciones (tabla en Supabase + Edge Function con claves VAPID, o un servicio tipo OneSignal).
+  Verlo como **complemento** del WhatsApp, no reemplazo: en Cuba WhatsApp tiene más alcance
+  (cualquier teléfono, sin instalar).
 
 ---
 

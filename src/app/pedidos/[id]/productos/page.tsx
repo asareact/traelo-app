@@ -25,11 +25,8 @@ export default async function OrderProductsPage({ params }: Props) {
 
   const content = (
     <>
-      <section className="mb-8">
-        <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
-          Productos
-        </h1>
-        <p className="mt-1 text-sm text-muted">
+      <section className="mb-6">
+        <p className="text-sm text-muted">
           Pedido #{pedido.id.slice(0, 8)} ·{" "}
           <span className="text-primary">
             {pedido.items.length}{" "}
@@ -58,8 +55,6 @@ export default async function OrderProductsPage({ params }: Props) {
     </>
   );
 
-  const back = { href: routes.pedido(pedido.id), fallbackHref: routes.pedido(pedido.id) };
-
   // Signed-in users keep the app shell; public viewers get a standalone header.
   const supabase = await createClient();
   const {
@@ -67,15 +62,16 @@ export default async function OrderProductsPage({ params }: Props) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    return <AppShell back={back}>{content}</AppShell>;
+    return <AppShell>{content}</AppShell>;
   }
 
   return (
     <div className="min-h-dvh bg-bg">
-      <header className="border-b border-border bg-bg/95 backdrop-blur">
+      <header className="bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center gap-2.5 px-5 py-3">
           <BackButton fallbackHref={routes.pedido(pedido.id)} />
-          <Link href={routes.home} aria-label="Inicio">
+          <span className="text-[15px] font-bold text-text">Productos</span>
+          <Link href={routes.home} aria-label="Inicio" className="ml-auto">
             <Logo variant="auto" size={24} />
           </Link>
         </div>

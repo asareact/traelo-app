@@ -10,8 +10,11 @@ import {
   IconBox,
 } from "@/components/brand/icons";
 import { routes } from "@/config/site";
-import { OrderCard } from "@/features/orders";
+import { OrderCard, ActiveOrderCard } from "@/features/orders";
 import { getMisPedidos } from "@/features/orders/queries";
+import { esTerminal } from "@/features/orders/domain/estados";
+import { CambioLine } from "@/features/cambio";
+import { getCambioCup } from "@/features/cambio/queries";
 import { completarPerfilHref, isProfileComplete } from "@/features/profile";
 
 export const metadata: Metadata = { title: "Inicio — Traelo" };
@@ -31,19 +34,30 @@ export default async function DashboardPage() {
 
   const pedidos = await getMisPedidos();
   const recientes = pedidos.slice(0, 3);
-  const nombre = profile?.nombre?.split(" ")[0] || "";
   const perfilIncompleto = !isProfileComplete(profile);
+
+  // Active order to surface up top: prefer one whose price is ready (needs
+  // action), else the most recent in-flight order.
+  const activo =
+    pedidos.find((p) => p.estado_actual === "PRECIO_ACTUALIZADO") ??
+    pedidos.find((p) => !esTerminal(p.estado_actual));
+
+  const stats = {
+    activos: pedidos.filter((p) => !esTerminal(p.estado_actual)).length,
+    entregados: pedidos.filter((p) => p.estado_actual === "ENTREGADO").length,
+    usd: pedidos
+      .filter((p) => p.estado_actual !== "CANCELADO")
+      .reduce((s, p) => s + (p.total_real_usd ?? 0), 0),
+  };
+
+  const tasas = await getCambioCup();
 
   return (
     <AppShell>
-      {/* Welcome */}
+      {activo && <ActiveOrderCard pedido={activo} />}
+
+      {/* Hero CTA (the greeting now lives in the header) */}
       <section className="mb-7">
-        <div className="mb-1 flex items-center gap-1.5">
-          <span className="text-sm font-medium text-muted">
-            Hola{nombre ? `, ${nombre}` : ""}
-          </span>
-          <span className="text-lg">👋</span>
-        </div>
         <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
           ¿Qué quieres
           <br />
@@ -94,6 +108,20 @@ export default async function DashboardPage() {
         </div>
       </Link>
 
+      {/* Your stats */}
+      {pedidos.length > 0 && (
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <Stat value={String(stats.activos)} label="Activos" />
+          <Stat value={String(stats.entregados)} label="Entregados" />
+          <Stat value={`$${Math.round(stats.usd)}`} label="USD" />
+        </div>
+      )}
+
+      {/* Today's exchange rate (falls back to an elTOQUE link if unavailable) */}
+      <div className="mt-4">
+        <CambioLine tasas={tasas} />
+      </div>
+
       {/* Recent orders */}
       <section className="mt-12">
         <div className="mb-5 flex items-center justify-between">
@@ -124,6 +152,17 @@ export default async function DashboardPage() {
         )}
       </section>
     </AppShell>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface px-3 py-3 text-center">
+      <div className="font-display text-2xl font-bold tabular-nums text-text">
+        {value}
+      </div>
+      <div className="mt-0.5 text-xs font-medium text-muted">{label}</div>
+    </div>
   );
 }
 

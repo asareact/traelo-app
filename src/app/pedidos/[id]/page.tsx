@@ -8,6 +8,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { routes } from "@/config/site";
 import { OrderDetail } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
+import { getCambioCup } from "@/features/cambio/queries";
 
 export const metadata: Metadata = {
   title: "Detalle del pedido — Traelo",
@@ -26,6 +27,8 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const pedido = await getPublicPedido(id);
   if (!pedido) notFound();
 
+  const tasas = await getCambioCup();
+
   // Decide the chrome by auth: signed-in users get the full app shell (nav +
   // back arrow); public tracking-link viewers get a standalone header.
   const supabase = await createClient();
@@ -33,28 +36,24 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const content = <OrderDetail pedido={pedido} nuevo={nuevo === "1"} />;
+  const content = (
+    <OrderDetail pedido={pedido} nuevo={nuevo === "1"} tasas={tasas} />
+  );
 
   if (user) {
-    return (
-      <AppShell
-        back={{
-          href: nuevo === "1" ? routes.rastreo : undefined,
-          fallbackHref: routes.rastreo,
-        }}
-      >
-        {content}
-      </AppShell>
-    );
+    return <AppShell>{content}</AppShell>;
   }
 
   // Public viewer (no session): standalone header, no bottom nav.
   return (
     <div className="min-h-dvh bg-bg">
-      <header className="border-b border-border bg-bg/95 backdrop-blur">
+      <header className="bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center gap-2.5 px-5 py-3">
           <BackButton fallbackHref={routes.home} />
-          <Link href={routes.home} aria-label="Inicio">
+          <span className="text-[15px] font-bold text-text">
+            Detalle del pedido
+          </span>
+          <Link href={routes.home} aria-label="Inicio" className="ml-auto">
             <Logo variant="auto" size={24} />
           </Link>
         </div>

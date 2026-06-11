@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/site";
 import { IconChevronRight } from "@/components/brand/icons";
 import type { PedidoCompleto } from "@/types/database";
+import type { TasasCambio } from "@/features/cambio";
 import { resumenEstado } from "@/features/orders/domain/estados";
 import { OrderTracker } from "@/features/orders/components/order-tracker";
 import { ItemList } from "@/features/orders/components/item-list";
@@ -20,9 +21,11 @@ import { OrderTimeline } from "@/features/orders/components/order-timeline";
 export function OrderDetail({
   pedido,
   nuevo,
+  tasas,
 }: {
   pedido: PedidoCompleto;
   nuevo?: boolean;
+  tasas?: TasasCambio | null;
 }) {
   const { label, terminal } = resumenEstado(pedido.estado_actual);
 
@@ -35,10 +38,7 @@ export function OrderDetail({
       )}
 
       <section className="mb-8">
-        <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight text-text">
-          Detalle del pedido
-        </h1>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="font-mono text-lg font-bold text-text">
             #{pedido.id.slice(0, 8)}
           </span>
@@ -76,7 +76,11 @@ export function OrderDetail({
       </Section>
 
       <Section title="Costo del pedido">
-        <CostSummary items={pedido.items} total={pedido.total_real_usd} />
+        <CostSummary
+          items={pedido.items}
+          total={pedido.total_real_usd}
+          tasas={tasas}
+        />
       </Section>
 
       {pedido.peso_lb != null && (

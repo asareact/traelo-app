@@ -22,8 +22,7 @@ export default async function PerfilPage() {
   return (
     <AppShell>
       <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-text">Perfil</h1>
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-sm text-muted">
           Mantén tus datos al día para coordinar tus entregas.
         </p>
       </header>

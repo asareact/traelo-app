@@ -12,6 +12,7 @@ export { createOrder, type CreateOrderState } from "./actions";
 // Components
 export { OrderForm } from "./components/order-form";
 export { OrderCard } from "./components/order-card";
+export { ActiveOrderCard } from "./components/active-order-card";
 export { OrderDetail } from "./components/order-detail";
 export { OrderTracker } from "./components/order-tracker";
 export { OrderTimeline } from "./components/order-timeline";

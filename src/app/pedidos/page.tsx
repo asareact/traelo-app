@@ -14,10 +14,7 @@ export default async function PedidosPage() {
 
   return (
     <AppShell>
-      <header className="mb-6 flex items-end justify-between">
-        <h1 className="font-display text-2xl font-bold text-text">
-          Mis pedidos
-        </h1>
+      <header className="mb-6 flex justify-end">
         <Button asChild size="sm">
           <Link href={routes.nuevoPedido}>Nuevo</Link>
         </Button>

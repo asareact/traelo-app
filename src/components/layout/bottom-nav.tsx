@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clientNav } from "@/config/site";
@@ -25,14 +27,20 @@ const icons = {
  * Opaque surface for legibility; the center "Pedir" action is elevated with a
  * white ring and gently animated (bob + pulsing halo) to draw the eye.
  *
- * Its `position: fixed` only anchors to the viewport because NO ancestor carries
- * a `transform`: the page transition animates the content (`.content-enter` on
- * <main>), never this chrome. Keep it that way (see ARCHITECTURE / globals.css).
+ * Rendered through a portal to <body> so its `position: fixed` anchors to the
+ * viewport no matter what — immune to any ancestor that creates a containing
+ * block (a transformed page-transition wrapper, a `backdrop-filter` header,
+ * etc.). <AppShell> still decides whether to mount it.
  */
 export function BottomNav() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
-  return (
+  const nav = (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] dark:bg-bg">
       <ul className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
         {clientNav.map((item) => {
@@ -83,4 +91,8 @@ export function BottomNav() {
       </ul>
     </nav>
   );
+
+  // Portal to <body> after mount (document isn't available during SSR).
+  if (!mounted) return null;
+  return createPortal(nav, document.body);
 }

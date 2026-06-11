@@ -132,11 +132,11 @@ export default async function Home() {
             <div className="mt-14 flex flex-wrap gap-x-8 gap-y-5">
               <Stat n="$7" l="USD por libra" />
               <Divider />
-              <Stat n="22-35" l="días promedio" />
+              <Stat n="20-35" l="días promedio" />
               <Divider />
               <Stat n="98%" l="entregados" />
               <Divider />
-              <Stat n="5-7d" l="express 10+ lbs" />
+              <Stat n="3-7d" l="express 10+ lbs" />
             </div>
           </div>
 
@@ -263,7 +263,7 @@ export default async function Home() {
                 <span className="mt-auto text-sm font-bold text-accent">
                   Express disponible
                   <span className="block font-normal text-muted">
-                    5-7 días a Cuba
+                    3-7 días a Cuba
                   </span>
                 </span>
               </div>
@@ -316,7 +316,7 @@ export default async function Home() {
                 {[
                   "Cualquier peso",
                   "SHEIN: 15-20 días",
-                  "Cuba: 7-15 días",
+                  "Cuba: 5-15 días",
                   "Foto del peso como evidencia",
                   "Links reales de cada artículo guardados",
                   "Tracking en tiempo real",
@@ -343,7 +343,7 @@ export default async function Home() {
                 {[
                   "Solo para pedidos de 10+ lbs",
                   "SHEIN: 15-20 días (igual)",
-                  "Cuba: 5-7 días",
+                  "Cuba: 3-7 días",
                   "Descuento automático por volumen",
                   "Todo lo del estándar incluido",
                 ].map((t) => (
@@ -394,8 +394,8 @@ export default async function Home() {
                   <TiempoRow
                     tramo="EE.UU. → Cuba"
                     desc="Desde que tenemos tu pedido en EE.UU. hasta Cuba"
-                    std="7-15 días"
-                    exp="5-7 días"
+                    std="5-15 días"
+                    exp="3-7 días"
                     expTag="Express"
                   />
                   <tr className="bg-surface/50">
@@ -408,10 +408,10 @@ export default async function Home() {
                       </div>
                     </td>
                     <td className="p-4 align-top font-display text-xl font-bold">
-                      22-35 días
+                      20-35 días
                     </td>
                     <td className="p-4 align-top font-display text-xl font-bold text-accent">
-                      20-27 días
+                      18-27 días
                     </td>
                   </tr>
                 </tbody>
@@ -525,7 +525,7 @@ export default async function Home() {
                 internacionales.
               </Faq>
               <Faq q="¿Cuándo está disponible el envío express?">
-                El express a Cuba (5-7 días) está disponible para{" "}
+                El express a Cuba (3-7 días) está disponible para{" "}
                 <strong className="text-text">pedidos de 10 libras o más</strong>.
                 Se ofrece automáticamente al confirmar el envío.
               </Faq>

@@ -191,7 +191,7 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       con tratamientos `dark:`. `components/theme/theme-toggle.tsx`. Verificado por capturas.
 - [x] Stats (activos / entregados / USD gastado) — grid en el Inicio + tarjeta de pedido activo.
 - [x] **Cambio del día CUP/MLC** en el Inicio (feature `features/cambio`, fallback a elTOQUE).
-- [ ] Notificaciones: marcar leídas / badge de no-leídas — PENDIENTE (Fase 5)
+      (Notificaciones: marcar leídas / badge de no-leídas → se sigue en Fase 5, no duplicar aquí.)
 
 ### ✅ Fase 3.6 — Rediseño de header + páginas + cambio del día (DONE, en `main`)
 - [x] **Header sticky** translúcido, altura fija, sin línea de borde. Logo **flota** sobre
@@ -226,7 +226,8 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       vía RPC cuando todos los items quedan procesados (solo desde COTIZACION/EN_REVISION).
 - [x] Validado el mapeo del curl con una respuesta REAL de SHEIN (nombre + precio-por-talla +
       og:image, reutilizando `cf_clearance` para `get_goods_detail_static_data`).
-- [ ] **PENDIENTE:** prueba E2E logueado como admin (`asarria952807@gmail.com`) en prod.
+- [x] Prueba E2E en prod con un cliente real (un amigo): pedido completo de punta a punta.
+      De ahí salió el fix del peso (el envío no se sumaba al total) → arreglado en `20dea4f`.
 
 ### 🟦 Fase 5 — Transiciones de estado + notificaciones (WhatsApp DONE; emails pendientes)
 - [x] Transición de estado atómica vía RPC `update_order_state` (desde el Kanban admin, solo admin).
@@ -249,7 +250,7 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - [ ] Supabase URL Configuration: Site URL + Redirect URLs con el dominio de prod
 - [ ] Habilitar Google OAuth (Google Cloud Console + Supabase) — pasos en SETUP.md
 - [ ] Decidir email confirmation ON/OFF (+ SMTP custom con Resend si ON)
-- [ ] Merge `feat/foundation-auth` → main, cambiar default branch a main
+- [x] Merge a `main` + default branch = `main` (ya hecho; flujo `develop` → `main`).
 - [ ] Definir el `whatsapp_phone` real en config antes de lanzar
 
 ---

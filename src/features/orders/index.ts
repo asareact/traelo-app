@@ -7,7 +7,12 @@
  */
 
 // Server actions (safe to import from client — they become RPC calls)
-export { createOrder, type CreateOrderState } from "./actions";
+export {
+  createOrder,
+  updateOrder,
+  deleteOrder,
+  type CreateOrderState,
+} from "./actions";
 
 // Components
 export { OrderForm } from "./components/order-form";
@@ -23,6 +28,7 @@ export { EstadoBadge } from "./components/estado-badge";
 // Domain (pure, client-safe)
 export {
   ESTADO_LABEL,
+  permiteEdicionCliente,
   type Estado,
   type Milestone,
 } from "./domain/estados";

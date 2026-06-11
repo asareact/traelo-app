@@ -50,6 +50,9 @@ export function resolveHeader(pathname: string): HeaderInfo {
   if (/^\/pedidos\/[^/]+\/productos$/.test(pathname)) {
     title = "Productos";
     backFallback = pathname.replace(/\/productos$/, "");
+  } else if (/^\/pedidos\/[^/]+\/editar$/.test(pathname)) {
+    title = "Editar pedido";
+    backFallback = pathname.replace(/\/editar$/, "");
   } else if (/^\/pedidos\/[^/]+$/.test(pathname)) {
     title = "Detalle del pedido";
     backFallback = routes.rastreo;

@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Logo } from "@/components/brand/logo";
 import { BackButton } from "@/components/ui/back-button";
 import { routes } from "@/config/site";
-import { OrderDetail } from "@/features/orders";
+import { OrderDetail, permiteEdicionCliente } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
 import { getCambioCup } from "@/features/cambio/queries";
 
@@ -36,8 +36,20 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Edit/delete actions only for the signed-in OWNER, and only while the order
+  // is still in the quote window. The public tracking view never sees them.
+  const puedeEditar =
+    !!user &&
+    user.id === pedido.user_id &&
+    permiteEdicionCliente(pedido.estado_actual);
+
   const content = (
-    <OrderDetail pedido={pedido} nuevo={nuevo === "1"} tasas={tasas} />
+    <OrderDetail
+      pedido={pedido}
+      nuevo={nuevo === "1"}
+      tasas={tasas}
+      puedeEditar={puedeEditar}
+    />
   );
 
   if (user) {

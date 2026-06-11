@@ -10,6 +10,7 @@ export const routes = {
   pedidos: "/pedidos",
   nuevoPedido: "/pedidos/nuevo",
   pedido: (id: string) => `/pedidos/${id}`,
+  editarPedido: (id: string) => `/pedidos/${id}/editar`,
   rastreo: "/rastreo",
   notificaciones: "/notificaciones",
   perfil: "/perfil",

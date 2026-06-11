@@ -59,6 +59,21 @@ export function esTerminal(estado: Estado): boolean {
 }
 
 /**
+ * Whether the CLIENT may still edit or delete their own order. Allowed during
+ * the whole quote phase (before they accept/pay): COTIZACION, EN_REVISION and
+ * PRECIO_ACTUALIZADO. From ACEPTADO onward it's locked. Editing after the admin
+ * has priced it invalidates that work, so the order is sent back to COTIZACION
+ * (handled in the `updateOrder` action). CANCELADO/ENTREGADO are not editable.
+ */
+export function permiteEdicionCliente(estado: Estado): boolean {
+  return (
+    estado === "COTIZACION" ||
+    estado === "EN_REVISION" ||
+    estado === "PRECIO_ACTUALIZADO"
+  );
+}
+
+/**
  * Whether the admin can register the package weight + evidence for an order:
  * from when it's received at the US casillero (EN_CASILLERO) onward. Before that
  * the package hasn't arrived to be weighed; CANCELADO is excluded.

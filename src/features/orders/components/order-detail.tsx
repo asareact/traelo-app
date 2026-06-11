@@ -12,6 +12,7 @@ import { OrderTracker } from "@/features/orders/components/order-tracker";
 import { ItemList } from "@/features/orders/components/item-list";
 import { CostSummary } from "@/features/orders/components/cost-summary";
 import { OrderTimeline } from "@/features/orders/components/order-timeline";
+import { OrderActions } from "@/features/orders/components/order-actions";
 
 /**
  * The full order-detail content (title, status tracker, products, cost,
@@ -22,10 +23,13 @@ export function OrderDetail({
   pedido,
   nuevo,
   tasas,
+  puedeEditar,
 }: {
   pedido: PedidoCompleto;
   nuevo?: boolean;
   tasas?: TasasCambio | null;
+  /** Owner + still in the quote window → show edit/delete actions. */
+  puedeEditar?: boolean;
 }) {
   const { label, terminal } = resumenEstado(pedido.estado_actual);
 
@@ -54,6 +58,14 @@ export function OrderDetail({
         <div className="mt-3">
           <CopyLinkButton />
         </div>
+        {puedeEditar && (
+          <div className="mt-4">
+            <OrderActions pedidoId={pedido.id} />
+            <p className="mt-2 text-xs text-muted">
+              Puedes editar o eliminar tu pedido mientras no confirmes el pago.
+            </p>
+          </div>
+        )}
       </section>
 
       <Section title="Estado del pedido">

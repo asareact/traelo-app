@@ -33,8 +33,11 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   (aviso al cliente por WhatsApp en cada cambio de estado + aviso de cambio de precio; plantillas en
   `features/orders/domain/notificaciones.ts`) + **Fase 6** (`/admin/config`).
 - **Extras ya en `main`:** nombre de producto desde el link de SHEIN, copiar link, signup con
-  confirmar contraseña, safety-net OAuth; peso + evidencia del paquete; persistencia de imagen de
-  SHEIN en bucket `productos`; evidencia de precio; limpieza de archivos (CANCELADO inmediato,
+  confirmar contraseña, safety-net OAuth; **el cliente puede editar/eliminar su propio pedido
+  mientras está en cotización** (COTIZACION/EN_REVISION/PRECIO_ACTUALIZADO; bloqueado de ACEPTADO
+  en adelante — editar resetea a COTIZACION y borra el precio del admin); **subir la imagen del
+  producto desde el dispositivo** al procesar (admin); peso + evidencia del paquete; persistencia
+  de imagen de SHEIN en bucket `productos`; evidencia de precio; limpieza de archivos (CANCELADO inmediato,
   ENTREGADO a los 2 días vía cron `/api/cron/cleanup`). **Rediseño del header** (sticky translúcido,
   logo flotante que sube y se desvanece al scroll, menú hamburguesa lateral, título por ruta, escudo
   admin dentro del menú) + páginas **Sobre nosotros** y **Soporte**. **Página de productos** rediseñada
@@ -161,6 +164,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       pedido completo + link de seguimiento. El id se genera en cliente para el link.
       `lib/whatsapp.ts` (plantilla `pedidoParaAdmin`), `components/ui/modal.tsx`.
 - [x] **"Copiar link"** en el tracking — `components/ui/copy-link-button.tsx`.
+- [x] **CRUD del cliente:** editar/eliminar el pedido propio mientras está en cotización
+      (`permiteEdicionCliente` en `domain/estados.ts`). Botones en el detalle (solo dueño,
+      nunca en el tracking público). Editar reutiliza `OrderForm` (`mode="edit"`, prefill) →
+      `updateOrder` (reemplaza items + resetea a COTIZACION + limpia total). Eliminar →
+      `deleteOrder` (cascade). Ambas validan propiedad + estado vía admin client (trust
+      boundary; sin abrir RLS de delete/update al cliente).
 - [x] Verificación visual con browser headless (capturas en claro/oscuro).
 - [ ] Tests (form validation, creación de pedido, RLS aislamiento) — PENDIENTE
       (falta montar framework de tests, p.ej. vitest + playwright).

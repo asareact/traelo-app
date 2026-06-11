@@ -14,7 +14,11 @@ import {
   linkRastreo,
 } from "@/features/orders/domain/notificaciones";
 import { nombreProductoEs } from "@/features/orders/domain/shein";
-import { createOrder, type CreateOrderState } from "@/features/orders/actions";
+import {
+  createOrder,
+  updateOrder,
+  type CreateOrderState,
+} from "@/features/orders/actions";
 import {
   createOrderSchema,
   emptyItem,
@@ -27,26 +31,41 @@ import {
  * that saves the order (for tracking) AND opens a prefilled WhatsApp chat to the
  * business with the full order — that's how the admin receives it. We mint the
  * order id client-side so the WhatsApp message can include the tracking link.
+ *
+ * In `mode="edit"` it reuses the same UI to modify an existing order's items:
+ * no WhatsApp send, submits to `updateOrder`, and is prefilled with the current
+ * items. Editing resets the order to cotización server-side (see updateOrder).
  */
 export function OrderForm({
   whatsapp,
   nombre,
   telefono,
   siteUrl,
+  mode = "create",
+  orderId: initialOrderId,
+  initialItems,
 }: {
   whatsapp?: string | null;
   nombre?: string | null;
   telefono?: string | null;
   siteUrl?: string | null;
+  mode?: "create" | "edit";
+  /** The order being edited (required in edit mode). */
+  orderId?: string;
+  /** Current items to prefill in edit mode. */
+  initialItems?: ItemInput[];
 }) {
-  const [items, setItems] = useState<ItemInput[]>([{ ...emptyItem }]);
-  const [orderId, setOrderId] = useState("");
+  const isEdit = mode === "edit";
+  const [items, setItems] = useState<ItemInput[]>(
+    initialItems && initialItems.length > 0 ? initialItems : [{ ...emptyItem }],
+  );
+  const [orderId, setOrderId] = useState(initialOrderId ?? "");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [localError, setLocalError] = useState("");
   const [state, formAction, pending] = useActionState<
     CreateOrderState,
     FormData
-  >(createOrder, {});
+  >(isEdit ? updateOrder : createOrder, {});
 
   function update(i: number, patch: Partial<ItemInput>) {
     setItems((prev) =>
@@ -68,13 +87,15 @@ export function OrderForm({
       return;
     }
     setLocalError("");
-    setOrderId(crypto.randomUUID());
+    // Create mode mints the order id so the WhatsApp message can carry the link;
+    // edit mode keeps the existing id.
+    if (!isEdit) setOrderId(crypto.randomUUID());
     setConfirmOpen(true);
   }
 
   const trackingUrl = orderId ? linkRastreo(siteUrl, orderId) : null;
   const waHref =
-    orderId && whatsapp
+    !isEdit && orderId && whatsapp
       ? whatsappLink(
           whatsapp,
           pedidoParaAdmin({
@@ -93,7 +114,11 @@ export function OrderForm({
   return (
     <form action={formAction} noValidate className="flex flex-col gap-5">
       <input type="hidden" name="items_json" value={JSON.stringify(items)} />
-      <input type="hidden" name="id" value={orderId} />
+      {isEdit ? (
+        <input type="hidden" name="pedidoId" value={orderId} />
+      ) : (
+        <input type="hidden" name="id" value={orderId} />
+      )}
 
       {items.map((item, i) => (
         <div key={i} className="rounded-lg border border-border bg-surface p-4">
@@ -176,25 +201,31 @@ export function OrderForm({
       {localError && <Alert tone="error">{localError}</Alert>}
 
       <Button type="button" size="lg" onClick={review} className="w-full">
-        Enviar pedido
+        {isEdit ? "Guardar cambios" : "Enviar pedido"}
       </Button>
 
       <p className="text-center text-xs text-muted">
         Te confirmaremos el precio final antes de cualquier pago.
       </p>
 
-      {/* Confirmation modal — confirming sends the order via WhatsApp */}
+      {/* Confirmation modal — create: send via WhatsApp; edit: save changes */}
       <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <h2 className="font-display text-xl font-bold text-text">
-          ¿Esto es todo?
+          {isEdit ? "¿Guardar los cambios?" : "¿Esto es todo?"}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Revisa que agregaste{" "}
-          <span className="font-bold text-text">todos los productos</span> que
-          quieres traer.{" "}
-          {waHref
-            ? "Al enviar te abrimos WhatsApp con tu pedido para que nos llegue."
-            : "Lo revisamos y te confirmamos el precio antes de pagar."}
+          {isEdit ? (
+            "Actualizaremos los productos de tu pedido. Si ya te habíamos pasado un precio, lo revisamos otra vez con estos cambios."
+          ) : (
+            <>
+              Revisa que agregaste{" "}
+              <span className="font-bold text-text">todos los productos</span>{" "}
+              que quieres traer.{" "}
+              {waHref
+                ? "Al enviar te abrimos WhatsApp con tu pedido para que nos llegue."
+                : "Lo revisamos y te confirmamos el precio antes de pagar."}
+            </>
+          )}
         </p>
 
         {state.error && (
@@ -219,10 +250,14 @@ export function OrderForm({
           >
             {waHref && <IconWhatsapp size={20} />}
             {pending
-              ? "Enviando…"
-              : waHref
-                ? "Enviar por WhatsApp"
-                : "Sí, enviar pedido"}
+              ? isEdit
+                ? "Guardando…"
+                : "Enviando…"
+              : isEdit
+                ? "Sí, guardar"
+                : waHref
+                  ? "Enviar por WhatsApp"
+                  : "Sí, enviar pedido"}
           </Button>
 
           <Button
@@ -232,7 +267,7 @@ export function OrderForm({
             className="w-full"
             disabled={pending}
           >
-            Seguir agregando
+            {isEdit ? "Seguir editando" : "Seguir agregando"}
           </Button>
         </div>
       </Modal>

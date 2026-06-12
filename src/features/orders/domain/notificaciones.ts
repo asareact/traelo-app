@@ -231,21 +231,27 @@ export function mensajePeso(opts: {
     lines.push(...lineasProductos(opts.productos), ``);
   }
 
+  // Only call it "estándar" when there's an express option to contrast with.
+  const recargoExpressUsd = opts.recargoExpressUsd;
+  const totalExpressUsd = opts.totalExpressUsd;
+  const hayExpress = recargoExpressUsd != null && totalExpressUsd != null;
+  const labelEnvio = hayExpress ? "Envío estándar" : "Envío";
+
   const desglose: string[] = [];
   if (opts.productosUsd != null)
     desglose.push(`Productos: $${opts.productosUsd.toFixed(2)}`);
   if (opts.envioUsd != null)
-    desglose.push(`Envío estándar${peso}: $${opts.envioUsd.toFixed(2)}`);
+    desglose.push(`${labelEnvio}${peso}: $${opts.envioUsd.toFixed(2)}`);
   if (opts.valorUsd != null)
     desglose.push(`*Total a pagar: $${opts.valorUsd.toFixed(2)}*`);
   if (desglose.length) lines.push(...desglose, ``);
 
   // EXPRESS upgrade offer (10+ lb only): faster delivery for a per-pound extra.
-  if (opts.recargoExpressUsd != null && opts.totalExpressUsd != null) {
+  if (recargoExpressUsd != null && totalExpressUsd != null) {
     lines.push(
       `*¿Lo quieres más rápido?*`,
-      `Puedes elegir *envío express* (llega en 3-7 días en vez de 5-15) por $${opts.recargoExpressUsd.toFixed(2)} adicionales.`,
-      `*Total con express: $${opts.totalExpressUsd.toFixed(2)}*`,
+      `Puedes elegir *envío express* (llega en 3-7 días en vez de 5-15) por $${recargoExpressUsd.toFixed(2)} adicionales.`,
+      `*Total con express: $${totalExpressUsd.toFixed(2)}*`,
       `Avísanos si lo prefieres y te lo confirmamos.`,
       ``,
     );

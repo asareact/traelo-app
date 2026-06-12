@@ -13,6 +13,7 @@
  */
 
 import { ESTADO_LABEL, type Estado } from "./estados";
+import type { TipoEnvio } from "./pricing";
 
 /**
  * Build the public tracking URL, guaranteeing an `https://` scheme so WhatsApp
@@ -210,8 +211,11 @@ export function mensajePeso(opts: {
   envioUsd?: number | null;
   valorUsd?: number | null;
   pesoLb?: number | null;
-  /** EXPRESS upgrade offer (only for 10+ lb): the surcharge and the total with
-   *  express. When both are present, the message offers the faster option. */
+  /** The order's shipping type — labels the shipping line "Envío express" when
+   *  the upgrade is already applied (vs offering it below for standard orders). */
+  tipoEnvio?: TipoEnvio | null;
+  /** EXPRESS upgrade offer (only for standard 10+ lb orders): the surcharge and
+   *  the total with express. When both are present, the message offers it. */
   recargoExpressUsd?: number | null;
   totalExpressUsd?: number | null;
 }): string {
@@ -231,11 +235,17 @@ export function mensajePeso(opts: {
     lines.push(...lineasProductos(opts.productos), ``);
   }
 
-  // Only call it "estándar" when there's an express option to contrast with.
+  // Shipping line label: "express" if already upgraded, "estándar" only when an
+  // express offer follows to contrast with, otherwise plain "Envío".
+  const esExpress = opts.tipoEnvio === "express";
   const recargoExpressUsd = opts.recargoExpressUsd;
   const totalExpressUsd = opts.totalExpressUsd;
-  const hayExpress = recargoExpressUsd != null && totalExpressUsd != null;
-  const labelEnvio = hayExpress ? "Envío estándar" : "Envío";
+  const hayOferta = recargoExpressUsd != null && totalExpressUsd != null;
+  const labelEnvio = esExpress
+    ? "Envío express"
+    : hayOferta
+      ? "Envío estándar"
+      : "Envío";
 
   const desglose: string[] = [];
   if (opts.productosUsd != null)

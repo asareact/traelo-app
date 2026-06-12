@@ -5,13 +5,16 @@ import { createClient } from "@/lib/supabase/server";
 import type { PedidoItem } from "@/types/database";
 import {
   totalPedido,
+  totalPedidoConTipo,
   aplicaExpress,
   recargoExpress,
+  type TipoEnvio,
 } from "@/features/orders/domain/pricing";
 import {
   processItemSchema,
   advanceStateSchema,
   registrarPesoSchema,
+  setTipoEnvioSchema,
   configSchema,
 } from "./schemas";
 import { borrarArchivosPedido } from "./storage";
@@ -52,6 +55,8 @@ export type AdminActionState = {
    *  with express. Null when the order doesn't qualify or has no priced items. */
   recargoExpress?: number | null;
   totalExpress?: number | null;
+  /** The order's shipping type after the write (for client messages / UI). */
+  tipoEnvio?: TipoEnvio | null;
 };
 
 type SBClient = Awaited<ReturnType<typeof createClient>>;
@@ -265,11 +270,26 @@ export async function registrarPeso(
     .from("pedido_items")
     .select("cantidad, precio_real_usd")
     .eq("pedido_id", pedidoId);
+  // Honor the order's current shipping type so re-weighing an EXPRESS order keeps
+  // its surcharge (doesn't silently revert it to standard).
+  const { data: pedido } = await supabase
+    .from("pedidos")
+    .select("tipo_envio")
+    .eq("id", pedidoId)
+    .single();
+  const tipoEnvio = (pedido?.tipo_envio ?? "estandar") as TipoEnvio;
   const precioPorLb = await getPrecioPorLb(supabase);
-  const total = totalPedido(
-    (items ?? []) as Pick<PedidoItem, "cantidad" | "precio_real_usd">[],
+  const recargoPorLb = await getRecargoExpressPorLb(supabase);
+  const itemsArr = (items ?? []) as Pick<
+    PedidoItem,
+    "cantidad" | "precio_real_usd"
+  >[];
+  const total = totalPedidoConTipo(
+    itemsArr,
     peso_lb,
     precioPorLb,
+    tipoEnvio,
+    recargoPorLb,
   );
   if (total !== null) {
     await supabase
@@ -278,19 +298,84 @@ export async function registrarPeso(
       .eq("id", pedidoId);
   }
 
-  // EXPRESS upgrade: only for 10+ lb orders that have a total. We don't change
-  // the saved total (express is an OPTION the client may choose) — we just hand
-  // back the numbers so the weight notification can offer it with a breakdown.
+  // Offer the express upgrade in the WhatsApp notice only when the order is still
+  // standard and qualifies (10+ lb). If it's already express, the total above
+  // already includes the surcharge — nothing to offer.
   let recargoExpressUsd: number | null = null;
   let totalExpress: number | null = null;
-  if (total !== null && aplicaExpress(peso_lb)) {
-    const recargoPorLb = await getRecargoExpressPorLb(supabase);
+  if (total !== null && tipoEnvio === "estandar" && aplicaExpress(peso_lb)) {
     recargoExpressUsd = recargoExpress(peso_lb, recargoPorLb);
     totalExpress = Number((total + recargoExpressUsd).toFixed(2));
   }
 
   revalidatePath("/admin/kanban");
-  return { ok: true, total, recargoExpress: recargoExpressUsd, totalExpress };
+  return {
+    ok: true,
+    total,
+    recargoExpress: recargoExpressUsd,
+    totalExpress,
+    tipoEnvio,
+  };
+}
+
+/**
+ * Set the shipping type (standard ⇆ express) on an order and recompute its total
+ * accordingly. Express is the upgrade the client accepts by WhatsApp; it requires
+ * a known weight of 10+ lb. This is the write that turns the verbal "sí, lo quiero
+ * express" into a real change: tipo_envio + total_real_usd both update.
+ */
+export async function setTipoEnvio(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const parsed = setTipoEnvioSchema.safeParse({
+    pedidoId: formData.get("pedidoId"),
+    tipo_envio: formData.get("tipo_envio"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const { supabase, ok } = await requireAdmin();
+  if (!ok) return { error: "No autorizado." };
+
+  const { pedidoId, tipo_envio } = parsed.data;
+
+  const { data: pedido } = await supabase
+    .from("pedidos")
+    .select("peso_lb")
+    .eq("id", pedidoId)
+    .single();
+  if (!pedido) return { error: "Pedido no encontrado." };
+
+  if (tipo_envio === "express" && !aplicaExpress(pedido.peso_lb)) {
+    return { error: "El express solo aplica a pedidos de 10+ lb ya pesados." };
+  }
+
+  const { data: items } = await supabase
+    .from("pedido_items")
+    .select("cantidad, precio_real_usd")
+    .eq("pedido_id", pedidoId);
+  const precioPorLb = await getPrecioPorLb(supabase);
+  const recargoPorLb = await getRecargoExpressPorLb(supabase);
+  const total = totalPedidoConTipo(
+    (items ?? []) as Pick<PedidoItem, "cantidad" | "precio_real_usd">[],
+    pedido.peso_lb,
+    precioPorLb,
+    tipo_envio,
+    recargoPorLb,
+  );
+
+  const update: Record<string, unknown> = { tipo_envio };
+  if (total !== null) update.total_real_usd = total;
+  const { error } = await supabase
+    .from("pedidos")
+    .update(update)
+    .eq("id", pedidoId);
+  if (error) return { error: "No se pudo cambiar el tipo de envío." };
+
+  revalidatePath("/admin/kanban");
+  return { ok: true, total, tipoEnvio: tipo_envio };
 }
 
 /** Update the business config (whatsapp phone, price per lb, markup factor). */

@@ -12,8 +12,9 @@ import {
   nombreProductoEs,
   linkRastreo,
   totalProductos,
+  type TipoEnvio,
 } from "@/features/orders";
-import { advanceOrderState } from "@/features/admin/actions";
+import { advanceOrderState, setTipoEnvio } from "@/features/admin/actions";
 import type { KanbanPedido } from "@/features/admin/queries";
 import {
   agruparPorEstado,
@@ -129,7 +130,7 @@ export function KanbanBoard({
     pesoLb: number,
     costos: CostosPeso,
   ) {
-    const { total, recargoExpress, totalExpress } = costos;
+    const { total, recargoExpress, totalExpress, tipoEnvio } = costos;
     const productosUsd = totalProductos(pedido.items);
     const envioUsd =
       total != null && productosUsd != null
@@ -151,10 +152,23 @@ export function KanbanBoard({
         envioUsd,
         valorUsd: total,
         pesoLb,
+        tipoEnvio,
         recargoExpressUsd: recargoExpress,
         totalExpressUsd: totalExpress,
       }),
     });
+  }
+
+  /** Switch an order between standard/express and recompute its total. The client
+   *  accepted (or declined) the express upgrade by WhatsApp; this makes it real. */
+  async function cambiarTipoEnvio(pedidoId: string, tipo: TipoEnvio) {
+    setError("");
+    const fd = new FormData();
+    fd.set("pedidoId", pedidoId);
+    fd.set("tipo_envio", tipo);
+    const res = await setTipoEnvio({}, fd);
+    if (res?.error) setError(res.error);
+    else router.refresh();
   }
 
   /** Build + open the price-change notification for an order (latest props). */
@@ -257,6 +271,9 @@ export function KanbanBoard({
                       pedido={pedido}
                       onProcess={() => setActivo(pedido)}
                       onWeigh={() => setPesando(pedido)}
+                      onSetTipoEnvio={(tipo) =>
+                        cambiarTipoEnvio(pedido.id, tipo)
+                      }
                     />
                   </div>
                 ))}

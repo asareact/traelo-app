@@ -1,5 +1,5 @@
 import { formatUSD } from "@/lib/utils/format";
-import { totalProductos } from "@/features/orders/domain/pricing";
+import { totalProductos, type TipoEnvio } from "@/features/orders/domain/pricing";
 import {
   convertirUsd,
   fmtCup,
@@ -18,11 +18,13 @@ export function CostSummary({
   items,
   total,
   pesoLb,
+  tipoEnvio,
   tasas,
 }: {
   items: PedidoItem[];
   total: number | null;
   pesoLb?: number | null;
+  tipoEnvio?: TipoEnvio | null;
   tasas?: TasasCambio | null;
 }) {
   const subtotal = totalProductos(items);
@@ -49,7 +51,12 @@ export function CostSummary({
     <>
       <div className="space-y-4 rounded-[28px] border border-border bg-surface p-6">
         <Row label="Subtotal productos" value={subtotal} />
-        <Row label="Envío a Cuba" value={envio} />
+        <Row
+          label={
+            tipoEnvio === "express" ? "Envío express a Cuba" : "Envío a Cuba"
+          }
+          value={envio}
+        />
         <div className="flex items-center justify-between border-t border-border pt-4">
           <span className="font-bold text-text">Total estimado</span>
           <span className="text-xl font-bold text-primary">

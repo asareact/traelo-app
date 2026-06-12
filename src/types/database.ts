@@ -8,6 +8,7 @@
  */
 
 import type { Estado } from "@/features/orders/domain/estados";
+import type { TipoEnvio } from "@/features/orders/domain/pricing";
 
 export type Rol = "cliente" | "admin";
 
@@ -25,6 +26,8 @@ export interface Pedido {
   user_id: string;
   estado_actual: Estado;
   total_real_usd: number | null;
+  /** Shipping type: 'estandar' by default, 'express' once the client upgrades. */
+  tipo_envio: TipoEnvio;
   nota_admin: string | null;
   // Set by the admin once the package is weighed at the US casillero.
   peso_lb: number | null;

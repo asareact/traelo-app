@@ -46,7 +46,9 @@ export {
   totalProductos,
   costoEnvio,
   totalPedido,
+  totalPedidoConTipo,
   recargoExpress,
   aplicaExpress,
   PESO_MIN_EXPRESS,
+  type TipoEnvio,
 } from "./domain/pricing";

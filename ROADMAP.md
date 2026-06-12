@@ -300,13 +300,18 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     chico NUNCA va solo (1 lb solo = pérdida $10.47 vs $7; consolidado = +$3.44). Sin mínimo de pedido.
   - Tabla ref (cliente $7/lb · costo real · ganancia): 5lb $35/$27.81/**+$7** · 15lb $105/$68.11/**+$37**
     · 30lb $210/$113/**+$97** · 50lb $350/$184.58/**+$165** · 100lb $700/$368.97/**+$331**.
-- **Express del negocio — IMPLEMENTADO.** Modelo: $7/lb base **+ recargo express por libra**
-  (`config.recargo_express_por_lb`, default **2.65** = ~$1.15 reembolso WSY + ~$1.50 fee). Solo se
-  ofrece para **10+ lb** (`PESO_MIN_EXPRESS` en `domain/pricing.ts`: `aplicaExpress`, `recargoExpress`).
-  Al registrar el peso, si es 10+ lb: tag "Express disponible" en el modal de peso, `registrarPeso`
-  devuelve `recargoExpress`/`totalExpress`, y la plantilla `mensajePeso` ofrece el express por WhatsApp
-  con el desglose (Total a pagar / +$X express / Total con express). Editable en `/admin/config`.
-  El express es una OPCIÓN que el cliente acepta por WhatsApp; no cambia el `total_real_usd` guardado.
+- **Express del negocio — IMPLEMENTADO (con tipo de envío real).** Modelo: $7/lb base **+ recargo
+  express por libra** (`config.recargo_express_por_lb`, default **2.65** = ~$1.15 reembolso WSY +
+  ~$1.50 fee). Solo para **10+ lb** (`PESO_MIN_EXPRESS` en `domain/pricing.ts`). El cliente paga el
+  peso **real** de la balanza que registra el admin (lo ve pesar); no se usa peso facturable de WSY.
+  - **Columna `pedidos.tipo_envio`** (`estandar`|`express`, default `estandar`, migración 0006 aplicada).
+  - **Flujo:** al pesar 10+ lb, `mensajePeso` OFRECE el express por WhatsApp con desglose. Si el
+    cliente acepta, el admin lo marca con el **toggle Estándar/Express en la tarjeta del kanban**
+    (`setTipoEnvio` action) → recalcula `total_real_usd` = productos + envío + recargo, y guarda el tipo.
+    Re-pesar un pedido express mantiene el recargo (`registrarPeso` lee el `tipo_envio` actual).
+  - **Reflejo:** badge "Express" + total actualizado en la tarjeta admin; "Envío express a Cuba" en el
+    `CostSummary` del cliente; "Envío express" en la plantilla del peso. Recargo editable en `/admin/config`.
+  - Helpers: `totalPedidoConTipo`, `recargoExpress`, `aplicaExpress`, type `TipoEnvio` en `domain/pricing.ts`.
 - **Aduana cubana (~35%):** los aranceles los estima WeShipYou y **los paga el cliente al recibir**
   (no es costo del negocio). Ej. real: $26 sobre $73 declarado (12 lb), $37 sobre 20 lb. Decidir si
   se le comunica al cliente por adelantado en la plantilla.

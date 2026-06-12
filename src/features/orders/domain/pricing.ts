@@ -53,6 +53,30 @@ export function recargoExpress(libras: number, recargoExpressPorLb: number): num
   return Number((lbs * recargoExpressPorLb).toFixed(2));
 }
 
+/** Shipping type stored on the order. Default 'estandar'; 'express' is the upgrade. */
+export type TipoEnvio = "estandar" | "express";
+
+/**
+ * Grand total for an order honoring its shipping type: the standard total
+ * (products + shipping by weight) plus the express surcharge when the type is
+ * 'express'. Returns null when no item has a confirmed price yet. This is what
+ * `pedidos.total_real_usd` should hold once a shipping type is chosen.
+ */
+export function totalPedidoConTipo(
+  items: { precio_real_usd: number | null; cantidad: number }[],
+  pesoLb: number | null | undefined,
+  precioPorLb: number,
+  tipoEnvio: TipoEnvio,
+  recargoExpressPorLb: number,
+): number | null {
+  const base = totalPedido(items, pesoLb, precioPorLb);
+  if (base === null) return null;
+  if (tipoEnvio === "express" && pesoLb != null) {
+    return Number((base + recargoExpress(pesoLb, recargoExpressPorLb)).toFixed(2));
+  }
+  return base;
+}
+
 /**
  * The full amount to charge for an order: product subtotal + shipping by weight.
  * Shipping is only added once the package weight is known (it's unknown until the

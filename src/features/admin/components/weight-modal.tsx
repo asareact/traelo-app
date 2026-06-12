@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
 import { registrarPeso } from "@/features/admin/actions";
-import { PESO_MIN_EXPRESS } from "@/features/orders";
+import { PESO_MIN_EXPRESS, type TipoEnvio } from "@/features/orders";
 import type { KanbanPedido } from "@/features/admin/queries";
 
 /** Costs handed back to the board after a weight save (for the client notice). */
@@ -16,6 +16,7 @@ export type CostosPeso = {
   total: number | null;
   recargoExpress: number | null;
   totalExpress: number | null;
+  tipoEnvio: TipoEnvio | null;
 };
 
 /**
@@ -118,6 +119,7 @@ function Body({
         total: res.total ?? null,
         recargoExpress: res.recargoExpress ?? null,
         totalExpress: res.totalExpress ?? null,
+        tipoEnvio: res.tipoEnvio ?? null,
       });
       onClose();
     } catch {
@@ -148,7 +150,7 @@ function Body({
           />
           {parseFloat(peso.replace(",", ".")) >= PESO_MIN_EXPRESS && (
             <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-              Express disponible (10+ lb)
+              Califica para express · actívalo en la tarjeta
             </span>
           )}
         </Field>

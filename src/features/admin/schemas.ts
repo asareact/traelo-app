@@ -61,6 +61,16 @@ export const registrarPesoSchema = z.object({
 
 export type RegistrarPesoInput = z.infer<typeof registrarPesoSchema>;
 
+/** Setting the shipping type (standard vs express upgrade) on an order. */
+export const setTipoEnvioSchema = z.object({
+  pedidoId: z.string().uuid("Pedido inválido."),
+  tipo_envio: z.enum(["estandar", "express"], {
+    message: "Tipo de envío inválido.",
+  }),
+});
+
+export type SetTipoEnvioInput = z.infer<typeof setTipoEnvioSchema>;
+
 /** Editable business config (config table). Values are stored as text. */
 export const configSchema = z.object({
   whatsapp_phone: z

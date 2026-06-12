@@ -92,6 +92,7 @@ export function OrderDetail({
           items={pedido.items}
           total={pedido.total_real_usd}
           pesoLb={pedido.peso_lb}
+          tipoEnvio={pedido.tipo_envio}
           tasas={tasas}
         />
       </Section>

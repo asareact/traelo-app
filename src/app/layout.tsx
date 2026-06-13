@@ -30,13 +30,16 @@ export const viewport: Viewport = {
   ],
 };
 
-// Runs before paint: applies the saved theme (or system preference) so there's
-// no light/dark flash, and flags a first-time visit so the brand intro overlay is
+// Runs before paint: applies the saved theme so there's no light/dark flash.
+// Default is LIGHT (our original palette); we only go dark if the user explicitly
+// chose it (persisted in localStorage). We deliberately do NOT follow the OS
+// preference, so a phone in dark mode still opens Traelo in light by default.
+// Also flags a first-time visit so the brand intro overlay is
 // up at first paint (no landing flash). Skipped for returning / reduced-motion
 // visitors. The loader (draw-on) plays on the web and inside the installed app;
 // the native launch splash is matched to it (cream background + icon size) so the
 // hand-off reads as one intro.
-const bootScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');var seen=sessionStorage.getItem('traelo_intro_seen');var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(location.pathname==='/'&&!seen&&!reduce)document.documentElement.classList.add('intro-playing');}catch(e){}})();`;
+const bootScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');var seen=sessionStorage.getItem('traelo_intro_seen');var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(location.pathname==='/'&&!seen&&!reduce)document.documentElement.classList.add('intro-playing');}catch(e){}})();`;
 
 export default function RootLayout({
   children,

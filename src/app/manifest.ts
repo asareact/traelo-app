@@ -16,7 +16,11 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#fafaf7",
+    // Cream of the cards/loader so the native launch splash blends with our web
+    // loader (and the icon's own cream square stops being visible). Note: the
+    // native splash bakes this in at APK build time → regenerate the APK in
+    // PWABuilder for it to take effect on the installed app.
+    background_color: "#f0ebe0",
     theme_color: "#c4522a",
     lang: "es",
     dir: "ltr",

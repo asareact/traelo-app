@@ -70,7 +70,9 @@ export function LogoLoader({ variant = "pulse" }: { variant?: LoaderVariant }) {
 }
 
 const LOADER_CSS = `
-.ll-mark { transform-origin: center; }
+/* Sized to roughly match the native launch splash icon so the hand-off doesn't
+   jump. Responsive (scales with the screen like the splash icon does). */
+.ll-mark { width: min(48vw, 230px); height: min(48vw, 230px); transform-origin: center; }
 .ll-arrow-draw { display: none; }
 
 /* Pulse — the whole mark breathes */

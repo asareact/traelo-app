@@ -111,8 +111,18 @@ export function desgloseFactura(
   pesoLb: number | null,
   tipoEnvio: TipoEnvio,
   recargoExpressPorLb: number,
+  /**
+   * The express surcharge actually charged, stored on the order. When present we
+   * use it verbatim instead of recomputing from `recargoExpressPorLb` (which can
+   * drift if the config rate changed since purchase). Null → legacy order, fall
+   * back to recomputing.
+   */
+  recargoGuardado: number | null = null,
 ): DesgloseFactura {
-  const subtotal = totalProductos(items);
+  const raw = totalProductos(items);
+  // Round the subtotal before the subtraction so the displayed lines add up to
+  // the cent (float sums like 19.99×3 can leave a trailing ...9999).
+  const subtotal = raw == null ? null : Number(raw.toFixed(2));
   if (total == null || subtotal == null) {
     return { subtotal, envio: null, envioPendiente: false, recargoExpress: null, total };
   }
@@ -121,7 +131,11 @@ export function desgloseFactura(
     return { subtotal, envio: null, envioPendiente: true, recargoExpress: null, total };
   }
   const recargo =
-    tipoEnvio === "express" ? recargoExpress(pesoLb, recargoExpressPorLb) : 0;
+    tipoEnvio === "express"
+      ? recargoGuardado != null
+        ? recargoGuardado
+        : recargoExpress(pesoLb, recargoExpressPorLb)
+      : 0;
   const envio = Number(Math.max(0, total - subtotal - recargo).toFixed(2));
   return {
     subtotal,

@@ -200,6 +200,7 @@ export async function buildFacturaData(
       pedido.peso_lb,
       tipoEnvio,
       recargoPorLb,
+      pedido.recargo_express_usd ?? null,
     ),
     tipoEnvio,
     pesoLb: pedido.peso_lb,

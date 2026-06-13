@@ -28,6 +28,12 @@ export interface Pedido {
   total_real_usd: number | null;
   /** Shipping type: 'estandar' by default, 'express' once the client upgrades. */
   tipo_envio: TipoEnvio;
+  /**
+   * Express surcharge actually charged (USD), stored so invoices read it back
+   * instead of recomputing from a config rate that may drift. Null = standard
+   * order, or a legacy order from before this column (invoice recomputes then).
+   */
+  recargo_express_usd: number | null;
   nota_admin: string | null;
   // Set by the admin once the package is weighed at the US casillero.
   peso_lb: number | null;

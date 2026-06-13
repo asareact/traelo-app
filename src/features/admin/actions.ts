@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PedidoItem } from "@/types/database";
 import {
-  totalPedido,
   totalPedidoConTipo,
   aplicaExpress,
   recargoExpress,
@@ -42,6 +41,23 @@ async function getRecargoExpressPorLb(supabase: SBClient): Promise<number> {
     .single();
   const n = data ? Number(data.value) : NaN;
   return Number.isFinite(n) && n >= 0 ? n : DEFAULT_RECARGO_EXPRESS;
+}
+
+/**
+ * The express surcharge to STORE on the order (`pedidos.recargo_express_usd`):
+ * the amount actually charged, so invoices read it back instead of recomputing
+ * from a config rate that may drift later. Null when the order isn't express or
+ * has no weight yet — which also CLEARS a stale surcharge when reverting to
+ * standard. Always written together with `total_real_usd` so they stay in sync.
+ */
+function recargoExpressGuardado(
+  tipoEnvio: TipoEnvio,
+  pesoLb: number | null | undefined,
+  recargoPorLb: number,
+): number | null {
+  return tipoEnvio === "express" && pesoLb != null
+    ? recargoExpress(pesoLb, recargoPorLb)
+    : null;
 }
 
 export type AdminActionState = {
@@ -201,16 +217,35 @@ export async function processItem(
     // here keeps the shipping charge from being wiped on a re-process.
     const { data: pedido } = await supabase
       .from("pedidos")
-      .select("estado_actual, peso_lb")
+      .select("estado_actual, peso_lb, tipo_envio")
       .eq("id", pedidoId)
       .single();
 
+    // Honor the order's shipping type so re-processing an item on an EXPRESS,
+    // already-weighed order keeps its surcharge (and the stored surcharge stays
+    // in sync) instead of silently reverting to a standard total.
+    const tipoEnvio = (pedido?.tipo_envio ?? "estandar") as TipoEnvio;
+    const pesoLb = pedido?.peso_lb ?? null;
     const precioPorLb = await getPrecioPorLb(supabase);
-    const total = totalPedido(all, pedido?.peso_lb ?? null, precioPorLb);
+    const recargoPorLb = await getRecargoExpressPorLb(supabase);
+    const total = totalPedidoConTipo(
+      all,
+      pesoLb,
+      precioPorLb,
+      tipoEnvio,
+      recargoPorLb,
+    );
     if (total !== null) {
       await supabase
         .from("pedidos")
-        .update({ total_real_usd: total })
+        .update({
+          total_real_usd: total,
+          recargo_express_usd: recargoExpressGuardado(
+            tipoEnvio,
+            pesoLb,
+            recargoPorLb,
+          ),
+        })
         .eq("id", pedidoId);
     }
 
@@ -294,7 +329,14 @@ export async function registrarPeso(
   if (total !== null) {
     await supabase
       .from("pedidos")
-      .update({ total_real_usd: total })
+      .update({
+        total_real_usd: total,
+        recargo_express_usd: recargoExpressGuardado(
+          tipoEnvio,
+          peso_lb,
+          recargoPorLb,
+        ),
+      })
       .eq("id", pedidoId);
   }
 
@@ -366,7 +408,16 @@ export async function setTipoEnvio(
     recargoPorLb,
   );
 
-  const update: Record<string, unknown> = { tipo_envio };
+  const update: Record<string, unknown> = {
+    tipo_envio,
+    // Store the surcharge actually charged (or null, clearing it when reverting
+    // to standard) so the invoice reads it back instead of recomputing.
+    recargo_express_usd: recargoExpressGuardado(
+      tipo_envio,
+      pedido.peso_lb,
+      recargoPorLb,
+    ),
+  };
   if (total !== null) update.total_real_usd = total;
   const { error } = await supabase
     .from("pedidos")

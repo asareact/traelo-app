@@ -327,12 +327,13 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   se le comunica al cliente por adelantado en la plantilla.
 - **SEO** (metadatos, sitemap): deferido a post-lanzamiento.
 - **OG tags dinámicos** en tracking: deferido (evaluar tras primeros 10 pedidos).
-- **Factura — guardar el recargo express en el pedido (no recalcularlo).** Hoy `desgloseFactura`
-  recompone el recargo desde `config.recargo_express_por_lb` actual; si cambias esa tarifa después,
-  la repartición envío/recargo de una factura vieja se desvía (el total se mantiene: es el valor
-  guardado). Baja probabilidad. Fix robusto: persistir el recargo cobrado en `pedidos`. (P3)
-- **Factura — redondear el subtotal antes de restar el envío** en `desgloseFactura`: hoy el subtotal
-  entra sin `toFixed(2)` a la resta, posible descuadre visual de 1 centavo. Cosmético. (P3)
+- **Factura — recargo express persistido (RESUELTO).** El recargo cobrado se guarda en
+  `pedidos.recargo_express_usd` (migración **0007 aplicada**), escrito en `registrarPeso`,
+  `setTipoEnvio` y `processItem`; la factura lo lee en vez de recalcularlo desde config (ya no se
+  desvía si cambias la tarifa). De paso `processItem` ahora respeta el `tipo_envio` (antes re-procesar
+  un item de un pedido express revertía el total a estándar). Subtotal redondeado antes de restar el
+  envío (descuadre de 1 centavo). Pedidos express viejos = NULL → la factura recae en el cálculo hasta
+  que el admin los vuelva a tocar.
 - **Multi-admin:** Fase 2 del negocio.
 - **App móvil / distribución (decidido el camino, sin construir aún):** NO Flutter. Estrategia:
   **una sola PWA** (reusa el código actual) → si se quiere un "APK descargable" para Android,

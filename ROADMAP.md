@@ -353,9 +353,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     APK firmado, sin instalar Android SDK/JDK). Bubblewrap es la versión CLI de lo mismo. Al regenerar:
     usar la **MISMA firma** (`signing.keystore`) o el `assetlinks.json` deja de cuadrar y vuelve la barra.
     La regeneración también aplica `background_color` crema al splash nativo y registra el **Share Target**.
-  - **Capacidades del manifest:** `shortcuts`, **`share_target`** (compartir un link de SHEIN desde el
-    navegador/app → abre `/pedidos/nuevo` con el link prellenado; ver `extraerLinkCompartido` en
-    `domain/shein.ts` + `searchParams` en la página) y **`launch_handler`** (enfoca la app abierta).
+  - **Capacidades del manifest:** `shortcuts`, **`share_target`** y **`launch_handler`** (enfoca la app
+    abierta). Share Target: compartir un link de SHEIN → `/pedidos/nuevo?url=...`; se extrae
+    (`extraerLinkCompartido` en `domain/shein.ts`) y se **acumula en un borrador** en localStorage
+    (`features/orders/draft.ts`: `loadDraft`/`saveDraft`/`appendSharedLink`, con dedupe) para armar un
+    pedido **multi-producto** compartiendo de a uno. El form (`order-form.tsx`) carga/persiste el borrador
+    en modo create; se limpia al crear el pedido (`ClearDraft` en la página con `?nuevo=1`).
     Las demás (file/protocol handlers, widgets, edge side panel, window controls, tabbed, note-taking)
     son de escritorio o nicho → descartadas para este público móvil.
 - **Push notifications (Fase 3, atado a la PWA de arriba):** **DECIDIDO self-hosted** (`web-push` +

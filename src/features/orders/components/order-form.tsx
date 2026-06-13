@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import {
   emptyItem,
   type ItemInput,
 } from "@/features/orders/schemas";
+import { loadDraft, saveDraft, appendSharedLink } from "@/features/orders/draft";
 
 /**
  * Multi-product order form. "Enviar pedido" validates and opens a confirmation
@@ -44,6 +45,7 @@ export function OrderForm({
   mode = "create",
   orderId: initialOrderId,
   initialItems,
+  sharedLink,
 }: {
   whatsapp?: string | null;
   nombre?: string | null;
@@ -54,11 +56,14 @@ export function OrderForm({
   orderId?: string;
   /** Current items to prefill in edit mode. */
   initialItems?: ItemInput[];
+  /** A SHEIN link shared into the app (Share Target). Appended to the draft. */
+  sharedLink?: string | null;
 }) {
   const isEdit = mode === "edit";
   const [items, setItems] = useState<ItemInput[]>(
     initialItems && initialItems.length > 0 ? initialItems : [{ ...emptyItem }],
   );
+  const [hydrated, setHydrated] = useState(false);
   const [orderId, setOrderId] = useState(initialOrderId ?? "");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -66,6 +71,33 @@ export function OrderForm({
     CreateOrderState,
     FormData
   >(isEdit ? updateOrder : createOrder, {});
+
+  // Create mode only: restore the saved draft and fold in any freshly shared link
+  // (Android Share Target → ?url=). This is what lets the client build a
+  // multi-product order by sharing one product at a time. Runs once after mount
+  // (so it never causes a hydration mismatch).
+  useEffect(() => {
+    if (isEdit) return;
+    const id = requestAnimationFrame(() => {
+      const saved = loadDraft();
+      let next = saved.length > 0 ? saved : [{ ...emptyItem }];
+      if (sharedLink) {
+        next = appendSharedLink(next, sharedLink);
+        // Drop the ?url= so a refresh / re-render doesn't re-add the same link.
+        window.history.replaceState(null, "", "/pedidos/nuevo");
+      }
+      setItems(next);
+      setHydrated(true);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isEdit, sharedLink]);
+
+  // Persist the draft as the client edits/adds products (create mode only). Gated
+  // on `hydrated` so the initial empty row can't clobber a stored draft.
+  useEffect(() => {
+    if (isEdit || !hydrated) return;
+    saveDraft(items);
+  }, [items, isEdit, hydrated]);
 
   function update(i: number, patch: Partial<ItemInput>) {
     setItems((prev) =>

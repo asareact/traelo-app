@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Logo } from "@/components/brand/logo";
 import { BackButton } from "@/components/ui/back-button";
 import { routes } from "@/config/site";
-import { OrderDetail, permiteEdicionCliente } from "@/features/orders";
+import { OrderDetail, ClearDraft, permiteEdicionCliente } from "@/features/orders";
 import { getPublicPedido } from "@/features/orders/queries";
 import { getCambioCup } from "@/features/cambio/queries";
 
@@ -44,12 +44,16 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
     permiteEdicionCliente(pedido.estado_actual);
 
   const content = (
-    <OrderDetail
-      pedido={pedido}
-      nuevo={nuevo === "1"}
-      tasas={tasas}
-      puedeEditar={puedeEditar}
-    />
+    <>
+      {/* Order just created → drop the saved draft so the next order starts fresh. */}
+      {nuevo === "1" && <ClearDraft />}
+      <OrderDetail
+        pedido={pedido}
+        nuevo={nuevo === "1"}
+        tasas={tasas}
+        puedeEditar={puedeEditar}
+      />
+    </>
   );
 
   if (user) {

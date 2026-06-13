@@ -16,6 +16,7 @@ export {
 
 // Components
 export { OrderForm } from "./components/order-form";
+export { ClearDraft } from "./components/clear-draft";
 export { OrderCard } from "./components/order-card";
 export { ActiveOrderCard } from "./components/active-order-card";
 export { OrderDetail } from "./components/order-detail";

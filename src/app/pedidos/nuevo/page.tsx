@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { OrderForm } from "@/features/orders";
-import { emptyItem } from "@/features/orders/schemas";
 import { extraerLinkCompartido } from "@/features/orders/domain/shein";
 import {
   completarPerfilHref,
@@ -66,9 +65,7 @@ export default async function NuevoPedidoPage({
         nombre={profile?.nombre}
         telefono={profile?.telefono}
         siteUrl={env.NEXT_PUBLIC_SITE_URL ?? null}
-        initialItems={
-          sharedLink ? [{ ...emptyItem, shein_url: sharedLink }] : undefined
-        }
+        sharedLink={sharedLink}
       />
     </AppShell>
   );

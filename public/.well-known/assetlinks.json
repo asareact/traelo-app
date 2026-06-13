@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.traelo_cu.twa",
+      "sha256_cert_fingerprints": [
+        "91:88:06:EF:B3:99:3A:50:65:21:28:9C:6B:4B:FB:D1:8D:BD:1F:39:72:5C:A3:3F:A8:A3:A1:47:B4:56:05:8B"
+      ]
+    }
+  }
+]

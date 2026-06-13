@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { SiteIntro } from "@/components/motion/site-intro";
+import { RegisterSW } from "@/components/pwa/register-sw";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -54,6 +55,7 @@ export default function RootLayout({
             to the viewport — the page-transition template applies a transform,
             which would otherwise become its containing block. */}
         <SiteIntro />
+        <RegisterSW />
         {children}
       </body>
     </html>

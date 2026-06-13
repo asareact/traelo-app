@@ -343,15 +343,19 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   capado para Apple IDs cubanas (→ PWA es la única vía "app" en iOS), y en Android la norma es
   el APK directo, que el TWA cubre. La PWA es más fuerte justo en Android y más débil en iOS,
   así que un nativo solo-Android sería pagar doble código por donde la PWA ya rinde.
-  Prerrequisitos para encenderla bien (hoy faltan): **service worker** (no existe), íconos PNG
-  192/512 + apple-touch-icon (hoy solo `icon.svg`). Recomendado **@serwist/next** (sucesor de
-  next-pwa, compatible con Next 16; probar con `next build`+`next start`, no en el dev de Turbopack).
-- **Push notifications (atado a la PWA de arriba):** Android = push completo como cualquier app
-  (Web Push, app cerrada/2.º plano). iOS = funciona desde iOS 16.4 **solo con la PWA instalada
-  en la pantalla de inicio**, algo menos confiable. Requiere el service worker + backend de
-  suscripciones (tabla en Supabase + Edge Function con claves VAPID, o un servicio tipo OneSignal).
-  Verlo como **complemento** del WhatsApp, no reemplazo: en Cuba WhatsApp tiene más alcance
-  (cualquier teléfono, sin instalar).
+  - **Fase 1 PWA — HECHA.** Service worker **escrito a mano** (`public/sw.js`: instalable + push +
+    notificationclick, sin precache para no servir stale) registrado vía `components/pwa/register-sw.tsx`;
+    íconos PNG 192/512 + maskable (`public/icons/`, generados con `scripts/gen-icons.mjs` desde el logo,
+    sharp) + `src/app/apple-icon.png`; `manifest.ts` con `id/scope` + los PNG. Se descartó `@serwist/next`
+    (plugin de build, fricción con Next 16 + Turbopack) por el SW a mano: cero cambios a `next.config`,
+    mismo comportamiento en dev y prod, control total del handler de push.
+  - **Fase 2 APK — pendiente.** Con la PWA viva, generar el APK con **PWABuilder.com** (pegar la URL →
+    APK firmado, sin instalar Android SDK/JDK). Bubblewrap es la versión CLI de lo mismo.
+- **Push notifications (Fase 3, atado a la PWA de arriba):** **DECIDIDO self-hosted** (`web-push` +
+  VAPID, tabla de suscripciones en Supabase + endpoint propio, sin terceros). El SW ya tiene el handler
+  `push`/`notificationclick` listo. Falta: claves VAPID, tabla `push_subscriptions`, endpoint de envío y
+  el botón de "activar notificaciones" en la UI. Android = push con app cerrada; iOS = solo con la PWA
+  instalada (iOS 16.4+). **Complemento** del WhatsApp, no reemplazo (en Cuba WhatsApp llega a más gente).
 
 ---
 

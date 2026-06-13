@@ -15,13 +15,38 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     start_url: "/",
     display: "standalone",
+    orientation: "portrait",
     background_color: "#fafaf7",
     theme_color: "#c4522a",
     lang: "es",
+    dir: "ltr",
+    categories: ["shopping"],
+    // Long-press shortcuts on the installed app icon.
+    shortcuts: [
+      {
+        name: "Nuevo pedido",
+        short_name: "Nuevo pedido",
+        url: "/pedidos/nuevo",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Mis pedidos",
+        short_name: "Mis pedidos",
+        url: "/pedidos",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Rastrear pedido",
+        short_name: "Rastreo",
+        url: "/rastreo",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
+      },
+    ],
+    // Only real, fetchable PNG files here. The app's SVG favicon is served by
+    // Next's metadata route (src/app/icon.svg) and is NOT a static file at
+    // /icon.svg, so referencing it here makes PWABuilder fail ("image doesn't
+    // exist"). PNGs in /public are what Android/iOS and PWABuilder/Bubblewrap use.
     icons: [
-      // SVG first for crisp scaling where supported.
-      { src: "/icon.svg", type: "image/svg+xml", sizes: "any", purpose: "any" },
-      // PNGs are what Android/iOS and PWABuilder/Bubblewrap actually consume.
       { src: "/icons/icon-192.png", type: "image/png", sizes: "192x192", purpose: "any" },
       { src: "/icons/icon-512.png", type: "image/png", sizes: "512x512", purpose: "any" },
       // Maskable: Android adapts it to circular/rounded launcher masks.

@@ -86,6 +86,16 @@ export interface Config {
   descripcion: string | null;
 }
 
+export interface PushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string | null;
+  created_at: string;
+}
+
 /** A full order with its items + state history — the tracking-page shape. */
 export interface PedidoCompleto extends Pedido {
   items: PedidoItem[];

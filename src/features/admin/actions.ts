@@ -17,6 +17,8 @@ import {
   configSchema,
 } from "./schemas";
 import { borrarArchivosPedido } from "./storage";
+import { enviarPushAUsuario } from "@/features/push/send";
+import { pushCambioEstado, pushPeso } from "@/features/push/mensajes";
 
 /** Per-pound shipping rate from config (USD), with a safe default. */
 const DEFAULT_PRECIO_POR_LB = 7;
@@ -350,6 +352,18 @@ export async function registrarPeso(
     totalExpress = Number((total + recargoExpressUsd).toFixed(2));
   }
 
+  // Tell the client the final shipping cost is ready (best-effort).
+  if (total !== null) {
+    const { data: dueno } = await supabase
+      .from("pedidos")
+      .select("user_id")
+      .eq("id", pedidoId)
+      .single();
+    if (dueno?.user_id) {
+      await enviarPushAUsuario(dueno.user_id as string, pushPeso(pedidoId, total));
+    }
+  }
+
   revalidatePath("/admin/kanban");
   return {
     ok: true,
@@ -496,6 +510,19 @@ export async function advanceOrderState(
   // proof); the scheduled cleanup (/api/cron/cleanup) removes them after 2 days.
   if (nuevoEstado === "CANCELADO") {
     await borrarArchivosPedido(supabase, pedidoId);
+  }
+
+  // Notify the client of the progress (best-effort; no-op without VAPID).
+  const { data: dueno } = await supabase
+    .from("pedidos")
+    .select("user_id")
+    .eq("id", pedidoId)
+    .single();
+  if (dueno?.user_id) {
+    await enviarPushAUsuario(
+      dueno.user_id as string,
+      pushCambioEstado(pedidoId, nuevoEstado),
+    );
   }
 
   revalidatePath("/admin/kanban");

@@ -15,6 +15,8 @@ import {
   completarPerfilHref,
   isProfileComplete,
 } from "@/features/profile/domain";
+import { enviarPushAAdmins } from "@/features/push/send";
+import { pushNuevoPedido, pushPedidoEditado } from "@/features/push/mensajes";
 
 export type CreateOrderState = { error?: string };
 
@@ -98,6 +100,16 @@ export async function createOrder(
     return { error: "No se pudieron guardar los productos. Intenta de nuevo." };
   }
 
+  // Real-time push to the admin(s) — more reliable than depending on the client
+  // to actually send the prefilled WhatsApp. Best-effort (no-op without VAPID).
+  await enviarPushAAdmins(
+    pushNuevoPedido(
+      pedido.id,
+      profile?.nombre ?? null,
+      parsed.data.items.length,
+    ),
+  );
+
   revalidatePath("/pedidos");
   redirect(`/pedidos/${pedido.id}?nuevo=1`);
 }
@@ -135,7 +147,11 @@ async function authorizeOwnerEdit(pedidoId: string) {
     return { error: "Este pedido ya no se puede modificar." as const };
   }
 
-  return { admin, estado: pedido.estado_actual as Estado };
+  return {
+    admin,
+    estado: pedido.estado_actual as Estado,
+    userId: pedido.user_id as string,
+  };
 }
 
 /**
@@ -163,7 +179,7 @@ export async function updateOrder(
 
   const auth = await authorizeOwnerEdit(pedidoId);
   if ("error" in auth) return { error: auth.error };
-  const { admin, estado } = auth;
+  const { admin, estado, userId } = auth;
 
   // Swap the item set (delete-all + insert). Items are recreated fresh, so any
   // admin processing on them (name/price/image) is dropped — that's the reset.
@@ -206,6 +222,14 @@ export async function updateOrder(
       nota: "El cliente editó el pedido; vuelve a cotización.",
     });
   }
+
+  // Notify admins that the order changed and needs a re-quote. Best-effort.
+  const { data: cli } = await admin
+    .from("profiles")
+    .select("nombre")
+    .eq("id", userId)
+    .single();
+  await enviarPushAAdmins(pushPedidoEditado(pedidoId, cli?.nombre ?? null));
 
   revalidatePath(`/pedidos/${pedidoId}`);
   revalidatePath("/pedidos");

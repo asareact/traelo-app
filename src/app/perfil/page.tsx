@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { logout } from "@/features/auth";
 import { ProfileForm } from "@/features/profile";
 import { getMiPerfil } from "@/features/profile/queries";
+import { NotificationToggle } from "@/features/push";
 
 export const metadata: Metadata = { title: "Perfil — Traelo" };
 
@@ -41,6 +42,10 @@ export default async function PerfilPage() {
           direccion: profile?.direccion,
         }}
       />
+
+      <div className="mt-5">
+        <NotificationToggle />
+      </div>
 
       <form action={logout} className="mt-8">
         <Button type="submit" variant="secondary" className="w-full">

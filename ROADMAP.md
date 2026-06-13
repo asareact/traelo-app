@@ -361,11 +361,19 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     en modo create; se limpia al crear el pedido (`ClearDraft` en la página con `?nuevo=1`).
     Las demás (file/protocol handlers, widgets, edge side panel, window controls, tabbed, note-taking)
     son de escritorio o nicho → descartadas para este público móvil.
-- **Push notifications (Fase 3, atado a la PWA de arriba):** **DECIDIDO self-hosted** (`web-push` +
-  VAPID, tabla de suscripciones en Supabase + endpoint propio, sin terceros). El SW ya tiene el handler
-  `push`/`notificationclick` listo. Falta: claves VAPID, tabla `push_subscriptions`, endpoint de envío y
-  el botón de "activar notificaciones" en la UI. Android = push con app cerrada; iOS = solo con la PWA
-  instalada (iOS 16.4+). **Complemento** del WhatsApp, no reemplazo (en Cuba WhatsApp llega a más gente).
+- **Push notifications (Fase 3) — CÓDIGO HECHO, self-hosted (`web-push` + VAPID, sin terceros).**
+  Feature `features/push/`: tabla `push_subscriptions` (migración **0008 aplicada**, RLS por dueño);
+  `actions.ts` (guardar/eliminar suscripción), `send.ts` (server-only: `enviarPushAUsuario` /
+  `enviarPushAAdmins`, poda 404/410, no-op sin VAPID), `mensajes.ts` (payloads puros), `NotificationToggle`
+  en `/perfil`. El SW (`public/sw.js`) ya renderiza el push. **Eventos notificados:**
+  - **Cliente:** cada cambio de estado (reusa `NOTIF_ESTADO`) y cuando se registra el peso → costo final.
+  - **Admin:** pedido nuevo (más fiable que el WhatsApp) y pedido editado (re-cotizar).
+  - **Futuro (solo código, sin repaquetar):** recordatorio de pago si un pedido se estanca en
+    PENDIENTE_PAGO, recordatorio de recogida — requieren un cron (no event-driven).
+  - **Pendiente de activar:** (1) env vars en Vercel: `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (build-time),
+    `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`; sin ellas el toggle se oculta y el envío es no-op (no rompe).
+    (2) al regenerar el APK, activar **notification delegation** en PWABuilder. Android = push con app
+    cerrada; iOS = solo con la PWA/APK instalada (iOS 16.4+). Complemento del WhatsApp, no reemplazo.
 
 ---
 

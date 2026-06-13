@@ -133,6 +133,22 @@ export function nombreProductoEs(url: string): string | null {
   return words.map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 }
 
+/**
+ * Pull the first URL out of content shared into the app (Android Share Target).
+ * The shared payload can be a bare link or text with the link embedded
+ * ("Mira esto https://shein.com/..."), so we grab the first http(s) URL and trim
+ * trailing punctuation. Returns null when there's none. We do NOT restrict to
+ * SHEIN hosts — SHEIN uses many domains and short links — the form/admin vet it.
+ */
+export function extraerLinkCompartido(
+  raw: string | null | undefined,
+): string | null {
+  if (!raw) return null;
+  const m = raw.match(/https?:\/\/[^\s]+/i);
+  if (!m) return null;
+  return m[0].replace(/[)\].,;]+$/, "");
+}
+
 /** Audience tag (Hombre / Mujer / Unisex / Niños) from a SHEIN URL, or null. */
 export function generoProductoEs(url: string): string | null {
   const hay = (re: RegExp) => re.test(url);

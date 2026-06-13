@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { OrderForm } from "@/features/orders";
+import { emptyItem } from "@/features/orders/schemas";
+import { extraerLinkCompartido } from "@/features/orders/domain/shein";
 import {
   completarPerfilHref,
   isProfileComplete,
@@ -13,12 +15,26 @@ import { env } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Nuevo pedido — Traelo" };
 
-export default async function NuevoPedidoPage() {
+export default async function NuevoPedidoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ url?: string; text?: string; title?: string }>;
+}) {
+  // Android Share Target sends the shared content here as query params (GET
+  // share_target → this page). Pull the first link so a SHEIN product shared from
+  // the browser / SHEIN app lands prefilled in the first product.
+  const sp = await searchParams;
+  const sharedLink = extraerLinkCompartido(sp.url || sp.text);
+  // Carry the shared link through login so it isn't lost if they aren't signed in.
+  const selfHref = sharedLink
+    ? `/pedidos/nuevo?url=${encodeURIComponent(sharedLink)}`
+    : "/pedidos/nuevo";
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/pedidos/nuevo");
+  if (!user) redirect(`/login?next=${encodeURIComponent(selfHref)}`);
 
   // Gate: a name + phone are required before placing an order.
   const profile = await getMiPerfil();
@@ -50,6 +66,9 @@ export default async function NuevoPedidoPage() {
         nombre={profile?.nombre}
         telefono={profile?.telefono}
         siteUrl={env.NEXT_PUBLIC_SITE_URL ?? null}
+        initialItems={
+          sharedLink ? [{ ...emptyItem, shein_url: sharedLink }] : undefined
+        }
       />
     </AppShell>
   );

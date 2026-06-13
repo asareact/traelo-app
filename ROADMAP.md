@@ -350,7 +350,14 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     (plugin de build, fricción con Next 16 + Turbopack) por el SW a mano: cero cambios a `next.config`,
     mismo comportamiento en dev y prod, control total del handler de push.
   - **Fase 2 APK — pendiente.** Con la PWA viva, generar el APK con **PWABuilder.com** (pegar la URL →
-    APK firmado, sin instalar Android SDK/JDK). Bubblewrap es la versión CLI de lo mismo.
+    APK firmado, sin instalar Android SDK/JDK). Bubblewrap es la versión CLI de lo mismo. Al regenerar:
+    usar la **MISMA firma** (`signing.keystore`) o el `assetlinks.json` deja de cuadrar y vuelve la barra.
+    La regeneración también aplica `background_color` crema al splash nativo y registra el **Share Target**.
+  - **Capacidades del manifest:** `shortcuts`, **`share_target`** (compartir un link de SHEIN desde el
+    navegador/app → abre `/pedidos/nuevo` con el link prellenado; ver `extraerLinkCompartido` en
+    `domain/shein.ts` + `searchParams` en la página) y **`launch_handler`** (enfoca la app abierta).
+    Las demás (file/protocol handlers, widgets, edge side panel, window controls, tabbed, note-taking)
+    son de escritorio o nicho → descartadas para este público móvil.
 - **Push notifications (Fase 3, atado a la PWA de arriba):** **DECIDIDO self-hosted** (`web-push` +
   VAPID, tabla de suscripciones en Supabase + endpoint propio, sin terceros). El SW ya tiene el handler
   `push`/`notificationclick` listo. Falta: claves VAPID, tabla `push_subscriptions`, endpoint de envío y

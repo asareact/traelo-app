@@ -25,6 +25,18 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "es",
     dir: "ltr",
     categories: ["shopping"],
+    // Share Target: Traelo appears in Android's share sheet. Sharing a SHEIN link
+    // from the browser/SHEIN app does a GET to /pedidos/nuevo with the link in the
+    // query, which prefills the first product. method GET so it's a plain navigation.
+    share_target: {
+      action: "/pedidos/nuevo",
+      method: "GET",
+      enctype: "application/x-www-form-urlencoded",
+      params: { title: "title", text: "text", url: "url" },
+    },
+    // Tapping the icon / a notification focuses the existing app window instead of
+    // spawning a new one.
+    launch_handler: { client_mode: "navigate-existing" },
     // Long-press shortcuts on the installed app icon.
     shortcuts: [
       {

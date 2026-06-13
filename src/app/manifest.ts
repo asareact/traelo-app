@@ -57,5 +57,22 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
+    // Shown in the Android install dialog (richer "app-like" prompt).
+    screenshots: [
+      {
+        src: "/screenshots/screenshot-2.jpg",
+        sizes: "486x1080",
+        type: "image/jpeg",
+        form_factor: "narrow",
+        label: "Tu inicio: pedido activo, hacer un pedido y el cambio del día",
+      },
+      {
+        src: "/screenshots/screenshot-1.jpg",
+        sizes: "486x1080",
+        type: "image/jpeg",
+        form_factor: "narrow",
+        label: "Seguimiento de tu pedido en tiempo real",
+      },
+    ],
   };
 }

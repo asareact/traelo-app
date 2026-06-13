@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { FileText } from "lucide-react";
 import { IconLink, IconWhatsapp, IconCheck } from "@/components/brand/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { permitePeso } from "@/features/orders/domain/estados";
 import { aplicaExpress, type TipoEnvio } from "@/features/orders";
+import { permiteFactura } from "@/features/invoice/domain/factura";
 import type { KanbanPedido } from "@/features/admin/queries";
 
 /**
@@ -34,6 +36,8 @@ export function KanbanCard({
   // Express can be chosen once the package is weighed at 10+ lb.
   const puedeExpress = aplicaExpress(pedido.peso_lb);
   const esExpress = pedido.tipo_envio === "express";
+  // Invoice can be generated once the client has paid (PAGADO onward).
+  const puedeFacturar = permiteFactura(pedido.estado_actual);
 
   return (
     <article className="rounded-2xl border border-border bg-bg p-4 shadow-sm">
@@ -158,6 +162,18 @@ export function KanbanCard({
             </span>
           )}
         </Button>
+      )}
+
+      {puedeFacturar && (
+        <a
+          href={`/api/admin/factura/${pedido.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-surface py-2 text-xs font-bold text-text transition hover:text-primary active:scale-[0.98]"
+        >
+          <FileText size={14} />
+          Generar factura
+        </a>
       )}
     </article>
   );

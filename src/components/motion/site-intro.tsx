@@ -1,25 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { LogoLoader } from "@/components/motion/logo-loader";
 
 const SEEN_KEY = "traelo_intro_seen";
-const HARD_CAP_MS = 4500; // safety net if the video never fires `ended` (clip ~3s)
+// Let the draw-on animation form the logo and hold it, then fade out. The draw
+// cycle is ~2.6s; we dismiss at 2.2s while the mark is fully formed (cleaner than
+// catching it mid-loop-restart).
+const DURATION_MS = 2200;
 
 /**
- * Brand intro splash — a full-screen logo-reveal video shown once per session.
+ * Brand intro splash — a full-screen logo loader (CSS, no video) shown once per
+ * session on the landing.
  *
  * The overlay container is server-rendered and hidden by CSS; the pre-paint
  * script in layout.tsx adds `.intro-playing` to <html> for first-time visitors,
- * so the black overlay is already up at first paint (no flash of the landing).
- * The video element only mounts when actually playing — returning and
- * reduced-motion users never download it.
- *
- * Fit: full-bleed on mobile (object-cover, centered wordmark stays intact);
- * a centered full-height portrait column on larger screens (nothing cropped).
+ * so the cream overlay is already up at first paint (no flash of the landing).
+ * Returning and reduced-motion visitors never see it (the boot script skips them).
  */
 export function SiteIntro() {
   const [active, setActive] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const dismiss = useCallback(() => {
     document.documentElement.classList.remove("intro-playing"); // CSS fades it out
@@ -35,36 +35,13 @@ export function SiteIntro() {
 
   useEffect(() => {
     if (!active) return;
-    const p = videoRef.current?.play?.();
-    if (p && typeof p.catch === "function") p.catch(dismiss);
-    const cap = window.setTimeout(dismiss, HARD_CAP_MS);
-    return () => clearTimeout(cap);
+    const t = window.setTimeout(dismiss, DURATION_MS);
+    return () => clearTimeout(t);
   }, [active, dismiss]);
 
   return (
-    <div className="site-intro fixed inset-0 z-[100] flex items-center justify-center bg-black">
-      {active && (
-        <>
-          <video
-            ref={videoRef}
-            className="h-dvh w-full object-cover sm:w-auto sm:object-contain"
-            src="/intro.mp4"
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            onEnded={dismiss}
-          />
-          <button
-            type="button"
-            onClick={dismiss}
-            className="absolute right-5 rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm transition active:scale-95"
-            style={{ top: "calc(env(safe-area-inset-top) + 1.25rem)" }}
-          >
-            Saltar
-          </button>
-        </>
-      )}
+    <div className="site-intro fixed inset-0 z-[100] flex items-center justify-center bg-surface">
+      {active && <LogoLoader variant="draw" />}
     </div>
   );
 }

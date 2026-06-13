@@ -45,6 +45,16 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   naranja solo ahí). **Inicio enriquecido:** tarjeta de **pedido activo**, **stats** (activos/entregados/
   USD), **cambio del día CUP/MLC** (feature `features/cambio`, API cubanomic con `revalidate:3600`,
   fallback a elTOQUE) + total del pedido también en CUP/MLC. Migraciones **0004 y 0005 ya aplicadas**.
+- **Factura de compra (PDF) + loader de marca — NUEVO:** el admin genera una **factura PDF
+  descargable** desde el kanban (botón "Generar factura", solo `PAGADO`+) vía `@react-pdf/renderer`
+  (feature `features/invoice`, ruta `/api/admin/factura/[pedidoId]`, runtime node). Logo + español +
+  **miniatura del producto** (mime detectado por magic-bytes, NO por el `Content-Type` que SHEIN miente:
+  sirve JPEG desde URLs `.png`), desglose que SIEMPRE suma al total, **"Envío: Por confirmar"** cuando el
+  paquete aún no se ha pesado (en vez de un engañoso $0.00, porque el botón sale en PAGADO y el peso se
+  registra en EN_CASILLERO), **nota de política de reembolso** (`config/business.ts`), fetch de imagen con
+  timeout 5s + log estructurado `factura.generada`. Sin casillero/SHEIN. **El splash de la landing pasó de
+  video a un loader CSS** hecho con el propio logo (la flecha teal se dibuja sola, fondo `surface` como las
+  cards), `components/motion/logo-loader.tsx`; `public/intro.mp4` quedó sin referenciar.
 - **LANZADO:** prod está vivo y validado con un pedido real de punta a punta (env vars de
   Supabase + `NEXT_PUBLIC_SITE_URL`, Supabase URL Config, `whatsapp_phone` real y Google OAuth
   ya funcionan; hay usuarios registrados).
@@ -317,6 +327,12 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   se le comunica al cliente por adelantado en la plantilla.
 - **SEO** (metadatos, sitemap): deferido a post-lanzamiento.
 - **OG tags dinámicos** en tracking: deferido (evaluar tras primeros 10 pedidos).
+- **Factura — guardar el recargo express en el pedido (no recalcularlo).** Hoy `desgloseFactura`
+  recompone el recargo desde `config.recargo_express_por_lb` actual; si cambias esa tarifa después,
+  la repartición envío/recargo de una factura vieja se desvía (el total se mantiene: es el valor
+  guardado). Baja probabilidad. Fix robusto: persistir el recargo cobrado en `pedidos`. (P3)
+- **Factura — redondear el subtotal antes de restar el envío** en `desgloseFactura`: hoy el subtotal
+  entra sin `toFixed(2)` a la resta, posible descuadre visual de 1 centavo. Cosmético. (P3)
 - **Multi-admin:** Fase 2 del negocio.
 - **App móvil / distribución (decidido el camino, sin construir aún):** NO Flutter. Estrategia:
   **una sola PWA** (reusa el código actual) → si se quiere un "APK descargable" para Android,

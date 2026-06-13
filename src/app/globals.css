@@ -76,10 +76,9 @@ h1, h2, h3 {
 }
 
 /* Brand intro overlay. Hidden by default so returning / reduced-motion users
-   never see a flash and never download the video. The pre-paint script in
-   layout.tsx adds `.intro-playing` to <html> for first-time visitors, so the
-   black overlay is up at first paint (no landing flash). Removing the class
-   fades it out. */
+   never see a flash. The pre-paint script in layout.tsx adds `.intro-playing`
+   to <html> for first-time visitors, so the cream (surface) overlay is up at
+   first paint (no landing flash). Removing the class fades it out. */
 .site-intro {
   opacity: 0;
   visibility: hidden;

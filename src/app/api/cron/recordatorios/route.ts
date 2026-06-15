@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/env.server";
-import { enviarPushAUsuario } from "@/features/push/send";
+import { notificarUsuario } from "@/features/notifications/notificar";
 import {
   pushPagoRecordatorio,
   pushRecogidaRecordatorio,
@@ -59,7 +59,12 @@ async function recordar(
 
   let enviados = 0;
   for (const p of elegibles) {
-    await enviarPushAUsuario(p.user_id as string, payload(p.id as string));
+    await notificarUsuario(
+      p.user_id as string,
+      "recordatorio",
+      payload(p.id as string),
+      p.id as string,
+    );
     await admin
       .from("pedidos")
       .update({ recordatorio_at: new Date().toISOString() })

@@ -17,7 +17,7 @@ import {
   configSchema,
 } from "./schemas";
 import { borrarArchivosPedido } from "./storage";
-import { enviarPushAUsuario } from "@/features/push/send";
+import { notificarUsuario } from "@/features/notifications/notificar";
 import { pushCambioEstado, pushPeso } from "@/features/push/mensajes";
 
 /** Per-pound shipping rate from config (USD), with a safe default. */
@@ -360,7 +360,12 @@ export async function registrarPeso(
       .eq("id", pedidoId)
       .single();
     if (dueno?.user_id) {
-      await enviarPushAUsuario(dueno.user_id as string, pushPeso(pedidoId, total));
+      await notificarUsuario(
+        dueno.user_id as string,
+        "peso",
+        pushPeso(pedidoId, total),
+        pedidoId,
+      );
     }
   }
 
@@ -519,9 +524,11 @@ export async function advanceOrderState(
     .eq("id", pedidoId)
     .single();
   if (dueno?.user_id) {
-    await enviarPushAUsuario(
+    await notificarUsuario(
       dueno.user_id as string,
+      "estado",
       pushCambioEstado(pedidoId, nuevoEstado),
+      pedidoId,
     );
   }
 

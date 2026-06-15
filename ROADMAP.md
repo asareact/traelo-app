@@ -369,6 +369,10 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   pide el permiso **automático** al entrar logueado (1 vez por sesión, solo si está "off"; nunca
   re-pregunta si ya está on/denied; iOS hace no-op por el gesto requerido → queda el botón de fallback).
   El SW (`public/sw.js`) ya renderiza el push (con vibración para el heads-up). **Eventos notificados:**
+  - **In-app + push juntos:** `features/notifications/notificar.ts` (`notificarUsuario`/`notificarAdmins`)
+    inserta la fila en `notificaciones` Y manda el push, en una llamada. La página `/notificaciones` ahora
+    LISTA, marca leídas (al abrir) y permite limpiar/eliminar (acciones + RLS update/delete del dueño,
+    migración **0010** `leida`). Badge de no-leídas en la campana del header (`contarNoLeidas`).
   - **Cliente:** cada cambio de estado (reusa `NOTIF_ESTADO`) y cuando se registra el peso → costo final.
   - **Admin:** pedido nuevo (más fiable que el WhatsApp) y pedido editado (re-cotizar).
   - **Recordatorios por cron — HECHO** (`/api/cron/recordatorios`, daily 17:00 UTC en `vercel.json`,

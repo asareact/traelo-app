@@ -79,6 +79,7 @@ export interface Notificacion {
   tipo: string;
   mensaje: string | null;
   enviado: boolean;
+  leida: boolean;
   created_at: string;
 }
 

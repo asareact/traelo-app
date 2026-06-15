@@ -22,9 +22,11 @@ import { MenuDrawer } from "./menu-drawer";
 export function StickyHeader({
   isAdmin,
   nombre,
+  noLeidas = 0,
 }: {
   isAdmin: boolean;
   nombre?: string | null;
+  noLeidas?: number;
 }) {
   const pathname = usePathname();
   const { isMain, isHome, title, backFallback } = resolveHeader(pathname);
@@ -101,10 +103,19 @@ export function StickyHeader({
             <ThemeToggle />
             <Link
               href={routes.notificaciones}
-              aria-label="Notificaciones"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-muted shadow-sm transition active:scale-90"
+              aria-label={
+                noLeidas > 0
+                  ? `Notificaciones (${noLeidas} sin leer)`
+                  : "Notificaciones"
+              }
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-muted shadow-sm transition active:scale-90"
             >
               <IconBell size={20} />
+              {noLeidas > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-bg bg-primary px-1 text-[10px] font-bold leading-none text-white">
+                  {noLeidas > 9 ? "9+" : noLeidas}
+                </span>
+              )}
             </Link>
           </div>
 

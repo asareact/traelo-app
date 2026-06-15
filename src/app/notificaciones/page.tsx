@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card } from "@/components/ui/card";
 import { IconBell } from "@/components/brand/icons";
-import { formatDateTime } from "@/lib/utils/format";
 import { getMisNotificaciones } from "@/features/notifications/queries";
+import { NotificationsList } from "@/features/notifications";
 
 export const metadata: Metadata = { title: "Notificaciones — Traelo" };
 
@@ -25,18 +24,7 @@ export default async function NotificacionesPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {notificaciones.map((n) => (
-            <li key={n.id}>
-              <Card className="p-4">
-                <p className="text-sm text-text">{n.mensaje ?? n.tipo}</p>
-                <p className="mt-1 text-xs text-muted">
-                  {formatDateTime(n.created_at)}
-                </p>
-              </Card>
-            </li>
-          ))}
-        </ul>
+        <NotificationsList items={notificaciones} />
       )}
     </AppShell>
   );

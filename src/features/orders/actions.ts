@@ -15,7 +15,7 @@ import {
   completarPerfilHref,
   isProfileComplete,
 } from "@/features/profile/domain";
-import { enviarPushAAdmins } from "@/features/push/send";
+import { notificarAdmins } from "@/features/notifications/notificar";
 import { pushNuevoPedido, pushPedidoEditado } from "@/features/push/mensajes";
 
 export type CreateOrderState = { error?: string };
@@ -102,12 +102,10 @@ export async function createOrder(
 
   // Real-time push to the admin(s) — more reliable than depending on the client
   // to actually send the prefilled WhatsApp. Best-effort (no-op without VAPID).
-  await enviarPushAAdmins(
-    pushNuevoPedido(
-      pedido.id,
-      profile?.nombre ?? null,
-      parsed.data.items.length,
-    ),
+  await notificarAdmins(
+    "pedido_nuevo",
+    pushNuevoPedido(pedido.id, profile?.nombre ?? null, parsed.data.items.length),
+    pedido.id,
   );
 
   revalidatePath("/pedidos");
@@ -229,7 +227,11 @@ export async function updateOrder(
     .select("nombre")
     .eq("id", userId)
     .single();
-  await enviarPushAAdmins(pushPedidoEditado(pedidoId, cli?.nombre ?? null));
+  await notificarAdmins(
+    "pedido_editado",
+    pushPedidoEditado(pedidoId, cli?.nombre ?? null),
+    pedidoId,
+  );
 
   revalidatePath(`/pedidos/${pedidoId}`);
   revalidatePath("/pedidos");

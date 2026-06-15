@@ -30,7 +30,8 @@ const svg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 48 48" xmlns="h
 </svg>`;
 
 for (const [dir, size] of Object.entries(DENS)) {
-  const inner = Math.round(size * 0.72); // transparent padding around the mark
+  const inner = Math.round(size * 0.9); // minimal padding — fill the icon so it
+  // reads clearly in the status bar (Android adds its own small margin)
   const logo = await sharp(Buffer.from(svg(inner))).png().toBuffer();
   await sharp({
     create: {

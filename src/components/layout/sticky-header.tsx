@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { routes } from "@/config/site";
 import { resolveHeader } from "./header-nav";
 import { MenuDrawer } from "./menu-drawer";
+import { obtenerNoLeidas } from "@/features/notifications/actions";
 
 /**
  * Sticky, translucent top bar (blur, no bottom border). Fixed height.
@@ -22,15 +23,36 @@ import { MenuDrawer } from "./menu-drawer";
 export function StickyHeader({
   isAdmin,
   nombre,
-  noLeidas = 0,
 }: {
   isAdmin: boolean;
   nombre?: string | null;
-  noLeidas?: number;
 }) {
   const pathname = usePathname();
   const { isMain, isHome, title, backFallback } = resolveHeader(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [noLeidas, setNoLeidas] = useState(0);
+
+  // Live unread count, fetched on the client so it's fresh on every page (server
+  // RSC caching would otherwise leave it stale away from /notificaciones).
+  // Re-fetches on navigation and when the app regains focus.
+  useEffect(() => {
+    let activo = true;
+    const cargar = () =>
+      obtenerNoLeidas()
+        .then((n) => {
+          if (activo) setNoLeidas(n);
+        })
+        .catch(() => {});
+    cargar();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") cargar();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      activo = false;
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [pathname]);
   const logoRef = useRef<HTMLSpanElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 

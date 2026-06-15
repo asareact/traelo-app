@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { contarNoLeidas } from "@/features/notifications/queries";
 import { StickyHeader } from "./sticky-header";
 
 /**
@@ -25,7 +24,5 @@ export async function AppHeader() {
     nombre = data?.nombre ?? null;
   }
 
-  const noLeidas = user ? await contarNoLeidas() : 0;
-
-  return <StickyHeader isAdmin={isAdmin} nombre={nombre} noLeidas={noLeidas} />;
+  return <StickyHeader isAdmin={isAdmin} nombre={nombre} />;
 }

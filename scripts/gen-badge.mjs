@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SIZE = 96;
-const INNER = 60; // leave transparent padding; Android adds its own
+const INNER = 84; // fill most of the icon so it's not a tiny dot in the status bar
 
 // The Traelo mark (box + arrow), all white.
 const svg = `<svg width="${INNER}" height="${INNER}" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">

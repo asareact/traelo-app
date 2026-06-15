@@ -2,6 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { contarNoLeidas } from "./queries";
+
+/** Live unread count for the header bell (client calls this on load / focus, so
+ *  the badge is fresh on every page — not stale from RSC caching). */
+export async function obtenerNoLeidas(): Promise<number> {
+  return contarNoLeidas();
+}
 
 /** Mark all of the caller's notifications as read. Silent (no revalidate): the
  *  list is already on screen; the header badge refreshes on the next navigation. */

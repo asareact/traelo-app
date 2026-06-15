@@ -36,6 +36,10 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
+      // Vibration nudges Android toward a heads-up banner (vs a silent tray entry)
+      // and signals the notification arrived. Final "pop on screen" behavior still
+      // depends on the channel importance (Chrome's, or the TWA's once packaged).
+      vibrate: [120, 60, 120],
       data: { url: data.url || "/" },
     }),
   );

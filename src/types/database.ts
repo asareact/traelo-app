@@ -38,6 +38,8 @@ export interface Pedido {
   // Set by the admin once the package is weighed at the US casillero.
   peso_lb: number | null;
   peso_evidencia_url: string | null;
+  /** Last time a push reminder was sent for this order (cron throttle). */
+  recordatorio_at: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -368,8 +368,11 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
   en `/perfil`. El SW (`public/sw.js`) ya renderiza el push. **Eventos notificados:**
   - **Cliente:** cada cambio de estado (reusa `NOTIF_ESTADO`) y cuando se registra el peso → costo final.
   - **Admin:** pedido nuevo (más fiable que el WhatsApp) y pedido editado (re-cotizar).
-  - **Futuro (solo código, sin repaquetar):** recordatorio de pago si un pedido se estanca en
-    PENDIENTE_PAGO, recordatorio de recogida — requieren un cron (no event-driven).
+  - **Recordatorios por cron — HECHO** (`/api/cron/recordatorios`, daily 17:00 UTC en `vercel.json`,
+    auth `CRON_SECRET`): recordatorio de **pago** si un pedido lleva >2 días en PENDIENTE_PAGO, y de
+    **recogida** si lleva >3 días en DISPONIBLE_ENTREGA. "Antigüedad" vía `estados_pedido` (como el cron
+    de limpieza); throttle con `pedidos.recordatorio_at` (migración **0009**) = re-recuerda máx. cada 3
+    días. Requiere `CRON_SECRET` en Vercel (igual que el de limpieza).
   - **Pendiente de activar:** (1) env vars en Vercel: `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (build-time),
     `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`; sin ellas el toggle se oculta y el envío es no-op (no rompe).
     (2) al regenerar el APK, activar **notification delegation** en PWABuilder. Android = push con app

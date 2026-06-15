@@ -60,6 +60,24 @@ export function pushNuevoPedido(
   };
 }
 
+/** CLIENT: reminder that an order is still awaiting payment (cron). */
+export function pushPagoRecordatorio(pedidoId: string): PushPayload {
+  return {
+    title: "Traelo · Pago pendiente",
+    body: "Tu pedido sigue esperando el pago. Págalo y lo compramos en SHEIN enseguida.",
+    url: `/pedidos/${pedidoId}`,
+  };
+}
+
+/** CLIENT: reminder that an order is ready for pickup (cron). */
+export function pushRecogidaRecordatorio(pedidoId: string): PushPayload {
+  return {
+    title: "Traelo · Listo para recoger",
+    body: "Tu pedido te está esperando. Pasa a recogerlo cuando puedas.",
+    url: `/pedidos/${pedidoId}`,
+  };
+}
+
 /** ADMIN: a client edited their order (it went back to cotización to re-quote). */
 export function pushPedidoEditado(
   pedidoId: string,

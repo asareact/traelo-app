@@ -349,10 +349,19 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
     sharp) + `src/app/apple-icon.png`; `manifest.ts` con `id/scope` + los PNG. Se descartó `@serwist/next`
     (plugin de build, fricción con Next 16 + Turbopack) por el SW a mano: cero cambios a `next.config`,
     mismo comportamiento en dev y prod, control total del handler de push.
-  - **Fase 2 APK — pendiente.** Con la PWA viva, generar el APK con **PWABuilder.com** (pegar la URL →
-    APK firmado, sin instalar Android SDK/JDK). Bubblewrap es la versión CLI de lo mismo. Al regenerar:
-    usar la **MISMA firma** (`signing.keystore`) o el `assetlinks.json` deja de cuadrar y vuelve la barra.
-    La regeneración también aplica `background_color` crema al splash nativo y registra el **Share Target**.
+  - **Fase 2 APK — HECHO con Bubblewrap local** (PWABuilder daba 500). Proyecto en `C:\Users\Abel\traelo-twa`
+    (NO versionado en el repo). Firma: `Downloads\Traelo v2\signing.keystore`, alias `traelo` (misma del
+    PWABuilder original → `assetlinks.json` válido). Build: `gradlew assembleRelease` (heap a 1024m en
+    `gradle.properties` porque el JDK que baja Bubblewrap es 32-bit) → `zipalign` → `apksigner`. SHA-256
+    del cert coincide con el assetlinks. **Personalizaciones del proyecto TWA (se pierden si se corre
+    `bubblewrap update`, mantener a mano):**
+    - `launchUrl: '/'` en `app/build.gradle` + `startUrl: '/'` en `twa-manifest.json` (no la URL completa,
+      o se concatena doble).
+    - Ícono monocromo de la barra: `ic_notification_icon.png` en las 5 densidades (script
+      `scripts/gen-twa-notif-icons.mjs`), si no Android lo pinta como cuadro blanco.
+    - `DelegationService.java`: override de `onNotifyNotificationWithChannel` que pre-crea el canal en
+      `IMPORTANCE_HIGH` (la librería lo crea en DEFAULT → no asomaba el heads-up). Al actualizar el APK
+      hay que **desinstalar+instalar** (Android no sube la importancia de un canal ya creado).
   - **Capacidades del manifest:** `shortcuts`, **`share_target`** y **`launch_handler`** (enfoca la app
     abierta). Share Target: compartir un link de SHEIN → `/pedidos/nuevo?url=...`; se extrae
     (`extraerLinkCompartido` en `domain/shein.ts`) y se **acumula en un borrador** en localStorage

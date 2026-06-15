@@ -42,6 +42,12 @@ self.addEventListener("push", (event) => {
       // and signals the notification arrived. Final "pop on screen" behavior still
       // depends on the channel importance (Chrome's, or the TWA's once packaged).
       vibrate: [120, 60, 120],
+      // Same tag (per order) → a newer update REPLACES the previous one instead of
+      // stacking; renotify makes the replacement still alert.
+      tag: data.tag || undefined,
+      renotify: data.tag ? true : false,
+      // A tap-target button in addition to tapping the body.
+      actions: [{ action: "abrir", title: "Ver pedido" }],
       data: { url: data.url || "/" },
     }),
   );

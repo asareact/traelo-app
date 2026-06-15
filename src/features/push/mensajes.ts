@@ -1,29 +1,29 @@
 /**
  * Push payload builders — pure (no I/O), so they're easy to test. Short title +
- * body + a deep link; the service worker (public/sw.js) renders them. Same
- * client-facing rules as the WhatsApp copy: no "casillero", no SHEIN links.
+ * body + a deep link + a group tag; the service worker (public/sw.js) renders
+ * them. Same client-facing rules as the WhatsApp copy: no "casillero", no SHEIN
+ * links, and no technical order ids in the copy (meaningless to the client).
  */
-import {
-  ESTADO_LABEL,
-  type Estado,
-} from "@/features/orders/domain/estados";
+import { ESTADO_LABEL, type Estado } from "@/features/orders/domain/estados";
 import { NOTIF_ESTADO } from "@/features/orders/domain/notificaciones";
 
 export interface PushPayload {
   title: string;
   body: string;
-  /** Deep link opened when the notification is tapped. */
+  /** Deep link opened when the notification is tapped (or "Ver pedido"). */
   url: string;
+  /** Group key: a newer notification with the same tag replaces the previous
+   *  one (per order), so updates don't pile up in the tray. */
+  tag?: string;
 }
-
-const corto = (id: string) => id.slice(0, 8).toUpperCase();
 
 /** CLIENT: the order advanced to a new state. Reuses the per-state copy. */
 export function pushCambioEstado(pedidoId: string, estado: Estado): PushPayload {
   return {
-    title: `Traelo · Pedido #${corto(pedidoId)}`,
+    title: "Traelo",
     body: NOTIF_ESTADO[estado] ?? `Tu pedido pasó a: ${ESTADO_LABEL[estado]}.`,
     url: `/pedidos/${pedidoId}`,
+    tag: pedidoId,
   };
 }
 
@@ -34,6 +34,7 @@ export function pushPeso(pedidoId: string, totalUsd: number | null): PushPayload
     title: "Traelo · Costo de envío listo",
     body: `Ya pesamos tu paquete y tenemos el costo final.${total} Toca para ver el detalle.`,
     url: `/pedidos/${pedidoId}`,
+    tag: pedidoId,
   };
 }
 
@@ -43,6 +44,7 @@ export function pushPrecioCambio(pedidoId: string): PushPayload {
     title: "Traelo · Precio actualizado",
     body: "El precio de tu pedido cambió. Toca para revisarlo y confirmar.",
     url: `/pedidos/${pedidoId}`,
+    tag: pedidoId,
   };
 }
 
@@ -57,6 +59,7 @@ export function pushNuevoPedido(
     title: "Nuevo pedido",
     body: `${quien} hizo un pedido (${numProductos} producto${numProductos === 1 ? "" : "s"}).`,
     url: "/admin/kanban",
+    tag: pedidoId,
   };
 }
 
@@ -66,6 +69,7 @@ export function pushPagoRecordatorio(pedidoId: string): PushPayload {
     title: "Traelo · Pago pendiente",
     body: "Tu pedido sigue esperando el pago. Págalo y lo compramos en SHEIN enseguida.",
     url: `/pedidos/${pedidoId}`,
+    tag: pedidoId,
   };
 }
 
@@ -75,6 +79,7 @@ export function pushRecogidaRecordatorio(pedidoId: string): PushPayload {
     title: "Traelo · Listo para recoger",
     body: "Tu pedido te está esperando. Pasa a recogerlo cuando puedas.",
     url: `/pedidos/${pedidoId}`,
+    tag: pedidoId,
   };
 }
 
@@ -86,7 +91,8 @@ export function pushPedidoEditado(
   const quien = cliente?.trim() || "Un cliente";
   return {
     title: "Pedido editado",
-    body: `${quien} editó su pedido #${corto(pedidoId)}. Hay que revisar el precio.`,
+    body: `${quien} editó su pedido. Hay que revisar el precio.`,
     url: "/admin/kanban",
+    tag: pedidoId,
   };
 }

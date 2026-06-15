@@ -2,97 +2,43 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { env } from "@/lib/env";
-import { guardarSuscripcion, eliminarSuscripcion } from "@/features/push/actions";
-
-/** Convert a base64url VAPID public key to the Uint8Array the Push API wants.
- *  Built on a concrete ArrayBuffer so it satisfies BufferSource (TS 5.7+). */
-function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
-  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
-  const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = atob(b64);
-  const buffer = new ArrayBuffer(raw.length);
-  const arr = new Uint8Array(buffer);
-  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-  return arr;
-}
-
-type Estado = "loading" | "unsupported" | "off" | "on" | "denied";
+import {
+  estadoPush,
+  activarPush,
+  desactivarPush,
+  type EstadoPush,
+} from "@/features/push/subscribe";
 
 /**
- * "Activar notificaciones" card. Requests permission, subscribes via the service
- * worker's PushManager, and stores the subscription server-side. Hides itself
- * where push isn't available (unsupported browser, or VAPID not configured).
- * On iOS, push only works once the app is installed to the home screen.
+ * "Activar notificaciones" card on /perfil. The on-login auto-subscribe
+ * (AutoSubscribe) usually handles this already; this stays as the explicit
+ * control to re-enable or turn off. Hides where push isn't available.
  */
 export function NotificationToggle() {
-  const vapid = env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const [estado, setEstado] = useState<Estado>("loading");
+  const [estado, setEstado] = useState<EstadoPush | "loading">("loading");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      const supported =
-        "serviceWorker" in navigator &&
-        "PushManager" in window &&
-        "Notification" in window &&
-        !!vapid;
-      if (!supported) {
-        setEstado("unsupported");
-        return;
-      }
-      if (Notification.permission === "denied") {
-        setEstado("denied");
-        return;
-      }
-      navigator.serviceWorker.ready
-        .then((reg) => reg.pushManager.getSubscription())
-        .then((sub) =>
-          setEstado(sub && Notification.permission === "granted" ? "on" : "off"),
-        )
-        .catch(() => setEstado("off"));
+    let activo = true;
+    estadoPush().then((e) => {
+      if (activo) setEstado(e);
     });
-    return () => cancelAnimationFrame(id);
-  }, [vapid]);
+    return () => {
+      activo = false;
+    };
+  }, []);
 
-  async function activar() {
-    if (!vapid) return;
+  async function onActivar() {
     setBusy(true);
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm !== "granted") {
-        setEstado(perm === "denied" ? "denied" : "off");
-        return;
-      }
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapid),
-      });
-      const res = await guardarSuscripcion(sub.toJSON());
-      setEstado(res.ok ? "on" : "off");
-    } catch {
-      setEstado("off");
-    } finally {
-      setBusy(false);
-    }
+    setEstado(await activarPush());
+    setBusy(false);
   }
 
-  async function desactivar() {
+  async function onDesactivar() {
     setBusy(true);
-    try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      if (sub) {
-        await eliminarSuscripcion(sub.endpoint);
-        await sub.unsubscribe();
-      }
-    } catch {
-      // ignore
-    } finally {
-      setEstado("off");
-      setBusy(false);
-    }
+    await desactivarPush();
+    setEstado("off");
+    setBusy(false);
   }
 
   if (estado === "loading" || estado === "unsupported") return null;
@@ -112,7 +58,7 @@ export function NotificationToggle() {
         <Button
           type="button"
           variant="secondary"
-          onClick={desactivar}
+          onClick={onDesactivar}
           disabled={busy}
           className="mt-4 w-full"
         >
@@ -121,7 +67,7 @@ export function NotificationToggle() {
       ) : estado === "off" ? (
         <Button
           type="button"
-          onClick={activar}
+          onClick={onActivar}
           disabled={busy}
           className="mt-4 w-full"
         >

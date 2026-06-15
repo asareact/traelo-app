@@ -364,8 +364,11 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
 - **Push notifications (Fase 3) — CÓDIGO HECHO, self-hosted (`web-push` + VAPID, sin terceros).**
   Feature `features/push/`: tabla `push_subscriptions` (migración **0008 aplicada**, RLS por dueño);
   `actions.ts` (guardar/eliminar suscripción), `send.ts` (server-only: `enviarPushAUsuario` /
-  `enviarPushAAdmins`, poda 404/410, no-op sin VAPID), `mensajes.ts` (payloads puros), `NotificationToggle`
-  en `/perfil`. El SW (`public/sw.js`) ya renderiza el push. **Eventos notificados:**
+  `enviarPushAAdmins`, poda 404/410, no-op sin VAPID), `mensajes.ts` (payloads puros), helper
+  `subscribe.ts` (compartido), `NotificationToggle` en `/perfil`, y **`AutoSubscribe`** (en `AppShell`):
+  pide el permiso **automático** al entrar logueado (1 vez por sesión, solo si está "off"; nunca
+  re-pregunta si ya está on/denied; iOS hace no-op por el gesto requerido → queda el botón de fallback).
+  El SW (`public/sw.js`) ya renderiza el push (con vibración para el heads-up). **Eventos notificados:**
   - **Cliente:** cada cambio de estado (reusa `NOTIF_ESTADO`) y cuando se registra el peso → costo final.
   - **Admin:** pedido nuevo (más fiable que el WhatsApp) y pedido editado (re-cotizar).
   - **Recordatorios por cron — HECHO** (`/api/cron/recordatorios`, daily 17:00 UTC en `vercel.json`,

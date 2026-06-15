@@ -6,6 +6,7 @@
  * here — that keeps web-push and the admin client out of any client bundle.
  */
 export { NotificationToggle } from "./components/notification-toggle";
+export { AutoSubscribe } from "./components/auto-subscribe";
 export {
   guardarSuscripcion,
   eliminarSuscripcion,

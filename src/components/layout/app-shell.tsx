@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/layout/app-header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { AutoSubscribe } from "@/features/push";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -24,6 +25,8 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh bg-bg">
+      {/* Auto-asks for notification permission once, on first signed-in load. */}
+      <AutoSubscribe />
       <div className="mx-auto w-full max-w-md">
         {header && <AppHeader />}
         {/* `content-enter` carries the page-transition "rise". It lives here, on

@@ -35,7 +35,9 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(title, {
       body: data.body || "",
       icon: "/icons/icon-192.png",
-      badge: "/icons/icon-192.png",
+      // Monochrome silhouette (white on transparent) — Android uses only the alpha
+      // for the status-bar icon; a full-color icon would render as a white square.
+      badge: "/icons/badge-mono.png",
       // Vibration nudges Android toward a heads-up banner (vs a silent tray entry)
       // and signals the notification arrived. Final "pop on screen" behavior still
       // depends on the channel importance (Chrome's, or the TWA's once packaged).

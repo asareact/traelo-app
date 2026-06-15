@@ -10,6 +10,7 @@ export { AutoSubscribe } from "./components/auto-subscribe";
 export {
   guardarSuscripcion,
   eliminarSuscripcion,
+  enviarPushDePrueba,
   type PushActionState,
 } from "./actions";
 export {

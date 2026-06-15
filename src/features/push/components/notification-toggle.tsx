@@ -8,6 +8,7 @@ import {
   desactivarPush,
   type EstadoPush,
 } from "@/features/push/subscribe";
+import { enviarPushDePrueba } from "@/features/push/actions";
 
 /**
  * "Activar notificaciones" card on /perfil. The on-login auto-subscribe
@@ -17,6 +18,7 @@ import {
 export function NotificationToggle() {
   const [estado, setEstado] = useState<EstadoPush | "loading">("loading");
   const [busy, setBusy] = useState(false);
+  const [prueba, setPrueba] = useState<string | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -41,6 +43,18 @@ export function NotificationToggle() {
     setBusy(false);
   }
 
+  async function onProbar() {
+    setBusy(true);
+    setPrueba(null);
+    const res = await enviarPushDePrueba();
+    setPrueba(
+      res.dispositivos > 0
+        ? `Enviada a ${res.dispositivos} dispositivo${res.dispositivos === 1 ? "" : "s"}. Si no la viste asomar, revisa los ajustes de notificaciones del teléfono.`
+        : "Este dispositivo no está registrado. Toca “Desactivar” y vuelve a “Activar” para registrarlo.",
+    );
+    setBusy(false);
+  }
+
   if (estado === "loading" || estado === "unsupported") return null;
 
   return (
@@ -55,15 +69,28 @@ export function NotificationToggle() {
       </p>
 
       {estado === "on" ? (
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onDesactivar}
-          disabled={busy}
-          className="mt-4 w-full"
-        >
-          {busy ? "Un momento…" : "Desactivar notificaciones"}
-        </Button>
+        <>
+          <Button
+            type="button"
+            onClick={onProbar}
+            disabled={busy}
+            className="mt-4 w-full"
+          >
+            {busy ? "Un momento…" : "Probar notificación"}
+          </Button>
+          {prueba && (
+            <p className="mt-2 text-xs leading-relaxed text-muted">{prueba}</p>
+          )}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onDesactivar}
+            disabled={busy}
+            className="mt-2 w-full"
+          >
+            Desactivar notificaciones
+          </Button>
+        </>
       ) : estado === "off" ? (
         <Button
           type="button"

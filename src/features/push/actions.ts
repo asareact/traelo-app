@@ -2,8 +2,42 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { pushSubscriptionSchema } from "./schemas";
+import { enviarPushAUsuario } from "./send";
 
 export type PushActionState = { ok?: boolean; error?: string };
+
+/**
+ * Send a test push to the caller's own devices. Returns how many subscriptions
+ * the SERVER has for the user — the key diagnostic: 0 means this device isn't
+ * really registered (re-activate), >0 means it's registered and any non-delivery
+ * is on the OS/channel side.
+ */
+export async function enviarPushDePrueba(): Promise<{
+  dispositivos: number;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { dispositivos: 0, error: "No autorizado." };
+
+  const { count } = await supabase
+    .from("push_subscriptions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+  const dispositivos = count ?? 0;
+
+  if (dispositivos > 0) {
+    await enviarPushAUsuario(user.id, {
+      title: "Traelo",
+      body: "Notificación de prueba. Si la ves, todo funciona.",
+      url: "/notificaciones",
+      tag: "prueba",
+    });
+  }
+  return { dispositivos };
+}
 
 /**
  * Store (or refresh) the caller's Web Push subscription. Keyed by endpoint so a

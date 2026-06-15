@@ -29,7 +29,11 @@ export function AutoSubscribe() {
       } catch {
         // ignore
       }
-      if (estado === "off") {
+      // "off" → ask permission + subscribe. "on" → the browser already has a
+      // subscription, but the SERVER may not (e.g. it was pruned after a reinstall
+      // while the browser kept it). activarPush is idempotent and re-saves it, so
+      // the server always has the current subscription. Skip only denied/unsupported.
+      if (estado === "off" || estado === "on") {
         await activarPush();
       }
     }, 1500);

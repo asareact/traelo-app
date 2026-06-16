@@ -359,9 +359,14 @@ Usuario objetivo: cubanas jóvenes (18-30), mobile-first, que llegan por Faceboo
       o se concatena doble).
     - Ícono monocromo de la barra: `ic_notification_icon.png` en las 5 densidades (script
       `scripts/gen-twa-notif-icons.mjs`), si no Android lo pinta como cuadro blanco.
-    - `DelegationService.java`: override de `onNotifyNotificationWithChannel` que pre-crea el canal en
-      `IMPORTANCE_HIGH` (la librería lo crea en DEFAULT → no asomaba el heads-up). Al actualizar el APK
-      hay que **desinstalar+instalar** (Android no sube la importancia de un canal ya creado).
+    - `DelegationService.java`: la librería crea el canal en `IMPORTANCE_DEFAULT` → no asomaba el
+      heads-up. Y lo crea **eagerly** en `NotificationPermissionRequestActivity` (al pedir el permiso),
+      antes de la primera notificación. Por eso el override de `onNotifyNotificationWithChannel` llegaba
+      tarde. La fix real: override de **`onExtraCommand`** (donde Chrome manda `notificationChannelName`
+      ANTES de crear el canal) que pre-crea el canal en `IMPORTANCE_HIGH` con el id exacto de la librería
+      (`name.toLowerCase(ROOT).replace(' ','_')+"_channel_id"`). Se mantiene el override de notify como
+      respaldo. Solo aplica en **instalación limpia** (Android no sube la importancia de un canal ya
+      creado → desinstalar+instalar).
   - **Capacidades del manifest:** `shortcuts`, **`share_target`** y **`launch_handler`** (enfoca la app
     abierta). Share Target: compartir un link de SHEIN → `/pedidos/nuevo?url=...`; se extrae
     (`extraerLinkCompartido` en `domain/shein.ts`) y se **acumula en un borrador** en localStorage

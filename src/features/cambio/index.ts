@@ -10,3 +10,4 @@ export {
   fmtMlc,
 } from "./domain";
 export { CambioLine } from "./components/cambio-line";
+export { ExchangeBanner } from "./components/exchange-banner";

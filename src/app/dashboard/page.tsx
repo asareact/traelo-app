@@ -8,6 +8,7 @@ import {
   IconUserCheck,
   IconChevronRight,
   IconBox,
+  IconHelp,
 } from "@/components/brand/icons";
 import { cn } from "@/lib/utils/cn";
 import { formatRelativeDate } from "@/lib/utils/format";
@@ -48,80 +49,80 @@ export default async function DashboardPage() {
 
   return (
     <AppShell>
+      {/* Today's rate — sticky bar just under the header (hidden on first run) */}
+      {pedidos.length > 0 && <ExchangeBanner tasas={tasas} />}
+
       {perfilIncompleto && <ProfileAlert />}
 
-      {/* Hero: the active order, or a welcome headline when there's none */}
-      {activo ? (
-        <div className="mb-6">
-          <ActiveOrderCard pedido={activo} tasas={tasas} />
-        </div>
+      {pedidos.length === 0 ? (
+        <EmptyState />
       ) : (
-        <section className="mb-6 mt-2">
-          <h1 className="font-display text-[30px] font-bold leading-tight tracking-tight text-text">
-            ¿Qué quieres
-            <br />
-            <span className="text-primary">traer hoy?</span>
-          </h1>
-        </section>
-      )}
-
-      {/* Primary CTA — solid in light, gradient-bordered card in dark */}
-      <Link
-        href={routes.nuevoPedido}
-        className="relative block w-full overflow-hidden rounded-[24px] bg-primary p-0.5 text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.28)] transition active:scale-[0.97] dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:shadow-[0_0_24px_rgba(196,82,35,0.25)]"
-      >
-        <div className="relative z-10 flex items-center gap-4 rounded-[22px] p-[22px] dark:bg-bg">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:text-black">
-            <IconPlus size={26} />
-          </span>
-          <span className="min-w-0">
-            <span className="mb-1 block text-lg font-bold leading-none dark:text-text">
-              Hacer un pedido
-            </span>
-            <span className="text-sm text-white/80 dark:text-muted">
-              Pega tus enlaces de SHEIN
-            </span>
-          </span>
-          <IconChevronRight
-            size={20}
-            className="ml-auto shrink-0 text-white/60 dark:text-primary"
-          />
-        </div>
-        {/* Decorative circle (light only — the dark card is bordered) */}
-        <span className="pointer-events-none absolute -bottom-10 -right-8 h-32 w-32 rounded-full bg-white/10 dark:hidden" />
-      </Link>
-
-      {/* Order history */}
-      <section className="mb-4 mt-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-text">
-            Historial de pedidos
-          </h2>
-          {pedidos.length > 0 && (
-            <Link
-              href={routes.pedidos}
-              className="text-xs font-bold uppercase tracking-wider text-primary"
-            >
-              Ver todos
-            </Link>
+        <>
+          {/* Hero: the active order, or a welcome headline when there's none */}
+          {activo ? (
+            <div className="mb-6">
+              <ActiveOrderCard pedido={activo} tasas={tasas} />
+            </div>
+          ) : (
+            <section className="mb-6 mt-2">
+              <h1 className="font-display text-[30px] font-bold leading-tight tracking-tight text-text">
+                ¿Qué quieres
+                <br />
+                <span className="text-primary">traer hoy?</span>
+              </h1>
+            </section>
           )}
-        </div>
 
-        {recientes.length === 0 ? (
-          <EmptyOrders />
-        ) : (
-          <ul className="space-y-3">
-            {recientes.map((p) => (
-              <li key={p.id}>
-                <OrderRow pedido={p} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          {/* Primary CTA — solid in light, gradient-bordered card in dark */}
+          <Link
+            href={routes.nuevoPedido}
+            className="relative block w-full overflow-hidden rounded-[24px] bg-primary p-0.5 text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.28)] transition active:scale-[0.97] dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:shadow-[0_0_24px_rgba(196,82,35,0.25)]"
+          >
+            <div className="relative z-10 flex items-center gap-4 rounded-[22px] p-[22px] dark:bg-bg">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 dark:bg-gradient-to-br dark:from-primary dark:to-[#8b3a2e] dark:text-black">
+                <IconPlus size={26} />
+              </span>
+              <span className="min-w-0">
+                <span className="mb-1 block text-lg font-bold leading-none dark:text-text">
+                  Hacer un pedido
+                </span>
+                <span className="text-sm text-white/80 dark:text-muted">
+                  Pega tus enlaces de SHEIN
+                </span>
+              </span>
+              <IconChevronRight
+                size={20}
+                className="ml-auto shrink-0 text-white/60 dark:text-primary"
+              />
+            </div>
+            {/* Decorative circle (light only — the dark card is bordered) */}
+            <span className="pointer-events-none absolute -bottom-10 -right-8 h-32 w-32 rounded-full bg-white/10 dark:hidden" />
+          </Link>
 
-      {/* Today's rate — peeks in on scroll */}
-      <ExchangeBanner tasas={tasas} />
+          {/* Order history */}
+          <section className="mb-4 mt-8">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold text-text">
+                Historial de pedidos
+              </h2>
+              <Link
+                href={routes.pedidos}
+                className="text-xs font-bold uppercase tracking-wider text-primary"
+              >
+                Ver todos
+              </Link>
+            </div>
+
+            <ul className="space-y-3">
+              {recientes.map((p) => (
+                <li key={p.id}>
+                  <OrderRow pedido={p} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
     </AppShell>
   );
 }
@@ -129,8 +130,8 @@ export default async function DashboardPage() {
 /** Prompt to complete the profile (name + phone) before ordering. Teal = trust. */
 function ProfileAlert() {
   return (
-    <div className="mb-6 flex items-center gap-3.5 rounded-3xl border border-primary/30 bg-surface p-4">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg text-primary shadow-sm">
+    <div className="mb-6 flex items-center gap-3.5 rounded-3xl border border-primary/30 bg-[#FFFCF7] p-4 shadow-sm dark:bg-surface">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-sm dark:bg-bg">
         <IconUserCheck size={20} />
       </span>
       <p className="min-w-0 flex-1 text-[13px] leading-tight text-text">
@@ -160,7 +161,7 @@ function OrderRow({ pedido }: { pedido: PedidoResumen }) {
   return (
     <Link
       href={routes.pedido(pedido.id)}
-      className="group flex items-center justify-between gap-3 rounded-3xl border border-border bg-surface p-4 transition active:scale-[0.98]"
+      className="group flex items-center justify-between gap-3 rounded-3xl border border-black/[0.06] bg-[#FFFCF7] p-4 shadow-sm transition active:scale-[0.98] dark:border-border dark:bg-surface"
     >
       <div className="flex min-w-0 items-center gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent">
@@ -199,16 +200,53 @@ function OrderRow({ pedido }: { pedido: PedidoResumen }) {
   );
 }
 
-function EmptyOrders() {
+/** First-run state: no orders yet. One inviting card with the CTA inside,
+ *  plus a "how it works" link below. "traer hoy" in teal = our accent. */
+function EmptyState() {
   return (
-    <div className="flex aspect-[16/9] w-full flex-col items-center justify-center rounded-[28px] border-2 border-dashed border-border bg-surface/40 px-6 text-center">
-      <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-muted">
-        <IconBox size={24} />
-      </span>
-      <p className="font-medium text-muted">Tus pedidos aparecerán aquí.</p>
-      <p className="mt-1 text-xs text-muted/70">
-        Copia un link de SHEIN para comenzar
-      </p>
+    <div className="mt-2">
+      <div className="relative overflow-hidden rounded-[28px] border border-black/[0.05] bg-[#FFFCF7] px-6 py-10 text-center shadow-[0_6px_24px_-6px_rgba(0,0,0,0.08)] dark:border-border dark:bg-surface">
+        {/* Decorative package mark */}
+        <div className="relative mx-auto mb-7 h-24 w-24">
+          <span className="flex h-24 w-24 items-center justify-center rounded-full bg-surface text-primary/20 dark:bg-bg dark:text-primary/25">
+            <IconBox size={46} />
+          </span>
+          <span className="absolute bottom-0 right-1 h-9 w-9 rounded-2xl border border-black/[0.04] bg-[#FFFCF7] shadow-sm dark:border-border dark:bg-surface" />
+        </div>
+
+        <h1 className="font-display text-[26px] font-bold leading-tight tracking-tight text-text">
+          ¿Qué quieres
+          <br />
+          <span className="text-accent">traer hoy?</span>
+        </h1>
+
+        <p className="mt-4 text-sm font-bold text-text">
+          Tus pedidos aparecerán aquí.
+        </p>
+        <p className="mx-auto mt-1 max-w-[15rem] text-xs text-muted">
+          Copia un link de SHEIN para comenzar
+        </p>
+
+        <Link
+          href={routes.nuevoPedido}
+          className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-bold text-white shadow-[0_12px_30px_-8px_rgba(196,82,42,0.32)] transition active:scale-[0.97]"
+        >
+          <IconPlus size={18} />
+          Hacer tu primer pedido
+        </Link>
+      </div>
+
+      {/* How it works */}
+      <div className="mt-4 flex justify-center">
+        <Link
+          href={routes.sobreNosotros}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[#FFFCF7] px-4 py-2 text-xs font-medium text-muted shadow-sm transition active:scale-[0.97] dark:bg-surface"
+        >
+          <IconHelp size={14} />
+          ¿Cómo funciona Traelo?
+          <IconChevronRight size={13} className="text-muted/60" />
+        </Link>
+      </div>
     </div>
   );
 }

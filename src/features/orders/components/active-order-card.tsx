@@ -17,9 +17,21 @@ import {
   MILESTONE_LABEL,
   milestoneDe,
   milestoneIndex,
+  type Milestone,
 } from "@/features/orders/domain/estados";
 import { convertirUsd, fmtCup, type TasasCambio } from "@/features/cambio/domain";
 import type { PedidoResumen } from "@/features/orders/queries";
+
+/** Short labels for the compact horizontal timeline (the full names live on the
+ *  expanded list + the tracking page). */
+const MILESTONE_CORTO: Record<Milestone, string> = {
+  cotizacion: "Cotización",
+  pago: "Pago",
+  compra: "Compra",
+  preparacion: "Envío",
+  transito: "Rumbo",
+  entrega: "Entrega",
+};
 
 /**
  * "Your current order" hero for the home — answers "where's my order?" at a
@@ -45,12 +57,7 @@ export function ActiveOrderCard({
   const tieneEvidencia = !!pedido.peso_evidencia_url;
 
   return (
-    <section
-      className={cn(
-        "rounded-[28px] border bg-surface p-5 shadow-[0_14px_34px_-14px_rgba(196,82,42,0.22)]",
-        precioListo ? "border-primary/50" : "border-border",
-      )}
-    >
+    <section className="rounded-[28px] border border-black/[0.05] bg-[#FFFCF7] p-5 shadow-[0_6px_24px_-6px_rgba(0,0,0,0.08)] dark:border-border dark:bg-surface">
       {/* Header — milestone + id + value, with a package mark */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -93,33 +100,44 @@ export function ActiveOrderCard({
           )}
         </div>
 
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-bg text-muted">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-muted dark:bg-bg">
           <Package2 size={22} />
         </span>
       </div>
 
-      {/* Horizontal milestone timeline */}
-      <div className="relative mb-1 mt-6 px-1">
-        <div className="absolute left-3 right-3 top-3 h-0.5 bg-border" />
-        <div className="relative z-10 flex justify-between">
+      {/* Horizontal milestone timeline — colored dots + labels per state */}
+      <div className="relative mb-1 mt-6">
+        <div className="absolute left-[8.333%] right-[8.333%] top-3 h-0.5 bg-border" />
+        <div className="relative z-10 flex">
           {MILESTONES.map((m, i) => {
             const completado = i < actual;
             const esActual = i === actual;
             return (
-              <span
-                key={m}
-                className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-surface",
-                  completado && "bg-accent text-white",
-                  esActual && "border-2 border-primary bg-surface",
-                  !completado && !esActual && "bg-border",
-                )}
-              >
-                {completado && <Check size={13} />}
-                {esActual && (
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-                )}
-              </span>
+              <div key={m} className="flex flex-1 flex-col items-center gap-1.5">
+                <span
+                  className={cn(
+                    "flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-white dark:ring-surface",
+                    completado && "bg-accent text-white",
+                    esActual && "border-2 border-primary bg-white dark:bg-surface",
+                    !completado && !esActual && "bg-border",
+                  )}
+                >
+                  {completado && <Check size={13} />}
+                  {esActual && (
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+                  )}
+                </span>
+                <span
+                  className={cn(
+                    "text-center text-[8px] font-bold uppercase leading-tight tracking-tight",
+                    completado && "text-accent",
+                    esActual && "text-primary",
+                    !completado && !esActual && "text-muted/50",
+                  )}
+                >
+                  {MILESTONE_CORTO[m]}
+                </span>
+              </div>
             );
           })}
         </div>
